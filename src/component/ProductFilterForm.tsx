@@ -4,7 +4,7 @@ import z from "zod"
 
 
 type Inputs = {
-    search: string,
+    search: string
     category: "all" | "beds" | "sofa" | "chairs"
     company: "all" | "Homeland" | "flix" | "comfoma"
     sortBy: "a-z" | "z-a" | "low-high" | "high-low"

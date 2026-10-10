@@ -8,7 +8,8 @@ function FeaturedProduct() {
 
             <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
-                <div className="hover:shadow-primary-dark overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg">
+                <div className="hover:shadow-primary-dark overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg"
+                >
                     <img
                         className="h-56 w-full object-cover"
                         src="https://images.pexels.com/photos/2959595/pexels-photo-2959595.jpeg?auto=compress&cs=tinysrgb&w=800"

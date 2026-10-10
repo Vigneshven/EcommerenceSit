@@ -3,6 +3,7 @@ import Home from "../component/Home"
 import About from "../component/About"
 import Product from "../component/Product"
 import Cart from "../component/Cart"
+import ProductDetails from "../component/ProductDetails"
 
 function AppRoutes() {
   return (
@@ -12,6 +13,7 @@ function AppRoutes() {
         <Route path="/about" element={<About/>} />
         <Route path="/product" element={<Product/>} />
         <Route path="/cart" element={<Cart/>}/>
+        <Route path="/product/:id" element={<ProductDetails/>}/>
 
       </Routes>
 
