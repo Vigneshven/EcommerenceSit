@@ -34,15 +34,15 @@ function ProductFilterForm() {
     }
 
     return (
-        <div className="h-60 mt-10 flex justify-center items-center p-4">
+        <div className="h-60 mt-10 flex justify-center items-center p-6">
 
-            <form className=" p-10 bg-blue-100 rounded-2xl" onSubmit={handleSubmit(onSubmit)}>
+            <form className=" p-10 bg-primary-light rounded-2xl" onSubmit={handleSubmit(onSubmit)}>
 
-                <div className="flex flex-row flex-wrap gap-x-4 gap-y-6">
+                <div className="flex flex-row flex-wrap gap-x-4 gap-y-10">
 
 
                     <div className="basis-[calc(25%-12px)] flex flex-col">
-                        <label>Search Product</label>
+                        <label className="font-sans">Search Product</label>
                         <input className="bg-amber-50 rounded-2xl p-1"{...register("search")} placeholder="search product" />
                         
                         {
@@ -93,7 +93,7 @@ function ProductFilterForm() {
 
 
                     <div className="basis-[calc(25%-12px)] flex flex-col justify-center items-center
-                 bg-blue-800 text-white rounded-2xl"><button>Search</button></div>
+                 bg-primary text-white rounded-2xl"><button>Search</button></div>
 
                     <div className="basis-[calc(25%-12px)] flex flex-col justify-center items-center
                  bg-pink-500 text-white rounded-2xl"><button>Reset</button></div>

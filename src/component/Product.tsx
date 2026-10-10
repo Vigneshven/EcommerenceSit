@@ -1,6 +1,7 @@
 import Account from "./Account"
 import Header from "./Header"
 import ProductFilterForm from "./ProductFilterForm"
+import ShowProduct from "./ShowProduct"
 
 function Product() {
     return (
@@ -9,8 +10,12 @@ function Product() {
                 <Account />
                 <Header />
             </div>
-            <div>
+            <div className="flex flex-1 justify-center items-center gap-3 mt-10">
                 <ProductFilterForm/>
+            </div>
+
+            <div>
+                <ShowProduct/>
             </div>
 
         </div>

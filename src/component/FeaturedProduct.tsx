@@ -1,6 +1,6 @@
 function FeaturedProduct() {
     return (
-        <div className="flex flex-1 flex-col gap-5">
+        <div className="flex w-full flex-col gap-5">
 
             <h2 className="mx-auto text-2xl font-sans self-start">Featured Products</h2>
 
