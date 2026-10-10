@@ -8,7 +8,7 @@ function About() {
                 <Account />
                 <Header />
             </div>
-            <div className="flex flex-1 flex-col gap-15 mt-20 items-center">
+            <div className="w-full max-w-7xl px-6 mx-auto mt-20 flex flex-col items-center gap-15">
                 <p className="text-6xl text-text-light font-bold">We love 
                     <span className="bg-primary ml-3 p-3 rounded-2xl text-4xl w-5.5xl text-text-light-bold">comfy</span></p>
                 <p className=" text-lg text-text-light">

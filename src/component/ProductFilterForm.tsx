@@ -17,7 +17,7 @@ const schema = z.object({
     category: z.enum(["all", "beds", "sofa", "chairs"]),
     company: z.enum(["all", "Homeland", "flix", "comfoma"]),
     sortBy: z.enum(["a-z", "z-a", "low-high", "high-low"]),
-    free_shipping: z.string(),
+    free_shipping: z.boolean(),
     selling_price: z.number(),
 
 })
@@ -34,9 +34,9 @@ function ProductFilterForm() {
     }
 
     return (
-        <div className="h-60 mt-10 flex justify-center items-center p-6">
+        <div className="mt-10 flex w-full items-center justify-center">
 
-            <form className=" p-10 bg-primary-light rounded-2xl" onSubmit={handleSubmit(onSubmit)}>
+            <form className="w-full rounded-2xl bg-primary-light p-10" onSubmit={handleSubmit(onSubmit)}>
 
                 <div className="flex flex-row flex-wrap gap-x-4 gap-y-10">
 

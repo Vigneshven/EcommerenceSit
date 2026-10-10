@@ -10,13 +10,13 @@ function Cart() {
                 <Header />
             </div>
 
-            <div className="ml-200 mt-15 flex flex-1 justify-start">
+            <div className="w-full max-w-7xl px-6 mx-auto mt-15 flex justify-start">
 
                 <h2 className="text-3xl font-sans text-primary-dark">Your cart is empty</h2>
             </div>
 
-            <div className="flex flex-1 justify-center items-center mt-4">
-                <hr className="mx-auto w-6xl border-primary-light border-t-2"/>
+            <div className="w-full max-w-7xl px-6 mx-auto mt-4">
+                <hr className="w-full border-primary-light border-t-2"/>
             </div>
 
 

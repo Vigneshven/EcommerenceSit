@@ -3,7 +3,7 @@ import { Grid2X2, Menu } from "lucide-react"
 function ShowProduct() {
     return (
         <>
-            <div className="w-full flex flex-1 justify-center items-center gap-x-230 mt-8 gap-0">
+            <div className="mt-8 flex w-full items-center justify-between">
 
                 <div>
                     <h4>21 Product</h4>
@@ -16,10 +16,10 @@ function ShowProduct() {
             </div>
 
             <div className="flex flex-1 justify-center items-center mt-4">
-                <hr className="mx-auto w-6xl border-primary-light border-t-2"/>
+                <hr className="w-full border-primary-light border-t-2"/>
             </div>
 
-            <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-6 p-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
                 <div className="hover:shadow-primary-dark overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg">
                     <img
@@ -62,7 +62,7 @@ function ShowProduct() {
 
             </div>
 
-            <div className="mx-auto mt-6 flex w-full max-w-5xl justify-end gap-3 p-4">
+            <div className="mt-6 flex w-full justify-end gap-3">
                 <div className="bg-primary-light text-primary-dark hover:text-primary-light"><button>PREV</button></div>
                 <div className="bg-primary-light text-primary-dark hover:text-primary-light"><button>1</button></div>
                 <div className="bg-primary-light text-primary-dark hover:text-primary-light"><button>2</button></div>

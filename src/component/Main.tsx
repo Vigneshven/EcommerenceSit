@@ -3,20 +3,20 @@ import FeaturedProduct from "./FeaturedProduct"
 function Main() {
     return (
         <>
-            <div className="mx-auto w-full max-w-10xl px-6">
-                <div className="flex flex-1 justify-center items-center p-4">
+            <div className="w-full max-w-7xl px-6 mx-auto">
+                <div className="flex items-center justify-between gap-10 py-12">
 
-                    <div className=" flex flex-col items-start gap-10">
-                        <p className="w-full font-extrabold text-text-light text-5xl ml-75">
+                    <div className="flex max-w-xl flex-col items-start gap-10">
+                        <p className="w-full text-5xl font-extrabold text-text-light">
                             We are changing <br />the way people <br />shop
                         </p>
 
-                        <p className="w-full  text-text-light ml-75">Lorem ipsum, dolor sit amet consectetur adipisicing elit.<br />
+                        <p className="w-full text-text-light">Lorem ipsum, dolor sit amet consectetur adipisicing elit.<br />
                             Tempore repellat explicabo enim soluta temporibus asperiores <br />aut obcaecati perferendis porro nobis.</p>
 
-                        <button className="bg-primary text-text-light font-bold rounded-2xl p-4 ml-75">OUR PRODUCTS</button>
+                        <button className="rounded-2xl bg-primary p-4 font-bold text-text-light">OUR PRODUCTS</button>
                     </div>
-                    <div className="mt-10 ml-auto mr-85 flex w-1/3 gap-3 bg-primary-dark rounded-3xl">
+                    <div className="flex w-1/2 gap-3 rounded-3xl bg-primary-dark">
 
                         <img
                             className=" border-8  rounded-3xl h-110 min-w-0 flex-7 object-cover"

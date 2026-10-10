@@ -4,9 +4,9 @@ function FeaturedProduct() {
 
             <h2 className="mx-auto text-2xl font-sans self-start">Featured Products</h2>
 
-            <hr className="mx-auto w-6xl border-primary-light border-t-2"/>
+            <hr className="w-full border-primary-light border-t-2"/>
 
-            <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-6 p-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 
                 <div className="hover:shadow-primary-dark overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:shadow-lg">
                     <img

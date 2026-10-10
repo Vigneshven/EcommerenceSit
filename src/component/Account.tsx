@@ -1,7 +1,7 @@
 function Account() {
     return (
-        <div className="w-full flex flex-1 justify-end gap-6 bg-primary-dark ">
-            <div className="w-full flex flex-1 justify-end items-end mr-80 gap-6 text-primary-light">
+        <div className="w-full bg-primary-dark">
+            <div className="w-full max-w-7xl px-6 mx-auto flex justify-end gap-6 py-2 text-primary-light">
                 <h3>
                     Sign in/Guest
                 </h3>

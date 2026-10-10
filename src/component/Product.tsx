@@ -10,11 +10,11 @@ function Product() {
                 <Account />
                 <Header />
             </div>
-            <div className="flex flex-1 justify-center items-center gap-3 mt-10">
+            <div className="w-full max-w-7xl px-6 mx-auto mt-10 flex items-center justify-center gap-3">
                 <ProductFilterForm/>
             </div>
 
-            <div>
+            <div className="w-full max-w-7xl px-6 mx-auto">
                 <ShowProduct/>
             </div>
 
