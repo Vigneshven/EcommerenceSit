@@ -9,9 +9,9 @@ function About() {
                 <Header />
             </div>
             <div className="flex flex-1 flex-col gap-15 mt-14 items-center">
-                <p className="text-5xl font-extrabold text-shadow-black">We love 
-                    <span className="bg-blue-400 p-3 rounded-2xl text-white">comfy</span></p>
-                <p className="text-1 font-bold">
+                <p className="text-5xl text-text-light font-bold  text-shadow-black">We love 
+                    <span className="bg-primary p-2 rounded-2xl text- text-text-light-bold">comfy</span></p>
+                <p className=" text-text-light">
                     Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br />
                     Tempore quae quam blanditiis vitae, dolor non eveniet ipsum voluptatibus,<br />
                     quia optio aut! Perferendis ipsa cumque ipsam nostrum <br />
