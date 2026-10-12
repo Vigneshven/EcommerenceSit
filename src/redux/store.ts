@@ -2,6 +2,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import filterReducer from "./filterSlice"
 import { persistReducer, persistStore } from "redux-persist";
 import shopReducer from "./shopSlice"
+import themeReducer from "./themeSlice"
 import storageModule from "redux-persist/lib/storage";
 
 const storage = storageModule.default ?? storageModule;
@@ -21,6 +22,7 @@ const persistedReducer = persistReducer(
 const rootReducer = combineReducers({
     filters: filterReducer,
     shop: persistedReducer,
+    theme: themeReducer,
 });
 
 export const store = configureStore({

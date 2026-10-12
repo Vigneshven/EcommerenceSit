@@ -12,6 +12,9 @@ function ShowProduct() {
 
     const [currentPage, setCurrentPage] = useState(1)
 
+
+    const [view, setView] = useState<"grid" | "list">("grid")
+
     const productsPerPage = 9;
 
     const handleProductClick = (id: number): void => {
@@ -33,7 +36,7 @@ function ShowProduct() {
             let result = [...products]
 
             if (filters.search.trim()) {
-                result = result.filter((product) => 
+                result = result.filter((product) =>
                     product.name.toLowerCase().includes(filters.search.trim().toLowerCase())
                 )
             }
@@ -110,8 +113,10 @@ function ShowProduct() {
                 </div>
 
                 <div className="flex gap-4">
-                    <button><Grid2X2 /></button>
-                    <button><Menu /></button>
+                    <button type="button" onClick={() => setView("grid")}
+                        className={view === "grid" ? "bg-primary rounded-1xl" : "text-primary-dark"}><Grid2X2 /></button>
+                    <button type="button" onClick={() => setView("list")}
+                        className={view === "list" ? "bg-primary rounded-1xl" : "text-primary-dark"}><Menu /></button>
                 </div>
             </div>
 
@@ -119,26 +124,46 @@ function ShowProduct() {
                 <hr className="w-full border-primary-light border-t-2" />
             </div>
 
-            <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className={view === "grid" ? "grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3" :
+                "flex flex-col gap-5"
+            }>
 
                 {currentProducts.map((product) => (
                     <div
                         key={product.id}
                         onClick={() => handleProductClick(product.id)}
-                        className="cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow transition hover:shadow-lg hover:bg-primary-light"
+                        className={`cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow transition hover:shadow-lg hover:bg-primary-light
+                            ${view === "grid" ? "" : "flex items-center gap-3 p-4"}
+                            
+                            `}
                     >
                         <img
-                            className="h-56 w-full object-cover"
+                            className={view === "grid" ? "h-56 w-full object-cover"
+                                : "h-28 w-28 shrink-0 rounded-lg object-cover"}
                             src={product.image}
                             alt={product.name}
                         />
 
-                        <div className="flex flex-col items-center justify-center p-4">
-                            <h2 className="text-lg font-semibold text-text-light">
-                                {product.name}
-                            </h2>
+                        <div
+                            className={
+                                view === "grid"
+                                    ? "flex flex-col items-center justify-center p-4"
+                                    : "flex min-w-0 flex-1 items-center justify-between gap-4"
+                            }
+                        >
+                            <div className={view === "grid" ? "" : "min-w-0"}>
+                                <h2 className="text-lg font-semibold text-text-light">
+                                    {product.name}
+                                </h2>
 
-                            <span className="mt-2 block font-medium text-primary">
+                                {view === "list" && (
+                                    <p className="mt-1 text-sm text-gray-500">
+                                        {product.company}
+                                    </p>
+                                )}
+                            </div>
+
+                            <span className="mt-2 block shrink-0 font-medium text-primary">
                                 {product.price}
                             </span>
                         </div>

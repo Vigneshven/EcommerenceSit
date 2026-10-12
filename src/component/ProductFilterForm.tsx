@@ -107,7 +107,8 @@ function ProductFilterForm() {
                         </select></div>
 
                     <div className="basis-[calc(25%-12px)] flex flex-col"><label>Select Price  {selectedPrice}</label>
-                        <input type="range" min={0} max={5000} {...register("selling_price", { valueAsNumber: true })} /></div>
+                        <input type="range" min={0} max={5000} {...register("selling_price", { valueAsNumber: true })} />
+                        </div>
 
                     <div className="basis-[calc(25%-12px)] flex flex-col justify-center items-center"><label>Free Shipping</label>
                         <input type="checkbox" {...register("free_shipping")} /></div>
