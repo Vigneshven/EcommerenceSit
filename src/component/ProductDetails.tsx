@@ -4,14 +4,17 @@ import { useState } from "react"
 import Account from "./Account"
 import Header from "./Header"
 import ColorSelector from "./ColorSelector"
+import { useDispatch, useSelector } from "react-redux"
+import type { AppDispatch, RootState } from "../redux/store"
+import { addToCart } from "../redux/shopSlice"
 
 type ProductDetails = {
     id: number
     image: string
     name: string
     company: string
-    category:"kids"|"beds"|"sofa"|"chairs"
-    free_shipping:boolean
+    category: "kids" | "beds" | "sofa" | "chairs"
+    free_shipping: boolean
     price: string
     description: string
     amount: "1" | "2" | "3" | "4" | "5"
@@ -24,6 +27,9 @@ function ProductDetails() {
 
 
     const [amount, setAmount] = useState("1")
+    const dispatch = useDispatch<AppDispatch>()
+
+    const selectedColor = useSelector((state:RootState)=>state.shop.selectedColor)
 
     if (!product) {
         return <h2>Product Not Found</h2>
@@ -65,7 +71,7 @@ function ProductDetails() {
                         <h3 className="text-lg font-semibold text-text-light">
                             Colors
                         </h3>
-                        <ColorSelector/>
+                        <ColorSelector />
 
                         <div className="flex flex-col gap-2">
                             <label htmlFor="amount" className="font-semibold">
@@ -89,6 +95,11 @@ function ProductDetails() {
                         <button
                             type="button"
                             className="rounded-2xl bg-primary px-6 py-4 font-bold text-text-light hover:opacity-90"
+                            onClick={() => dispatch(addToCart({
+                                id: product.id, image: product.image,
+                                name: product.name, company: product.company, price: product.price,
+                                amount: Number(amount), color: selectedColor
+                            }))}
                         >
                             ADD TO BAG
                         </button>

@@ -26,7 +26,6 @@ function ShowProduct() {
 
     const {
         data: filterProducts = [],
-        isError,
     } = useQuery({
         queryKey: ["products", filters],
 

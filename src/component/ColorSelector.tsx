@@ -1,7 +1,12 @@
-import { useState } from "react"
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
+import { setSelectedColor } from "../redux/shopSlice";
 
 function ColorSelector() {
-    const [selectedColor,setSelectorColor] = useState("pink");
+
+    const dispatch = useDispatch()
+
+    const selectedColor = useSelector((state:RootState)=>state.shop.selectedColor)
 
     const colors = [
         {name:"pink",circleColor:"bg-pink"},
@@ -16,7 +21,7 @@ function ColorSelector() {
             return(
             <button
             key={color.name}
-            onClick={()=>setSelectorColor(color.name)}
+            onClick={()=>dispatch(setSelectedColor(color.name))}
             className={`h-8 w-8 rounded-full ${color.circleColor} ${
                 selectedColor === color.name?"ring-2 ring-black":""}`}
             />)

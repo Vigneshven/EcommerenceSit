@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux"
 import z from "zod"
 import type { AppDispatch } from "../redux/store"
 import { resetFilters, setFilters } from "../redux/filterSlice"
+import Button from "./Button"
 
 
 export type Inputs = {
@@ -16,7 +17,7 @@ export type Inputs = {
 }
 
 const schema = z.object({
-    search: z.string().min(2, "Enter atleast 2 character"),
+    search: z.string(),
     category: z.enum(["all", "beds", "sofa", "chairs"]),
     company: z.enum(["all", "Homeland", "flix", "comfoma"]),
     sortBy: z.enum(["a-z", "z-a", "low-high", "high-low"]),
@@ -27,17 +28,19 @@ const schema = z.object({
 
 function ProductFilterForm() {
 
-    const { register, handleSubmit, /*formState : { errors },*/reset
-     } = useForm<Inputs>({ resolver: zodResolver(schema),
-        defaultValues:{
-            search:"",
-            category:"all",
-            company:"all",
-            sortBy:"a-z",
-            selling_price:4000,
-            free_shipping:false
+    const { register, handleSubmit, /*formState : { errors },*/reset,
+        watch
+    } = useForm<Inputs>({
+        resolver: zodResolver(schema),
+        defaultValues: {
+            search: "",
+            category: "all",
+            company: "all",
+            sortBy: "a-z",
+            selling_price: 4000,
+            free_shipping: false
         }
-      })
+    })
 
     const dispatch = useDispatch<AppDispatch>()
 
@@ -45,10 +48,19 @@ function ProductFilterForm() {
         dispatch(setFilters(data))
     }
 
-    const onReset = ()=>{
-        reset();
+    const onReset = () => {
+        reset({
+            search: "",
+            category: "all",
+            company: "all",
+            sortBy: "a-z",
+            selling_price: 4000,
+            free_shipping: false
+        });
         dispatch(resetFilters())
     }
+
+    const selectedPrice = watch("selling_price")
 
     return (
         <div className="mt-10 flex w-full items-center justify-center">
@@ -61,10 +73,10 @@ function ProductFilterForm() {
                     <div className="basis-[calc(25%-12px)] flex flex-col">
                         <label className="font-sans">Search Product</label>
                         <input className="bg-amber-50 rounded-2xl p-1"{...register("search")} placeholder="search product" />
-                        
-                        </div>
 
-                        
+                    </div>
+
+
 
                     <div className="basis-[calc(25%-12px)] flex flex-col"><label>Select Category</label>
 
@@ -94,18 +106,16 @@ function ProductFilterForm() {
                             <option value="high-low">high-low</option>
                         </select></div>
 
-                    <div className="basis-[calc(25%-12px)] flex flex-col"><label>Select Price </label>
-                        <input type="range" min={0} max={5000} {...register("selling_price")} /></div>
+                    <div className="basis-[calc(25%-12px)] flex flex-col"><label>Select Price  {selectedPrice}</label>
+                        <input type="range" min={0} max={5000} {...register("selling_price", { valueAsNumber: true })} /></div>
 
                     <div className="basis-[calc(25%-12px)] flex flex-col justify-center items-center"><label>Free Shipping</label>
                         <input type="checkbox" {...register("free_shipping")} /></div>
 
 
-                    <div className="basis-[calc(25%-12px)] flex flex-col justify-center items-center
-                 bg-primary text-white rounded-2xl"><button type="submit">Search</button></div>
+                    <Button type="submit" varient="primary">Search</Button>
 
-                    <div className="basis-[calc(25%-12px)] flex flex-col justify-center items-center
-                 bg-pink-500 text-white rounded-2xl"><button type="button" onClick={onReset}>Reset</button></div>
+                    <Button type="button" onClick={onReset} varient="reset">Reset</Button>
 
                 </div>
 

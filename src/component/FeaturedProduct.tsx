@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom"
 import { products } from "../data/productsdata"
-import { useMemo } from "react"
 
 function FeaturedProduct() {
 
@@ -10,9 +9,7 @@ function FeaturedProduct() {
         navigate(`/product/${id}`)
     }
 
-    const featureproducts = useMemo(()=>{
-        return[...products].sort(()=>Math.random()-0.5).slice(0,8)
-    },[])
+    const featureproducts = products.slice(0, 8)
 
     return (
         <div className="flex w-full flex-col gap-5">

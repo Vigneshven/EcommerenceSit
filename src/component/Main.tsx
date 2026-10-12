@@ -5,7 +5,7 @@ function Main() {
 
     const navigate = useNavigate()
 
-    const handleClickOurProduct = (event:React.MouseEvent<HTMLButtonElement>):void=>{
+    const handleClickOurProduct = (): void => {
         navigate("/product")
     }
 
