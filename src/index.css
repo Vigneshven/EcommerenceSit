@@ -10,4 +10,13 @@
     --color-text-dark: #c7c9d1;
     --color-text-light: #394e6a;
     --color-text-light-bold: #dbe1ff;
+
+    /* product color circle */
+
+    --color-pink: #F472B6;
+    --color-green: #86EFAC;
+    --color-yellow: #FACC15;
+    --color-red: #EF4444;
+    --color-blue: #3B82F6;
+
 }
