@@ -1,9 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+import { useDispatch } from "react-redux"
 import z from "zod"
+import type { AppDispatch } from "../redux/store"
+import { resetFilters, setFilters } from "../redux/filterSlice"
 
 
-type Inputs = {
+export type Inputs = {
     search: string
     category: "all" | "beds" | "sofa" | "chairs"
     company: "all" | "Homeland" | "flix" | "comfoma"
@@ -24,13 +27,27 @@ const schema = z.object({
 
 function ProductFilterForm() {
 
+    const { register, handleSubmit, /*formState : { errors },*/reset
+     } = useForm<Inputs>({ resolver: zodResolver(schema),
+        defaultValues:{
+            search:"",
+            category:"all",
+            company:"all",
+            sortBy:"a-z",
+            selling_price:4000,
+            free_shipping:false
+        }
+      })
 
-
-    const { register, handleSubmit, formState : { errors }, } = useForm<Inputs>({ resolver: zodResolver(schema) })
+    const dispatch = useDispatch<AppDispatch>()
 
     const onSubmit = (data: Inputs) => {
-        console.log(data)
+        dispatch(setFilters(data))
+    }
 
+    const onReset = ()=>{
+        reset();
+        dispatch(resetFilters())
     }
 
     return (
@@ -44,14 +61,6 @@ function ProductFilterForm() {
                     <div className="basis-[calc(25%-12px)] flex flex-col">
                         <label className="font-sans">Search Product</label>
                         <input className="bg-amber-50 rounded-2xl p-1"{...register("search")} placeholder="search product" />
-                        
-                        {
-                            errors.search && (
-                                <span className="text-red-500">
-                                    {errors.search.message}
-                                </span>
-                            )
-                        }
                         
                         </div>
 
@@ -86,25 +95,21 @@ function ProductFilterForm() {
                         </select></div>
 
                     <div className="basis-[calc(25%-12px)] flex flex-col"><label>Select Price </label>
-                        <input type="range" {...register("selling_price")} /></div>
+                        <input type="range" min={0} max={5000} {...register("selling_price")} /></div>
 
                     <div className="basis-[calc(25%-12px)] flex flex-col justify-center items-center"><label>Free Shipping</label>
                         <input type="checkbox" {...register("free_shipping")} /></div>
 
 
                     <div className="basis-[calc(25%-12px)] flex flex-col justify-center items-center
-                 bg-primary text-white rounded-2xl"><button>Search</button></div>
+                 bg-primary text-white rounded-2xl"><button type="submit">Search</button></div>
 
                     <div className="basis-[calc(25%-12px)] flex flex-col justify-center items-center
-                 bg-pink-500 text-white rounded-2xl"><button>Reset</button></div>
+                 bg-pink-500 text-white rounded-2xl"><button type="button" onClick={onReset}>Reset</button></div>
 
                 </div>
 
             </form>
-
-
-
-
         </div>
     )
 }
