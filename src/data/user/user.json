@@ -71,6 +71,12 @@
       "email": "frog12@gmail.com",
       "password": "frog123",
       "id": 12
+    },
+    {
+      "username": "fgd",
+      "email": "fg12@gmail.com",
+      "password": "gt12334",
+      "id": 13
     }
   ]
 }
