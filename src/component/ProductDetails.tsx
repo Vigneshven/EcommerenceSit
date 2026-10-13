@@ -56,7 +56,7 @@ function ProductDetails() {
                             {product.name}
                         </h1>
 
-                        <h3 className="text-lg text-gray-500">
+                        <h3 className="text-lg text-muted-text">
                             {product.company}
                         </h3>
 
@@ -82,7 +82,7 @@ function ProductDetails() {
                                 id="amount"
                                 value={amount}
                                 onChange={(e) => setAmount(e.target.value)}
-                                className="w-24 rounded-lg border border-gray-300 p-2"
+                                className="w-24 rounded-lg border border-border bg-input-background p-2 text-heading"
                             >
                                 <option value="1">1</option>
                                 <option value="2">2</option>
@@ -94,7 +94,7 @@ function ProductDetails() {
 
                         <button
                             type="button"
-                            className="rounded-2xl bg-primary px-6 py-4 font-bold text-text-light hover:opacity-90"
+                            className="rounded-2xl bg-primary px-6 py-4 font-bold text-on-primary hover:opacity-90"
                             onClick={() => dispatch(addToCart({
                                 id: product.id, image: product.image,
                                 name: product.name, company: product.company, price: product.price,

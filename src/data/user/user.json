@@ -1,0 +1,64 @@
+{
+  "users": [
+    {
+      "username": "fast",
+      "email": "fast123@gmail.com",
+      "password": "fast123",
+      "id": 1
+    },
+    {
+      "username": "viki",
+      "email": "wtch12@gmail.com",
+      "password": "wtch12",
+      "id": 2
+    },
+    {
+      "username": "arts",
+      "email": "arts35@gmail.com",
+      "password": "arts35",
+      "id": 3
+    },
+    {
+      "username": "ddd",
+      "email": "ddd12@gmail.com",
+      "password": "dd112",
+      "id": 4
+    },
+    {
+      "username": "cat",
+      "email": "cat12@gmail.com",
+      "password": "cat123",
+      "id": 5
+    },
+    {
+      "username": "dog",
+      "email": "dog12@gmail.com",
+      "password": "dog12",
+      "id": 6
+    },
+    {
+      "username": "mouse",
+      "email": "mouse12@gmail.com",
+      "password": "mouse12",
+      "id": 7
+    },
+    {
+      "username": "ttt",
+      "email": "ttt123@gmail.com",
+      "password": "ttt13",
+      "id": 8
+    },
+    {
+      "username": "ggg",
+      "email": "ggg12@gmail.com",
+      "password": "ggg12",
+      "id": 9
+    },
+    {
+      "username": "sss",
+      "email": "sss12@gmail.com",
+      "password": "123456",
+      "id": 10
+    }
+  ]
+}

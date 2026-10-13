@@ -72,7 +72,7 @@ function ProductFilterForm() {
 
                     <div className="basis-[calc(25%-12px)] flex flex-col">
                         <label className="font-sans">Search Product</label>
-                        <input className="bg-amber-50 rounded-2xl p-1"{...register("search")} placeholder="search product" />
+                        <input className="rounded-2xl border border-border bg-input-background p-2 text-heading"{...register("search")} placeholder="search product" />
 
                     </div>
 
@@ -80,7 +80,7 @@ function ProductFilterForm() {
 
                     <div className="basis-[calc(25%-12px)] flex flex-col"><label>Select Category</label>
 
-                        <select className="bg-amber-50 rounded-2xl p-1"{...register("category")}>
+                        <select className="rounded-2xl border border-border bg-input-background p-2 text-heading"{...register("category")}>
                             <option value="all">all</option>
                             <option value="beds">beds</option>
                             <option value="sofa">sofa</option>
@@ -89,7 +89,7 @@ function ProductFilterForm() {
 
                     <div className="basis-[calc(25%-12px)] flex flex-col"><label>Select Company</label>
 
-                        <select className="bg-amber-50 rounded-2xl p-1"{...register("company")}>
+                        <select className="rounded-2xl border border-border bg-input-background p-2 text-heading"{...register("company")}>
                             <option value="all">all</option>
                             <option value="Homeland">Homeland</option>
                             <option value="flix">flix</option>
@@ -99,7 +99,7 @@ function ProductFilterForm() {
                     <div className="basis-[calc(25%-12px)] flex flex-col">
                         <label>SortBy</label>
 
-                        <select className="bg-amber-50 rounded-2xl p-1"{...register("sortBy")}>
+                        <select className="rounded-2xl border border-border bg-input-background p-2 text-heading"{...register("sortBy")}>
                             <option value="a-z">a-z</option>
                             <option value="z-a">z-a</option>
                             <option value="low-high">low-high</option>

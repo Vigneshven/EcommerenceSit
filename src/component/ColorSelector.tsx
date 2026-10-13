@@ -23,7 +23,7 @@ function ColorSelector() {
             key={color.name}
             onClick={()=>dispatch(setSelectedColor(color.name))}
             className={`h-8 w-8 rounded-full ${color.circleColor} ${
-                selectedColor === color.name?"ring-2 ring-black":""}`}
+                selectedColor === color.name?"ring-2 ring-heading":""}`}
             />)
         })}
 

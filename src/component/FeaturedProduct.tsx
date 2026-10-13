@@ -24,7 +24,7 @@ function FeaturedProduct() {
                     <div
                         key={product.id}
                         onClick={() => handleProductClick(product.id)}
-                        className="cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow transition hover:shadow-lg hover:bg-primary-light"
+                        className="cursor-pointer overflow-hidden rounded-xl border border-border bg-card-background shadow transition hover:bg-hover-background hover:shadow-lg"
                     >
                         <img
                             className="h-56 w-full object-cover"
@@ -33,7 +33,7 @@ function FeaturedProduct() {
                         />
 
                         <div className="flex flex-col items-center justify-center p-4">
-                            <h2 className="text-lg font-semibold text-text-light">
+                            <h2 className="text-lg font-semibold text-heading">
                                 {product.name}
                             </h2>
 

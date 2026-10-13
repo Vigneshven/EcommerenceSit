@@ -114,9 +114,9 @@ function ShowProduct() {
 
                 <div className="flex gap-4">
                     <button type="button" onClick={() => setView("grid")}
-                        className={view === "grid" ? "bg-primary rounded-1xl" : "text-primary-dark"}><Grid2X2 /></button>
+                        className={view === "grid" ? "rounded-lg bg-primary p-1 text-on-primary" : "rounded-lg p-1 text-heading hover:bg-hover-background"}><Grid2X2 /></button>
                     <button type="button" onClick={() => setView("list")}
-                        className={view === "list" ? "bg-primary rounded-1xl" : "text-primary-dark"}><Menu /></button>
+                        className={view === "list" ? "rounded-lg bg-primary p-1 text-on-primary" : "rounded-lg p-1 text-heading hover:bg-hover-background"}><Menu /></button>
                 </div>
             </div>
 
@@ -132,7 +132,7 @@ function ShowProduct() {
                     <div
                         key={product.id}
                         onClick={() => handleProductClick(product.id)}
-                        className={`cursor-pointer overflow-hidden rounded-xl border border-gray-200 bg-white shadow transition hover:shadow-lg hover:bg-primary-light
+                        className={`cursor-pointer overflow-hidden rounded-xl border border-border bg-card-background shadow transition hover:bg-hover-background hover:shadow-lg
                             ${view === "grid" ? "" : "flex items-center gap-3 p-4"}
                             
                             `}
@@ -152,12 +152,12 @@ function ShowProduct() {
                             }
                         >
                             <div className={view === "grid" ? "" : "min-w-0"}>
-                                <h2 className="text-lg font-semibold text-text-light">
+                                <h2 className="text-lg font-semibold text-heading">
                                     {product.name}
                                 </h2>
 
                                 {view === "list" && (
-                                    <p className="mt-1 text-sm text-gray-500">
+                                    <p className="mt-1 text-sm text-muted-text">
                                         {product.company}
                                     </p>
                                 )}
@@ -178,7 +178,7 @@ function ShowProduct() {
                         type="button"
                         disabled={currentPage === 1}
                         onClick={() => handlePageChange(currentPage - 1)}
-                        className="rounded-lg bg-primary-light px-4 py-2 text-primary-dark hover:bg-primary hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                        className="rounded-lg bg-primary-light px-4 py-2 text-heading hover:bg-primary hover:text-on-primary disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         PREV
                     </button>
@@ -192,8 +192,8 @@ function ShowProduct() {
                             type="button"
                             onClick={() => handlePageChange(page)}
                             className={`rounded-lg px-4 py-2 ${currentPage === page
-                                ? "bg-primary text-white"
-                                : "bg-primary-light text-primary-dark hover:bg-primary hover:text-white"
+                                ? "bg-primary text-on-primary"
+                                : "bg-primary-light text-heading hover:bg-primary hover:text-on-primary"
                                 }`}
                         >
                             {page}
@@ -204,7 +204,7 @@ function ShowProduct() {
                         type="button"
                         disabled={currentPage === totalPages}
                         onClick={() => handlePageChange(currentPage + 1)}
-                        className="rounded-lg bg-primary-light px-4 py-2 text-primary-dark hover:bg-primary hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                        className="rounded-lg bg-primary-light px-4 py-2 text-heading hover:bg-primary hover:text-on-primary disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         NEXT
                     </button>

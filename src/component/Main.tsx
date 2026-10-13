@@ -22,7 +22,7 @@ function Main() {
                         <p className="w-full text-text-light">Lorem ipsum, dolor sit amet consectetur adipisicing elit.<br />
                             Tempore repellat explicabo enim soluta temporibus asperiores <br />aut obcaecati perferendis porro nobis.</p>
 
-                        <button className="hover:cursor-pointer rounded-2xl bg-primary p-4 font-bold text-text-light" onClick={handleClickOurProduct}>OUR PRODUCTS</button>
+                        <button className="hover:cursor-pointer rounded-2xl bg-primary p-4 font-bold text-on-primary" onClick={handleClickOurProduct}>OUR PRODUCTS</button>
                     </div>
                     <div className="flex w-1/2 gap-3 rounded-3xl bg-primary-dark">
 

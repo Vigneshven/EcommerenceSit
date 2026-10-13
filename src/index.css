@@ -1,22 +1,105 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --color-primary-dark: #021431;
-    --color-primary: #057aff;
-    --color-primary-light: #f0f6ff;
+  --color-primary-dark: #021431;
+  --color-primary: #057aff;
+  --color-primary-light: #f0f6ff;
+  --color-header-background: #f0f6ff;
+  --color-header-text: #394e6a;
+  --color-text-dark: #c7c9d1;
+  --color-text-light: #394e6a;
+  --color-text-light-bold: #dbe1ff;
+  --color-pink: #f472b6;
+  --color-green: #86efac;
+  --color-yellow: #facc15;
+  --color-red: #ef4444;
+  --color-blue: #3b82f6;
+  --color-page-background: #ffffff;
+  --color-card-background: #ffffff;
+  --color-heading: #0f172a;
+  --color-body-text: #394e6a;
+  --color-muted-text: #64748b;
+  --color-border: #e5e7eb;
+  --color-input-background: #ffffff;
+  --color-hover-background: #f1f5f9;
+  --color-on-primary: #ffffff;
+
+  /* button color */
+
+  --color-secondary-btn: #463aa1
 
 
-    --color-text-dark: #c7c9d1;
-    --color-text-light: #394e6a;
-    --color-text-light-bold: #dbe1ff;
+}
 
-    /* product color circle */
+:root {
+  color-scheme: light;
+  --color-page-background: #ffffff;
+  --color-card-background: #ffffff;
+  --color-heading: #0f172a;
+  --color-body-text: #394e6a;
+  --color-muted-text: #64748b;
+  --color-border: #e5e7eb;
+  --color-input-background: #ffffff;
+  --color-hover-background: #f1f5f9;
+  --color-on-primary: #ffffff;
+}
 
-    --color-pink: #F472B6;
-    --color-green: #86EFAC;
-    --color-yellow: #FACC15;
-    --color-red: #EF4444;
-    --color-blue: #3B82F6;
+.dark {
+  color-scheme: dark;
+  --color-page-background: #111827;
+  --color-card-background: #1f2937;
+  --color-heading: #f9fafb;
+  --color-body-text: #d1d5db;
+  --color-muted-text: #9ca3af;
+  --color-border: #374151;
+  --color-input-background: #111827;
+  --color-hover-background: #374151;
+  --color-on-primary: #111827;
+  --color-primary-dark: #831843;
+  --color-primary: #f472b6;
+  --color-primary-light: #1f2937;
+  --color-header-background: #414558;
+  --color-header-text: #D6D7DB;
+  --color-text-dark: #f9fafb;
+  --color-text-light: #f3f4f6;
+  --color-text-light-bold: #fef3c7;
+  --color-pink: #facc15;
+  --color-blue: #f472b6;
+}
 
+html,
+body,
+#root {
+  min-width: 320px;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-page-background);
+  color: var(--color-body-text);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+button,
+a,
+select,
+input {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
 }
