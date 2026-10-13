@@ -1,52 +1,68 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import filterReducer from "./filterSlice"
+import filterReducer from "./filterSlice";
 import { persistReducer, persistStore } from "redux-persist";
-import shopReducer from "./shopSlice"
-import themeReducer from "./themeSlice"
-import authReducer from "./authSlice"
-import storageModule from "redux-persist/lib/storage";
+import shopReducer from "./shopSlice";
+import themeReducer from "./themeSlice";
+import authReducer from "./authSlice";
+import orderReducer from "./orderSlice";
+import storage from "./webStorage";
 
-const storage = storageModule.default ?? storageModule;
+// const storage =
+//   (
+//     storageModule as typeof storageModule & {
+//       default?: typeof storageModule;
+//     }
+//   ).default ?? storageModule;
+
+
 
 const shopPersistConfig = {
-    key: "shop",
-    storage,
-    whitelist: ["cart"]
-}
+  key: "shop",
+  storage,
+  whitelist: ["cart"],
+};
 
 const themePersistConfig = {
-    key: "theme",
-    storage,
-    Whitelist:["mode"]
-}
+  key: "theme",
+  storage,
+  whitelist: ["mode"],
+};
 
-const persistedReducer = persistReducer(
-    shopPersistConfig,
-    shopReducer
-)
+const authPersistConfig = {
+  key: "auth",
+  storage,
+};
 
-const persistedThemeReducer = persistReducer(
-    themePersistConfig,
-    themeReducer
-)
+const ordersPersist = {
+  key: "orders",
+  storage,
+};
+
+const persistedReducer = persistReducer(shopPersistConfig, shopReducer);
+
+const persistedThemeReducer = persistReducer(themePersistConfig, themeReducer);
+
+const persistedAuthReducer = persistReducer(authPersistConfig, authReducer);
+
+const persistedOrderReducer = persistReducer(ordersPersist, orderReducer);
 
 const rootReducer = combineReducers({
-    filters: filterReducer,
-    shop: persistedReducer,
-    theme: persistedThemeReducer,
-    auth: authReducer,
+  filters: filterReducer,
+  shop: persistedReducer,
+  theme: persistedThemeReducer,
+  auth: persistedAuthReducer,
+  orders: persistedOrderReducer,
 });
 
 export const store = configureStore({
-    reducer: rootReducer,
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: false,
+  reducer: rootReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
+});
 
-        })
-})
+export const persistor = persistStore(store);
 
-export const persistor = persistStore(store)
-
-export type RootState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

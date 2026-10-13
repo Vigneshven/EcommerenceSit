@@ -28,7 +28,7 @@
 
   /* button color */
 
-  --color-secondary-btn: #463aa1
+  --color-secondary-btn: #463aa1,
 
 
 }
@@ -57,7 +57,7 @@
   --color-input-background: #111827;
   --color-hover-background: #374151;
   --color-on-primary: #111827;
-  --color-primary-dark: #831843;
+  --color-primary-dark: #120d0f;
   --color-primary: #f472b6;
   --color-primary-light: #1f2937;
   --color-header-background: #414558;
