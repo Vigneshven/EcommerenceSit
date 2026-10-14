@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import useOrderStore from "../zustandStore/orderStore";
 import useShopStore from "../zustandStore/shopStore";
+import useAuthStore from "../zustandStore/authStore";
 
 const shippingSchema = z.object({
   firstName: z.string().trim().min(3, "Enter Your First Name"),
@@ -18,8 +19,12 @@ const shippingSchema = z.object({
 type ShippingForm = z.infer<typeof shippingSchema>;
 
 function Checkout() {
+  const carts = useShopStore((state) => state.cart);
+  const user = useAuthStore((state) => state.currentUser);
 
-  const cart = useShopStore((state) => state.cart);
+  const cartKey = user ? `user:${user.email.toLowerCase()}` : "guest";
+
+  const cart = carts[cartKey] ? carts[cartKey] : [];
 
   const removeFromCart = useShopStore((state) => state.removeFromCart);
 
