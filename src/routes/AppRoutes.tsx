@@ -11,6 +11,8 @@ import Orders from "../component/Orders";
 import ProductedRoutes from "./ProductedRoutes";
 import PublicRoutes from "./PublicRoutes";
 
+import NotFound from "../component/NotFound";
+
 function AppRoutes() {
   return (
     <div>
@@ -28,6 +30,7 @@ function AppRoutes() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/orders" element={<Orders />} />
         </Route>
+        <Route path="*" element={<NotFound />}></Route>
       </Routes>
     </div>
   );
