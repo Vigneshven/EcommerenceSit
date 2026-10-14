@@ -9,6 +9,7 @@ import Register from "../component/Register";
 import Checkout from "../component/Checkout";
 import Orders from "../component/Orders";
 import ProductedRoutes from "./ProductedRoutes";
+import PublicRoutes from "./PublicRoutes";
 
 function AppRoutes() {
   return (
@@ -19,12 +20,14 @@ function AppRoutes() {
         <Route path="/product" element={<Product />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/product/:id" element={<ProductDetails />} />
-        <Route element={<ProductedRoutes />}>
+        <Route element={<PublicRoutes />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/orders" element={<Orders />} />
+        <Route element={<ProductedRoutes />}>
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orders" element={<Orders />} />
+        </Route>
       </Routes>
     </div>
   );

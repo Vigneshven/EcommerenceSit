@@ -1,13 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import Button from "./Button";
-import { useDispatch } from "react-redux";
+// import { useDispatch } from "react-redux";
 import { useMutation } from "@tanstack/react-query";
-import { registerUser } from "../redux/authSlice";
+// import { registerUser } from "../redux/authSlice";
 import { getUsers, registerUser as saveUser } from "../api/api";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import useAuthStore from "../zustandStore/authStore";
 
 const registerSchema = z.object({
   username: z
@@ -24,7 +25,9 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 function Register() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
+
+  const registerUser = useAuthStore((state) => state.registerUser);
 
   const {
     register,
@@ -56,7 +59,8 @@ function Register() {
     },
 
     onSuccess: (savedUser) => {
-      dispatch(registerUser(savedUser));
+      // dispatch(registerUser(savedUser));
+      registerUser(savedUser);
 
       toast.success("Account created successfully...");
       reset();

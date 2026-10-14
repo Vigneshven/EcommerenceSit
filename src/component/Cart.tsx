@@ -1,11 +1,11 @@
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../redux/store";
-import { removeFromCart, updateCartAmount } from "../redux/shopSlice";
 import Account from "./Account";
 import Header from "./Header";
 import OrderSummary from "./OrderSummary";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import useAuthStore from "../zustandStore/authStore";
+import useShopStore from "../zustandStore/shopStore";
+import { useState } from "react";
 
 function formatPrice(price: number) {
   return price.toLocaleString("en-US", {
@@ -15,11 +15,19 @@ function formatPrice(price: number) {
 }
 
 function Cart() {
-  const dispatch = useDispatch<AppDispatch>();
+  const carts = useShopStore((state) => state.cart);
 
-  const cart = useSelector((state: RootState) => state.shop.cart);
+  const updateCartAmount = useShopStore((state) => state.updateCartAmount);
 
-  const user = useSelector((state: RootState) => state.auth.currentUser);
+  const removeFromCart = useShopStore((state) => state.removeFromCart);
+
+  const user = useAuthStore((state) => state.currentUser);
+
+  const cartKey = user ? `user:${user.email.toLowerCase()}` : "guest";
+
+  const cart = carts[cartKey] ? carts[cartKey] : [];
+
+  const [maxAmount, setMaxAmount] = useState<Record<number, number>>({});
 
   const navigate = useNavigate();
 
@@ -67,28 +75,37 @@ function Cart() {
 
                   <div className="flex flex-col mr-50 items-center gap-3">
                     <label htmlFor={`amount-${item.id}`}>Amount</label>
-
                     <select
                       id={`amount-${item.id}`}
                       value={item.amount}
-                      onChange={(e) =>
-                        dispatch(
-                          updateCartAmount({
-                            id: item.id,
-                            amount: Number(e.target.value),
-                          }),
-                          toast.success("cart updated..."),
-                        )
-                      }
+                      onChange={(e) => {
+                        const amount = Number(e.target.value);
+                        const currentMax = maxAmount[item.id] ?? 8;
+
+                        if (amount === currentMax) {
+                          setMaxAmount((prev) => ({
+                            ...prev,
+                            [item.id]: currentMax + 5,
+                          }));
+                        }
+
+                        updateCartAmount({
+                          id: item.id,
+                          amount,
+                        });
+
+                        toast.success("Cart updated...");
+                      }}
                       className="rounded-lg border border-border bg-input-background p-2 text-heading"
                     >
-                      {Array.from({ length: 8 }, (_, i) => i + 1).map(
-                        (amount) => (
-                          <option key={amount} value={amount}>
-                            {amount}
-                          </option>
-                        ),
-                      )}
+                      {Array.from(
+                        { length: maxAmount[item.id] ?? 8 },
+                        (_, i) => i + 1,
+                      ).map((amount) => (
+                        <option key={amount} value={amount}>
+                          {amount}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -102,12 +119,10 @@ function Cart() {
 
                     <button
                       type="button"
-                      onClick={() =>
-                        dispatch(
-                          removeFromCart(item.id),
-                          toast.success("items removed from cart..."),
-                        )
-                      }
+                      onClick={() => {
+                        (removeFromCart(item.id),
+                          toast.success("items removed from cart..."));
+                      }}
                       className="text-sm text-primary hover:underline cursor-pointer"
                     >
                       Remove

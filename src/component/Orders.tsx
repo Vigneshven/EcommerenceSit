@@ -1,10 +1,10 @@
-import { useSelector } from "react-redux";
-import type { RootState } from "../redux/store";
 import Account from "./Account";
 import Header from "./Header";
+import useOrderStore from "../zustandStore/orderStore";
 
 function Orders() {
-  const orders = useSelector((state: RootState) => state.orders.orders);
+
+  const orders = useOrderStore((state) => state.orders);
 
   return (
     <div>

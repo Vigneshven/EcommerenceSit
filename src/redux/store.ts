@@ -7,15 +7,6 @@ import authReducer from "./authSlice";
 import orderReducer from "./orderSlice";
 import storage from "./webStorage";
 
-// const storage =
-//   (
-//     storageModule as typeof storageModule & {
-//       default?: typeof storageModule;
-//     }
-//   ).default ?? storageModule;
-
-
-
 const shopPersistConfig = {
   key: "shop",
   storage,

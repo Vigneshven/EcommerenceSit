@@ -1,5 +1,5 @@
-import { useSelector } from "react-redux";
-import type { RootState } from "../redux/store";
+import useShopStore from "../zustandStore/shopStore";
+import useAuthStore from "../zustandStore/authStore";
 
 const SHIPPING = 15;
 const TAX_RATE = 0.1;
@@ -12,7 +12,12 @@ function formatPrice(value: number) {
 }
 
 function OrderSummary() {
-  const cart = useSelector((state: RootState) => state.shop.cart);
+  const carts = useShopStore((state) => state.cart);
+  const user = useAuthStore((state) => state.currentUser);
+
+  const cartKey = user ? `user:${user.email.toLowerCase()}` : "guest";
+
+  const cart = carts?.[cartKey] ? carts[cartKey] : [];
 
   const subtotal = cart.reduce((total, item) => {
     const price = Number(item.price.replace(/[^\d.-]/g, ""));

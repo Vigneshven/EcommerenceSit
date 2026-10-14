@@ -1,9 +1,9 @@
-import { useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
-import type { RootState } from "../redux/store";
+import useAuthStore from "../zustandStore/authStore";
 
 function NavBar() {
-  const user = useSelector((state: RootState) => state.auth.currentUser);
+
+  const user = useAuthStore((state) => state.currentUser);
 
   return (
     <div>

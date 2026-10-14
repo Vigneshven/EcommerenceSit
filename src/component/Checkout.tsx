@@ -1,6 +1,4 @@
-import { useDispatch, useSelector } from "react-redux";
 import z from "zod";
-import type { AppDispatch, RootState } from "../redux/store";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Account from "./Account";
@@ -8,9 +6,9 @@ import Header from "./Header";
 import OrderSummary from "./OrderSummary";
 import Button from "./Button";
 import { useNavigate } from "react-router-dom";
-import { addOrder } from "../redux/orderSlice";
-import { removeFromCart } from "../redux/shopSlice";
 import { toast } from "sonner";
+import useOrderStore from "../zustandStore/orderStore";
+import useShopStore from "../zustandStore/shopStore";
 
 const shippingSchema = z.object({
   firstName: z.string().trim().min(3, "Enter Your First Name"),
@@ -20,9 +18,12 @@ const shippingSchema = z.object({
 type ShippingForm = z.infer<typeof shippingSchema>;
 
 function Checkout() {
-  const cart = useSelector((state: RootState) => state.shop.cart);
 
-  const dispatch = useDispatch<AppDispatch>();
+  const cart = useShopStore((state) => state.cart);
+
+  const removeFromCart = useShopStore((state) => state.removeFromCart);
+
+  const addOrder = useOrderStore((state) => state.addOrder);
 
   const navigate = useNavigate();
 
@@ -57,10 +58,10 @@ function Checkout() {
       dateTime: new Date().toString(),
     };
 
-    dispatch(addOrder(order));
+    addOrder(order);
 
     cart.forEach((item) => {
-      dispatch(removeFromCart(item.id));
+      removeFromCart(item.id);
     });
 
     toast.success("Order placed successfully!");
@@ -80,7 +81,7 @@ function Checkout() {
             <p className="rounded-xl p-8 text-center font-bold text-2xl">
               Your cart is empty
             </p>
-            <hr className=" border-b border-border"/>
+            <hr className=" border-b border-border" />
           </div>
         ) : (
           <form onSubmit={handleSubmit(handlePlaceOrder)}>

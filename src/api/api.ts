@@ -19,8 +19,8 @@ export const getUsers = async (): Promise<User[]> => {
     return res.data
 }
 
-export const registerUser = async (user: User): Promise<User[]> => {
-    const res = await api.post<User[]>("/users", user)
+export const registerUser = async (user: User): Promise<User> => {
+    const res = await api.post<User>("/users", user)
     return res.data
 }
 

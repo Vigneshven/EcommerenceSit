@@ -4,10 +4,8 @@ import { useState } from "react";
 import Account from "./Account";
 import Header from "./Header";
 import ColorSelector from "./ColorSelector";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../redux/store";
-import { addToCart } from "../redux/shopSlice";
 import { toast } from "sonner";
+import useShopStore from "../zustandStore/shopStore";
 
 type ProductDetails = {
   id: number;
@@ -29,11 +27,11 @@ function ProductDetails() {
   );
 
   const [amount, setAmount] = useState("1");
-  const dispatch = useDispatch<AppDispatch>();
 
-  const selectedColor = useSelector(
-    (state: RootState) => state.shop.selectedColor,
-  );
+  const addToCart = useShopStore((state) => state.addToCart);
+
+
+  const selectedColor = useShopStore((state) => state.selectedColor);
 
   if (!product) {
     return <h2>Product Not Found</h2>;
@@ -90,20 +88,18 @@ function ProductDetails() {
             <button
               type="button"
               className="rounded-2xl bg-primary px-6 py-4 font-bold text-on-primary hover:opacity-90"
-              onClick={() =>
-                dispatch(
-                  addToCart({
-                    id: product.id,
-                    image: product.image,
-                    name: product.name,
-                    company: product.company,
-                    price: product.price,
-                    amount: Number(amount),
-                    color: selectedColor,
-                  }),
-                  toast.success("added to cart..."),
-                )
-              }
+              onClick={() => {
+                (addToCart({
+                  id: product.id,
+                  image: product.image,
+                  name: product.name,
+                  company: product.company,
+                  price: product.price,
+                  amount: Number(amount),
+                  color: selectedColor,
+                }),
+                  toast.success("added to cart..."));
+              }}
             >
               ADD TO BAG
             </button>

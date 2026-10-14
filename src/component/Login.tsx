@@ -1,13 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import Button from "./Button";
-import { useDispatch } from "react-redux";
 import { useMutation } from "@tanstack/react-query";
 import { getUsers } from "../api/api";
 import { toast } from "sonner";
-import { loginUser } from "../redux/authSlice";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import useAuthStore from "../zustandStore/authStore";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Enter a valid email address"),
@@ -18,8 +17,9 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 function Login() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const loginUser = useAuthStore((state) => state.loginUser);
 
   const {
     register,
@@ -51,15 +51,13 @@ function Login() {
     },
 
     onSuccess: (user) => {
-      dispatch(
-        loginUser({
-          user: {
-            username: user.username,
-            email: user.email,
-          },
-          token: null,
-        }),
-      );
+      loginUser({
+        user: {
+          username: user.username,
+          email: user.email,
+        },
+        token: null,
+      });
 
       toast.success("Login successfully...");
       navigate("/", { replace: true });
@@ -75,15 +73,13 @@ function Login() {
   };
 
   const handleGuestLogin = () => {
-    dispatch(
-      loginUser({
-        user: {
-          username: "Guest User",
-          email: "guest@example.com",
-        },
-        token: null,
-      }),
-    );
+    loginUser({
+      user: {
+        username: "Guest User",
+        email: "guest@example.com",
+      },
+      token: null,
+    });
 
     toast.success("Logged in as guest!");
     navigate("/");

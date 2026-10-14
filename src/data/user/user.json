@@ -77,6 +77,24 @@
       "email": "fg12@gmail.com",
       "password": "gt12334",
       "id": 13
+    },
+    {
+      "username": "phone",
+      "email": "phone14@gmail.com",
+      "password": "123412",
+      "id": 14
+    },
+    {
+      "username": "key",
+      "email": "key12@gmail.com",
+      "password": "key123",
+      "id": 15
+    },
+    {
+      "username": "wtch",
+      "email": "wtch15@gmail.com",
+      "password": "wtch1234",
+      "id": 16
     }
   ]
 }
