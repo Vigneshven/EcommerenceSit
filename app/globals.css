@@ -1,26 +1,111 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary-dark: #021431;
+  --color-primary: #057aff;
+  --color-primary-light: #f0f6ff;
+  --color-header-background: #f0f6ff;
+  --color-header-text: #394e6a;
+  --color-text-dark: #c7c9d1;
+  --color-text-light: #394e6a;
+  --color-text-light-bold: #dbe1ff;
+  --color-pink: #f472b6;
+  --color-green: #86efac;
+  --color-yellow: #facc15;
+  --color-red: #ef4444;
+  --color-blue: #3b82f6;
+  --color-page-background: #ffffff;
+  --color-card-background: #ffffff;
+  --color-heading: #0f172a;
+  --color-body-text: #394e6a;
+  --color-muted-text: #64748b;
+  --color-border: #e5e7eb;
+  --color-input-background: #ffffff;
+  --color-hover-background: #f1f5f9;
+  --color-on-primary: #ffffff;
+
+  /* button color */
+
+  --color-secondary-btn: #463aa1;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --color-page-background: #ffffff;
+  --color-card-background: #ffffff;
+  --color-heading: #0f172a;
+  --color-body-text: #394e6a;
+  --color-muted-text: #64748b;
+  --color-border: #e5e7eb;
+  --color-input-background: #ffffff;
+  --color-hover-background: #f1f5f9;
+  --color-on-primary: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  color-scheme: dark;
+  --color-page-background: #111827;
+  --color-card-background: #1f2937;
+  --color-heading: #f9fafb;
+  --color-body-text: #d1d5db;
+  --color-muted-text: #9ca3af;
+  --color-border: #374151;
+  --color-input-background: #111827;
+  --color-hover-background: #374151;
+  --color-on-primary: #111827;
+  --color-primary-dark: #120d0f;
+  --color-primary: #f472b6;
+  --color-primary-light: #1f2937;
+  --color-header-background: #414558;
+  --color-header-text: #d6d7db;
+  --color-text-dark: #f9fafb;
+  --color-text-light: #f3f4f6;
+  --color-text-light-bold: #fef3c7;
+  --color-pink: #facc15;
+  --color-blue: #f472b6;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html,
+  body,
+  #root {
+    min-width: 320px;
+    min-height: 100%;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    margin: 0;
+    background-color: var(--color-page-background);
+    color: var(--color-body-text);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  button,
+  a,
+  select,
+  input {
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      color 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  select:focus-visible,
+  input:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+  }
 }

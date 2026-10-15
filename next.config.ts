@@ -7,6 +7,15 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "react-vite-comfy-store-v2.netlify.app",
+        pathname: "/assets/**",
+      },
+    ],
+  },
   turbopack: {
     rules: {
       "*.css": {
