@@ -1,60 +1,12 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { BASE_URL } from "./api/api";
-import { useRouter } from "next/navigation";
+import { getProducts } from "@/lib/Product";
 import Image from "next/image";
+import Link from "next/link";
 
-interface Product {
-  id: number;
-  image: string;
-  name: string;
-  company: string;
-  category: "kids" | "beds" | "sofa" | "chairs";
-  free_shipping: boolean;
-  price: string;
-  description: string;
-  amount: "1" | "2" | "3" | "4" | "5";
-}
 
-function FeaturedProduct() {
-  const [product, setProduct] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+export default async function FeaturedProduct() {
+  const products = await getProducts();
 
-  const router = useRouter();
-
-  useEffect(() => {
-    const products = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/products`);
-
-        if (!res.ok) throw new Error("fail to fetch");
-
-        const data: Product[] = await res.json();
-        setProduct(data);
-      } catch {
-        setError("unable to load product");
-      } finally {
-        setLoading(false);
-      }
-    };
-    products();
-  }, []);
-
-  if (loading) {
-    return <p>Product loading...</p>;
-  }
-
-  if (error) {
-    return <p>{error}</p>;
-  }
-
-  const FeaturedProduct = product.slice(0, 8);
-
-  const handleProductClick = (id: number): void => {
-    router.push(`/products/${id}`);
-  };
+  const FeaturedProduct = products.slice(0, 8);
 
   return (
     <div className="flex w-full flex-col gap-5">
@@ -64,9 +16,9 @@ function FeaturedProduct() {
 
       <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {FeaturedProduct.map((product) => (
-          <div
+          <Link
+            href={`/product/${product.id}`}
             key={product.id}
-            onClick={() => handleProductClick(product.id)}
             className="cursor-pointer overflow-hidden rounded-xl border border-border bg-card-background shadow transition hover:bg-hover-background hover:shadow-lg"
           >
             <Image
@@ -86,11 +38,9 @@ function FeaturedProduct() {
                 ₹{product.price}
               </span>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
   );
 }
-
-export default FeaturedProduct;

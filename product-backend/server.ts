@@ -1,23 +1,12 @@
 import express from "express";
 import cors = require("cors");
+import { Product } from "../type/Product";
 
 const app = express();
 const PORT = 4000;
 
 app.use(cors());
 app.use(express.json());
-
-interface Product {
-  id: number;
-  image: string;
-  name: string;
-  company: string;
-  category: "kids" | "beds" | "sofa" | "chairs";
-  free_shipping: boolean;
-  price: string;
-  description: string;
-  amount: "1" | "2" | "3" | "4" | "5";
-}
 
 const products: Product[] = [
   {
@@ -234,7 +223,7 @@ app.get("/api/products", (req, res) => {
   res.json(products);
 });
 
-app.get("/api/products/:id", (req, res) => {
+app.get("/api/product/:id", (req, res) => {
   const product = products.find((item) => item.id === Number(req.params.id));
 
   if (!product) {

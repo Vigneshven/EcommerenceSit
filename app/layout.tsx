@@ -1,7 +1,6 @@
 import ThemeInitializer from "@/components/ThemeInitializer";
-import Account from "../components/Account";
-import Header from "../components/Header";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -11,9 +10,8 @@ export default function RootLayout({
   return (
     <html>
       <body>
-        <Header />
-        <Account />
         <main>{children}</main>
+        <Toaster position="top-center" richColors />
         <ThemeInitializer />
       </body>
     </html>

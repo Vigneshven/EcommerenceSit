@@ -1,9 +1,8 @@
-"use client";
-
 import FeaturedProduct from "@/components/FeaturedProduct";
 import Image from "next/image";
 
 export default function Home() {
+
   return (
     <div className="w-full max-w-7xl px-6 mx-auto">
       <div className="flex items-center justify-between gap-10 py-12">
@@ -19,7 +18,8 @@ export default function Home() {
             Tempore repellat explicabo enim soluta temporibus asperiores <br />
             aut obcaecati perferendis porro nobis.
           </p>
-          <button className="hover:cursor-pointer rounded-2xl bg-primary p-4 font-bold text-on-primary">
+          <button className="hover:cursor-pointer rounded-2xl bg-primary p-4 font-bold text-on-primary"
+          >
             OUR PRODUCT
           </button>
         </div>
@@ -30,6 +30,7 @@ export default function Home() {
             alt="sofa"
             width={300}
             height={400}
+            loading="eager"
           />
           <Image
             className="border-b-8 border-l-8 border-t-8 rounded-3xl h-110 min-w-0 flex-3 object-cover"
@@ -37,6 +38,7 @@ export default function Home() {
             alt="sofa"
             width={300}
             height={400}
+            loading="eager"
           />
         </div>
       </div>
