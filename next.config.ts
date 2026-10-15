@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
         hostname: "react-vite-comfy-store-v2.netlify.app",
         pathname: "/assets/**",
       },
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
+        port: "",
+        pathname: "/**",
+      },
     ],
   },
   turbopack: {
