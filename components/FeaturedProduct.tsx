@@ -1,4 +1,4 @@
-import { getProducts } from "@/lib/Product";
+import { getProducts } from "@/api/api";
 import Image from "next/image";
 import Link from "next/link";
 

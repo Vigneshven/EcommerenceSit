@@ -1,9 +1,5 @@
-import React from 'react'
+import Register from "./Register";
 
-function page() {
-  return (
-    <div>page</div>
-  )
+export default function Page() {
+  return <Register />;
 }
-
-export default page

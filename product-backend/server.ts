@@ -1,6 +1,7 @@
 import express from "express";
 import cors = require("cors");
 import { Product } from "../type/Product";
+import authRoutes from "../product-backend/routes/authRoutes";
 
 const app = express();
 const PORT = 4000;
@@ -232,6 +233,8 @@ app.get("/api/product/:id", (req, res) => {
 
   res.json(product);
 });
+
+app.use("/api/auth", authRoutes);
 
 app.listen(PORT, () => {
   console.log(`server running on http://localhost:${PORT}`);

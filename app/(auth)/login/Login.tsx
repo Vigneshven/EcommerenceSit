@@ -1,32 +1,146 @@
 "use client";
 
+import { loginUser as loginApi } from "@/api/api";
+import Button from "@/components/Button";
+import useAuthStore from "@/zustandStore/authStore";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import z from "zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Enter a valid email"),
   password: z.string().min(1, "Password is required"),
 });
 
-type loginForm = z.infer<typeof loginSchema>;
+type LoginForm = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const router = useRouter();
 
+  const login = useAuthStore((state) => state.loginUser);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const handleLogin = async (data: LoginForm) => {
+    setIsLoading(true);
+
+    try {
+      const result = await loginApi({
+        email: data.email.trim(),
+        password: data.password,
+      });
+
+      login({
+        user: {
+          username: result.user.username,
+          email: result.user.email,
+        },
+        token: result.token ?? null,
+      });
+
+      toast.success("Login successful!");
+      router.replace("/");
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Login failed. Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGuestLogin = () => {
+    login({
+      user: {
+        username: "Guest User",
+        email: "guest@example.com",
+      },
+      token: null,
+    });
+
+    toast.success("Logged in as guest!");
+    router.replace("/");
+  };
+
   return (
     <div className="flex min-h-screen w-full items-center justify-center p-8">
-      <form className="flex w-96 max-w-md flex-col gap-3 rounded border border-border bg-card-background p-8 shadow">
+      <form
+        onSubmit={handleSubmit(handleLogin)}
+        className="flex w-full max-w-md flex-col gap-4 rounded-xl border border-border bg-card-background p-8 shadow"
+      >
         <h4 className="mb-2 text-center text-2xl font-bold text-heading">
           Login
         </h4>
-        <label className="text-sm font-medium text-heading">Email</label>
-        <input type="text" />
-        <label className="text-sm font-medium text-heading">Password</label>
-        <input type="password" />
-        <button>Login In</button>
-        <button>GUEST USER</button>
-        <p>
-          Not a member yet? <span>Register</span>
+
+        <label htmlFor="email" className="text-sm font-medium text-heading">
+          Email
+        </label>
+
+        <input
+          id="email"
+          type="email"
+          autoComplete="email"
+          placeholder="Enter your email"
+          {...register("email")}
+          className="rounded border border-border bg-transparent p-2 outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        {errors.email && (
+          <p className="text-sm text-red-500">{errors.email.message}</p>
+        )}
+
+        <label htmlFor="password" className="text-sm font-medium text-heading">
+          Password
+        </label>
+
+        <input
+          id="password"
+          type="password"
+          autoComplete="current-password"
+          placeholder="Enter your password"
+          {...register("password")}
+          className="rounded border border-border bg-transparent p-2 outline-none focus:ring-2 focus:ring-blue-500"
+        />
+
+        {errors.password && (
+          <p className="text-sm text-red-500">{errors.password.message}</p>
+        )}
+
+        <Button
+          type="submit"
+          disabled={isLoading}
+        >
+          {isLoading ? "Logging in..." : "Log In"}
+        </Button>
+
+        <Button
+          type="button"
+          onClick={handleGuestLogin}
+          className="bg-secondary-btn"
+        >
+          Guest User
+        </Button>
+
+        <p className="mt-2  font-bold text-center text-mb">
+          Not a member yet?{" "}
+          <Link className="hover:underline text-primary" href={"/register"}>Register</Link>
         </p>
       </form>
     </div>

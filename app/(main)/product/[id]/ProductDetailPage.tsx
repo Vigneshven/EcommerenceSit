@@ -1,6 +1,6 @@
-import { getProductById } from "@/lib/Product";
 import { notFound } from "next/navigation";
 import ProductDetails from "./ProductDetails";
+import { getProductById } from "@/api/api";
 
 type Props = {
   params: Promise<{ id: string }>;

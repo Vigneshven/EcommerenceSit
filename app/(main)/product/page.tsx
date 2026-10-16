@@ -1,6 +1,6 @@
+import { getProducts } from "@/api/api";
 import ProductFilterForm from "@/components/ProductFilterForm";
 import ShowProduct from "@/components/ShowProduct";
-import { getProducts } from "@/lib/Product";
 import { Suspense } from "react";
 
 async function page() {
