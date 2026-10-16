@@ -17,7 +17,7 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 export async function getProductById(id: string): Promise<Product | null> {
-  const res = await fetch(`${baseUrl}/api/product/${id}`, {
+  const res = await fetch(`${baseUrl}/api/products/${id}`, {
     next: { revalidate: 60 },
   });
   if (res.status === 404) return null;

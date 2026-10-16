@@ -9,9 +9,6 @@ function Account() {
   const currentUser = useAuthStore((state) => state.currentUser);
   const route = useRouter();
 
-  console.log("Current user:", currentUser);
-  console.log("Username:", currentUser?.username);
-
   const handleLogOut = () => {
     logOut();
     route.replace("/");
