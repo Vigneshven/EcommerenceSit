@@ -9,8 +9,8 @@ export default function MainLayout({
 }: LayoutProps) {
   return (
     <>
-      <Header />
       <Account />
+      <Header />
       <main>{children}</main>
     </>
   );

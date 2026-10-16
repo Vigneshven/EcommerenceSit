@@ -27,7 +27,7 @@ export async function getProductById(id: string): Promise<Product | null> {
   return res.json();
 }
 
-export async function loginUser(data: LoginUser) {
+export async function loginUsers(data: LoginUser) {
   const res = await fetch(`${baseUrl}/api/auth/login`, {
     method: "POST",
     headers: {

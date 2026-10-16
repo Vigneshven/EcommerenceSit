@@ -1,38 +1,30 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-type User = {
+type CurrentUser = {
+  id: number;
   username: string;
   email: string;
-  password: string;
 };
 
-type CurrentUser = {
-  username: string;
-  email: string;
+type LoginUser = {
+  user: CurrentUser;
+  token: string | null;
 };
 
 type AuthState = {
-  users: User[];
   currentUser: CurrentUser | null;
   token: string | null;
 
-  registerUser: (user: User) => void;
-  loginUser: (payload: { user: CurrentUser; token: string | null }) => void;
+  loginUser: (payload: LoginUser) => void;
   logout: () => void;
 };
 
 const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      users: [],
       currentUser: null,
       token: null,
-
-      registerUser: (user) =>
-        set((state) => ({
-          users: [...state.users, user],
-        })),
 
       loginUser: (payload) =>
         set({
@@ -49,6 +41,10 @@ const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        currentUser: state.currentUser,
+        token: state.token,
+      }),
     },
   ),
 );

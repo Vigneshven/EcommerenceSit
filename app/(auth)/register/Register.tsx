@@ -2,7 +2,6 @@
 
 import { registerUser } from "@/api/api";
 import Button from "@/components/Button";
-import useAuthStore from "@/zustandStore/authStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -21,8 +20,6 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 function Register() {
   const router = useRouter();
-
-  const saveRegisterUser = useAuthStore((state) => state.registerUser);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -43,9 +40,7 @@ function Register() {
   const handleRegister = async (data: RegisterForm) => {
     setIsLoading(true);
     try {
-      const res = await registerUser(data);
-
-      saveRegisterUser(res.user);
+      await registerUser(data);
 
       toast.success("Account created successfully!");
 
@@ -53,7 +48,7 @@ function Register() {
 
       router.replace("/login");
     } catch (error) {
-      toast.error("Registration Failedii");
+      toast.error("Registration Failed");
     } finally {
       setIsLoading(false);
     }

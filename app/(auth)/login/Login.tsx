@@ -1,6 +1,6 @@
 "use client";
 
-import { loginUser as loginApi } from "@/api/api";
+import { loginUsers } from "@/api/api";
 import Button from "@/components/Button";
 import useAuthStore from "@/zustandStore/authStore";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,12 +21,13 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function Login() {
   const router = useRouter();
 
-  const login = useAuthStore((state) => state.loginUser);
+  const loginUser = useAuthStore((state) => state.loginUser);
   const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -40,35 +41,31 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const result = await loginApi({
-        email: data.email.trim(),
-        password: data.password,
+      const result = await loginUsers(data);
+
+      loginUser({
+        user: result.user,
+        token: result.token ?? null,
       });
 
-      login({
-        user: {
-          username: result.user.username,
-          email: result.user.email,
-        },
-        token: result.token ?? null,
+      reset({
+        email: "",
+        password: "",
       });
 
       toast.success("Login successful!");
       router.replace("/");
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Login failed. Please try again.",
-      );
+      toast.error("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleGuestLogin = () => {
-    login({
+    loginUser({
       user: {
+        id: 0,
         username: "Guest User",
         email: "guest@example.com",
       },
@@ -123,10 +120,7 @@ export default function Login() {
           <p className="text-sm text-red-500">{errors.password.message}</p>
         )}
 
-        <Button
-          type="submit"
-          disabled={isLoading}
-        >
+        <Button type="submit" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Log In"}
         </Button>
 
@@ -140,7 +134,9 @@ export default function Login() {
 
         <p className="mt-2  font-bold text-center text-mb">
           Not a member yet?{" "}
-          <Link className="hover:underline text-primary" href={"/register"}>Register</Link>
+          <Link className="hover:underline text-primary" href={"/register"}>
+            Register
+          </Link>
         </p>
       </form>
     </div>
