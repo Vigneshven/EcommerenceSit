@@ -4,7 +4,6 @@ import { Moon, ShoppingCart, Sun } from "lucide-react";
 import NavBar from "./NavBar";
 import Link from "next/link";
 import useThemeStore from "@/zustandStore/themeStore";
-import { Suspense } from "react";
 
 function Header() {
   const mode = useThemeStore((state) => state.mode);
@@ -18,11 +17,7 @@ function Header() {
           <p>V</p>
         </div>
         <div>
-          <Suspense
-            fallback={<nav className="min-h-10" aria-label="Main navigation" />}
-          >
             <NavBar />
-          </Suspense>
         </div>
         <div className="flex gap-6">
           <button type="button" onClick={toggleTheme}>

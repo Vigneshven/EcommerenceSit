@@ -1,28 +1,106 @@
 "use client";
 
-import formatPrice from "@/lib/utils/price";
+import { formatPrice, parsePrice } from "@/lib/utils/price";
 import useAuthStore from "@/zustandStore/authStore";
-import useShopStore from "@/zustandStore/ShopStore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { cart as CartItem } from "@/type/Cart";
+import { deleteCartItem, getCart, updateCartItem } from "@/api/api";
+import { toast } from "sonner";
+import OrderSummary from "@/components/OrderSummary";
 
 export default function Cart() {
   const router = useRouter();
 
-  const carts = useShopStore((state) => state.cart);
-
-  const updateCartAmount = useShopStore((state) => state.updateCartAmount);
-
-  const removeFromCart = useShopStore((state) => state.removeFromCart);
-
   const user = useAuthStore((state) => state.currentUser);
 
-  const cartKey = user ? `user:${user.email.toLowerCase()}` : "guest";
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
 
-  const cart = carts[cartKey] ? carts[cartKey] : [];
+  const userId = user?.id;
+
+  const isGuest = !userId;
+
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<number | null>(null);
 
   const [maxAmount, setMaxAmount] = useState<Record<number, number>>({});
+  const loadCart = useCallback(async () => {
+    setLoading(true);
+
+    try {
+      const items = await getCart(userId, isGuest);
+      setCart(items);
+    } catch {
+      toast.error("Unable to load cart");
+    } finally {
+      setLoading(false);
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (!hasHydrated) return;
+    loadCart();
+  }, [loadCart]);
+
+  async function handleQtyChange(item: CartItem, quantity: number) {
+    setItems(item.cartItemId);
+
+    try {
+      await updateCartItem(item.cartItemId, quantity, userId, isGuest);
+      await loadCart();
+
+      setCart((prev) =>
+        prev.map((current) =>
+          current.cartItemId === item.cartItemId
+            ? { ...current, amount: quantity }
+            : current,
+        ),
+      );
+
+      setMaxAmount((prev) => {
+        const currentMax = prev[item.cartItemId] ?? 5;
+
+        return {
+          ...prev,
+          [item.cartItemId]:
+            quantity >= currentMax ? Math.min(currentMax + 5, 100) : currentMax,
+        };
+      });
+
+      toast.success("cart updated...");
+    } catch {
+      toast.error("failed to update...");
+    } finally {
+      setItems(null);
+    }
+  }
+
+  async function handleRemove(cartItemId: number) {
+    setItems(cartItemId);
+
+    try {
+      await deleteCartItem(cartItemId, userId, isGuest);
+      setCart((prev) => prev.filter((item) => item.cartItemId !== cartItemId));
+
+      toast.success("item removed...");
+    } catch {
+      toast.error("failed to remove");
+    } finally {
+      setItems(null);
+    }
+  }
+
+  const subtotal = cart.reduce(
+    (total, item) => total + parsePrice(item.price) * Number(item.amount ?? 0),
+    0,
+  );
+  if (loading) {
+    return (
+      <main className="mx-auto max-w-7xl px-6 py-12">Loading cart...</main>
+    );
+  }
 
   return (
     <>
@@ -30,32 +108,55 @@ export default function Cart() {
         <h1 className="mb-8 border-b border-border pb-6 text-3xl font-bold text-heading">
           Shopping Cart
         </h1>
-        {cart.length? (
+        {cart.length === 0 ? (
           <h2>Your Cart is Empty</h2>
         ) : (
-          <div>
-            <section>
+          <div className="grid  gap-10 lg:grid-cols-[1fr_22rem]">
+            <section className="space-y-6">
               {cart.map((item) => (
-                <article key={item.id}>
+                <article
+                  key={item.cartItemId}
+                  className="flex flex-col gap-4 border-b border-border sm:flex-row sm:items-center"
+                >
                   <Image
                     src={item.image}
                     alt={item.name}
-                    width={400}
-                    height={500}
+                    width={600}
+                    height={600}
+                    className="h-32 w-38 object-cover rounded-xl"
+                    loading="eager"
                   ></Image>
-                  <div>
-                    <h2>{item.name}</h2>
-                    <p>{item.company}</p>
-                    <div>
-                      <span>Color:</span>
-                      <span></span>
+                  <div className="flex gap-40 w-full">
+                    <div className="flex flex-col gap-2">
+                      <h2 className="font-semibold text-heading">
+                        {item.name}
+                      </h2>
+                      <p className="text-muted-text">{item.company}</p>
+                      <div className="mt-2 flex items-center gap-2">
+                        <span>Color:</span>
+                        <span
+                          className="h-5 w-5 rounded-full border border-border"
+                          style={{ backgroundColor: item.color }}
+                        ></span>
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <label htmlFor="">Amount</label>
-                    <select name="" id="">
+                  <div className="flex flex-col items-center gap-3 mr-50">
+                    <label>Amount</label>
+                    <select
+                      value={item.amount}
+                      disabled={items === item.cartItemId}
+                      onChange={(e) => {
+                        handleQtyChange(item, Number(e.target.value));
+                      }}
+                      className="rounded-lg border border-border bg-input-background p-2 text-heading"
+                    >
                       {Array.from(
-                        { length: maxAmount[item.id] ?? 8 },
+                        {
+                          length:
+                            maxAmount[item.cartItemId] ??
+                            Math.max(5, item.amount),
+                        },
                         (_, i) => i + 1,
                       ).map((amount) => (
                         <option key={amount} value={amount}>
@@ -63,22 +164,40 @@ export default function Cart() {
                         </option>
                       ))}
                     </select>
+                    <button
+                      onClick={() => handleRemove(item.cartItemId)}
+                      className="text-sm text-primary hover:underline cursor-pointer"
+                    >
+                      Remove
+                    </button>
                   </div>
-                  <div>
+                  <div className="flex items-center justify-between gap-4 sm:flex-col">
                     <p>
                       {formatPrice(
-                        Number(item.price.replace(/[^\d.-]/g, "")) *
-                          item.amount,
+                        parsePrice(item.price) * Number(item.amount ?? 0),
                       )}
                     </p>
-
-                    <button>Remove</button>
                   </div>
                 </article>
               ))}
             </section>
             <aside>
-              <button onClick={()=>router.push("/login")}>Please Login</button>
+              <OrderSummary cart={cart} loading={loading} />
+              {!user ? (
+                <button
+                  onClick={() => router.push("/login")}
+                  className="bg-primary w-full px-4 py-3 rounded-lg text-on-primary hover:cursor-pointer"
+                >
+                  Please Login
+                </button>
+              ) : (
+                <button
+                  onClick={() => router.push("/checkout")}
+                  className="bg-primary w-full px-4 py-3 rounded-lg text-on-primary hover:cursor-pointer"
+                >
+                  Proceed To Checkout
+                </button>
+              )}
             </aside>
           </div>
         )}

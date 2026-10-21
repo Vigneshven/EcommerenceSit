@@ -1,9 +1,8 @@
 import ThemeInitializer from "@/components/ThemeInitializer";
 import "./globals.css";
 import { Toaster } from "sonner";
-import LayoutProps from "@/type/LayoutProps";
 
-export default function RootLayout({ children }: LayoutProps) {
+export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html>
       <body>

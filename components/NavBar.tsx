@@ -1,5 +1,6 @@
-"use client"
+"use client";
 
+import useAuthStore from "@/zustandStore/authStore";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -7,6 +8,8 @@ function NavBar() {
   const pathname = usePathname();
 
   const checkActive = (path: string) => pathname === path;
+
+  const user = useAuthStore((state) => state.currentUser);
 
   return (
     <div>
@@ -35,18 +38,22 @@ function NavBar() {
         >
           Cart
         </Link>
-        <Link
-          href={"/checkout"}
-          className={`${checkActive("/checkout") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
-        >
-          Checkout
-        </Link>
-        <Link
-          href={"/order"}
-          className={`${checkActive("/order") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
-        >
-          Order
-        </Link>
+        {user && (
+          <Link
+            href={"/checkout"}
+            className={`${checkActive("/checkout") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
+          >
+            Checkout
+          </Link>
+        )}
+        {user && (
+          <Link
+            href={"/order"}
+            className={`${checkActive("/order") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
+          >
+            Order
+          </Link>
+        )}
       </nav>
     </div>
   );

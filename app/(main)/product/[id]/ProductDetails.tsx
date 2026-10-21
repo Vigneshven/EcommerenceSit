@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import type { Product } from "@/type/Product";
 import useShopStore from "@/zustandStore/ShopStore";
 import Image from "next/image";
+import { addToCart as addCartItem } from "@/api/api";
+import useAuthStore from "@/zustandStore/authStore";
 
 type Props = {
   product: Product;
@@ -13,20 +15,42 @@ type Props = {
 
 export default function ProductDetails({ product }: Props) {
   const [amount, setAmount] = useState("1");
+  const [adding, setAdding] = useState(false);
 
-  const addToCart = useShopStore((state) => state.addToCart);
+  const currentUser = useAuthStore((state) => state.currentUser);
   const selectedColor = useShopStore((state) => state.selectedColor);
+
+  async function handleAddToCart() {
+    try {
+      setAdding(true);
+
+      const userId = Number(currentUser?.id);
+
+      await addCartItem(
+        {
+          ...(Number.isInteger(userId) && userId > 0 ? { userId } : {}),
+          productId: product.id,
+          quantity: Number(amount),
+          color: selectedColor,
+        },
+        !userId,
+      );
+      toast.success("added to cart");
+    } catch {
+      toast.error("failed to add");
+    } finally {
+      setAdding(false);
+    }
+  }
 
   return (
     <div>
-
       <div className="mx-auto w-full max-w-7xl px-6 py-12">
         <div className="flex flex-col items-center justify-between gap-10 md:flex-row">
           <div className="w-full md:w-1/2">
             <Image
               src={product.image}
               alt={product.name}
-              className="h-96 w-full rounded-3xl border-8 border-primary-dark object-cover"
               width={400}
               height={500}
               loading="eager"
@@ -62,19 +86,8 @@ export default function ProductDetails({ product }: Props) {
             <button
               type="button"
               className="rounded-2xl bg-primary px-6 py-4 font-bold"
-              onClick={() => {
-                addToCart({
-                  id: product.id,
-                  image: product.image,
-                  name: product.name,
-                  company: product.company,
-                  price: product.price,
-                  amount: Number(amount),
-                  color: selectedColor,
-                });
-
-                toast.success("Added to cart!");
-              }}
+              onClick={handleAddToCart}
+              disabled={adding}
             >
               ADD TO BAG
             </button>

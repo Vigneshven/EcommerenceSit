@@ -6,8 +6,7 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-export default async function ProductDetailPage({ params }: Props) {
-  const { id } = await params;
+export default async function ProductDetailPage({ id }: Props) {
   const product = await getProductById(id);
 
   if (!product) notFound();

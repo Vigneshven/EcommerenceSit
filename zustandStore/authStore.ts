@@ -15,6 +15,8 @@ type LoginUser = {
 type AuthState = {
   currentUser: CurrentUser | null;
   token: string | null;
+  hasHydrated: boolean;
+  setHasHydrated: (value: boolean) => void;
 
   loginUser: (payload: LoginUser) => void;
   logout: () => void;
@@ -25,6 +27,11 @@ const useAuthStore = create<AuthState>()(
     (set) => ({
       currentUser: null,
       token: null,
+      hasHydrated: false,
+
+      setHasHydrated: (value) => {
+        set({ hasHydrated: value });
+      },
 
       loginUser: (payload) =>
         set({
@@ -45,6 +52,9 @@ const useAuthStore = create<AuthState>()(
         currentUser: state.currentUser,
         token: state.token,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );
