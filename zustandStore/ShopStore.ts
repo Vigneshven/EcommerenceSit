@@ -14,28 +14,74 @@ export type CartItem = {
 
 type ShopState = {
   cart: Record<string, CartItem[]>;
+  cartVersion: number;
+  addAnonymousCartItem: (item: CartItem) => void;
   selectedColor: string;
 
   setSelectedColor: (color: string) => void;
+  markCartChanged: () => void;
   addToCart: (item: CartItem) => void;
   updateCartAmount: (payload: { id: number; amount: number }) => void;
   removeFromCart: (id: number) => void;
 };
 
 const getkey = () => {
-  const user = useAuthStore.getState().currentUser;
-  return user ? `user:${user.email.toLowerCase()}` : "guest";
+  const auth = useAuthStore.getState();
+
+  if (auth.currentUser) {
+    return `user:${auth.currentUser.email.toLowerCase()}`;
+  }
+
+  if (auth.isGuest) {
+    return "guest";
+  }
+
+  return "anonymous";
 };
 
 const useShopStore = create<ShopState>()(
   persist(
     (set) => ({
       cart: { guest: [] },
+      cartVersion: 0,
       selectedColor: "pink",
 
       setSelectedColor: (color) => set({ selectedColor: color }),
+      markCartChanged: () =>
+        set((state) => ({ cartVersion: state.cartVersion + 1 })),
 
       addToCart: (newItem) =>
+        set((state) => {
+          const key = getkey();
+          const userCart = state.cart[key] ? state.cart[key] : [];
+          const existingItem = userCart.find((item) => item.id === newItem.id);
+
+          const updatedCart = existingItem
+            ? userCart.map((item) =>
+                item.id === newItem.id
+                  ? {
+                      ...item,
+                      amount: Math.min(5, item.amount + newItem.amount),
+                    }
+                  : item,
+              )
+            : [
+                ...userCart,
+                {
+                  ...newItem,
+                  amount: Math.min(5, Math.max(1, newItem.amount)),
+                },
+              ];
+
+          return {
+            cart: {
+              ...state.cart,
+              [key]: updatedCart,
+            },
+          };
+        }),
+
+      addAnonymousCartItem: (newItem) =>
         set((state) => {
           const key = getkey();
           const userCart = state.cart[key] ? state.cart[key] : [];

@@ -6,6 +6,7 @@ import OrderSummary from "@/components/OrderSummary";
 import { calculateOrderSummary } from "@/lib/utils/orderSummary";
 import { cart } from "@/type/Cart";
 import useAuthStore from "@/zustandStore/authStore";
+import useShopStore from "@/zustandStore/ShopStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -26,6 +27,7 @@ function Checkout() {
   const user = useAuthStore((state) => state.currentUser);
   const isGuest = useAuthStore((state) => state.isGuest);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const markCartChanged = useShopStore((state) => state.markCartChanged);
 
   const [cart, setCart] = useState<cart[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,6 +90,8 @@ function Checkout() {
       }));
 
       await createOrder({
+        userId: user?.id ?? null,
+        guestId: isGuest ?"0": null,
         name: data.firstName,
         address: data.address,
         product,
@@ -99,6 +103,7 @@ function Checkout() {
           deleteCartItem(item.cartItemId, user?.id, !user?.id && isGuest),
         ),
       );
+      markCartChanged();
       setCart([]);
       toast.success("Order Placed Successfully...");
       router.push("/order");

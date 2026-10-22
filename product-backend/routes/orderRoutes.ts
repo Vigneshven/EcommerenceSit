@@ -23,11 +23,30 @@ const router = Router();
 
 router.get("/", async (req, res) => {
   try {
-    const [rows] = await pool.query<OrderRow[]>(
-      `select order_id,name,address,product,cost,date_time
+    const userId = Number(req.query.userId);
+    const guest = req.query.guest === "true";
+
+    let rows: OrderRow[];
+
+    if (guest) {
+      const [guestRow] = await pool.execute<OrderRow[]>(
+        `select order_id,user_id,name,address,product,cost,date_time
             from orders
-            order by date_time desc`,
-    );
+            where guest_id=? and user_id is null
+            order by date_time`,
+        ["0"],
+      );
+      rows = guestRow;
+    } else {
+      const [userRow] = await pool.execute<OrderRow[]>(
+        `select order_id,user_id,name,address,product,cost,date_time
+            from orders
+            where user_id=?
+            order by date_time`,
+        [userId],
+      );
+      rows = userRow;
+    }
 
     const orders = rows.map((row) => ({
       id: row.order_id,
@@ -50,9 +69,20 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   try {
-    const { name, address, product, cost } = req.body;
+    const { userId, guestId, name, address, product, cost } = req.body;
+
+    const isLoginUser =
+      Number.isInteger(userId) && userId > 0 && guestId == null;
+
+    const isguest = userId == null && guestId == "0";
+
+    if (!isLoginUser && !isguest)
+      return res
+        .status(401)
+        .json({ message: "please login or enter guest mode" });
 
     if (
+      (userId !== null && (!Number.isInteger(userId) || userId <= 0)) ||
       typeof name !== "string" ||
       name.trim().length < 3 ||
       typeof address !== "string" ||
@@ -68,9 +98,16 @@ router.post("/", async (req, res) => {
     }
 
     const [rows] = await pool.execute<ResultSetHeader>(
-      `INSERT INTO orders (name, address, product, cost)
-       VALUES (?, ?, ?, ?)`,
-      [name.trim(), address.trim(), JSON.stringify(product), cost],
+      `INSERT INTO orders (user_id,guest_id,name, address, product, cost)
+       VALUES (?,?,?,?, ?, ?)`,
+      [
+        userId,
+        guestId,
+        name.trim(),
+        address.trim(),
+        JSON.stringify(product),
+        cost,
+      ],
     );
 
     return res.status(201).json({

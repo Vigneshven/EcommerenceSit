@@ -1,7 +1,7 @@
+import Order from "./Order";
+
 function page() {
-  return (
-    <div>page</div>
-  )
+  return <Order />;
 }
 
-export default page
+export default page;

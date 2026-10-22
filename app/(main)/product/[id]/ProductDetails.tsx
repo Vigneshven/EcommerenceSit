@@ -18,6 +18,9 @@ export default function ProductDetails({ product }: Props) {
   const [adding, setAdding] = useState(false);
 
   const currentUser = useAuthStore((state) => state.currentUser);
+  const isGuest = useAuthStore((state) => state.isGuest);
+  const addAnonymousUser = useShopStore((state) => state.addAnonymousCartItem);
+  const markCartChanged = useShopStore((state) => state.markCartChanged);
   const selectedColor = useShopStore((state) => state.selectedColor);
 
   async function handleAddToCart() {
@@ -26,15 +29,38 @@ export default function ProductDetails({ product }: Props) {
 
       const userId = Number(currentUser?.id);
 
-      await addCartItem(
-        {
-          ...(Number.isInteger(userId) && userId > 0 ? { userId } : {}),
-          productId: product.id,
-          quantity: Number(amount),
+      if (userId) {
+        await addCartItem(
+          {
+            userId,
+            productId: product.id,
+            quantity: Number(amount),
+            color: selectedColor,
+          },
+          false,
+        );
+        markCartChanged();
+      } else if (isGuest) {
+        await addCartItem(
+          {
+            productId: product.id,
+            quantity: Number(amount),
+            color: selectedColor,
+          },
+          true,
+        );
+        markCartChanged();
+      } else {
+        addAnonymousUser({
+          id: product.id,
+          image: product.image,
+          company: product.company,
+          name: product.name,
+          amount: Number(amount),
+          price: product.price,
           color: selectedColor,
-        },
-        !userId,
-      );
+        });
+      }
       toast.success("added to cart");
     } catch {
       toast.error("failed to add");

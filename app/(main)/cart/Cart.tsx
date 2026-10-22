@@ -10,6 +10,7 @@ import { deleteCartItem, getCart, updateCartItem } from "@/api/api";
 import { toast } from "sonner";
 import OrderSummary from "@/components/OrderSummary";
 import Skeleton from "react-loading-skeleton";
+import useShopStore from "@/zustandStore/ShopStore";
 
 export default function Cart() {
   const router = useRouter();
@@ -17,6 +18,17 @@ export default function Cart() {
   const user = useAuthStore((state) => state.currentUser);
 
   const isGuest = useAuthStore((state) => state.isGuest);
+
+  const emptyCart: import("@/zustandStore/ShopStore").CartItem[] = [];
+
+  const anonymousCart = useShopStore(
+    (state) => state.cart["anonymous"] ?? emptyCart,
+  );
+
+  const updateAnonymousCart = useShopStore((state) => state.updateCartAmount);
+
+  const removeAnonymousCart = useShopStore((state) => state.removeFromCart);
+  const markCartChanged = useShopStore((state) => state.markCartChanged);
 
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
 
@@ -42,12 +54,17 @@ export default function Cart() {
 
   useEffect(() => {
     if (!hasHydrated) return;
+
+    if (!user && !isGuest) {
+      setCart(anonymousCart);
+      setLoading(false);
+    }
+
     if (user?.id) {
       loadCart(user.id, false);
     } else if (isGuest) {
       loadCart(undefined, true);
     } else {
-      setCart([]);
       setLoading(false);
     }
   }, [hasHydrated, loadCart, user?.id, isGuest]);
@@ -56,26 +73,42 @@ export default function Cart() {
     setItems(item.cartItemId);
 
     try {
-      await updateCartItem(item.cartItemId, quantity, userId, isGuest);
-      await loadCart();
+      if (!user && !isGuest) {
+        updateAnonymousCart({
+          id: item.product_id ?? item.id,
+          amount: quantity,
+        });
 
-      setCart((prev) =>
-        prev.map((current) =>
-          current.cartItemId === item.cartItemId
-            ? { ...current, amount: quantity }
-            : current,
-        ),
-      );
+        setCart((prev) =>
+          prev.map((current) =>
+            current.id === item.id ? { ...current, amount: quantity } : current,
+          ),
+        );
+      } else {
+        await updateCartItem(item.cartItemId, quantity, userId, isGuest);
+        await loadCart();
 
-      setMaxAmount((prev) => {
-        const currentMax = prev[item.cartItemId] ?? 5;
+        setCart((prev) =>
+          prev.map((current) =>
+            current.cartItemId === item.cartItemId
+              ? { ...current, amount: quantity }
+              : current,
+          ),
+        );
 
-        return {
-          ...prev,
-          [item.cartItemId]:
-            quantity >= currentMax ? Math.min(currentMax + 5, 100) : currentMax,
-        };
-      });
+        setMaxAmount((prev) => {
+          const currentMax = prev[item.cartItemId] ?? 5;
+
+          return {
+            ...prev,
+            [item.cartItemId]:
+              quantity >= currentMax
+                ? Math.min(currentMax + 5, 100)
+                : currentMax,
+          };
+        });
+        markCartChanged();
+      }
 
       toast.success("cart updated...");
     } catch {
@@ -85,13 +118,31 @@ export default function Cart() {
     }
   }
 
-  async function handleRemove(cartItemId: number) {
+  async function handleRemove(cartItemId: number, item: CartItem) {
     setItems(cartItemId);
 
     try {
-      await deleteCartItem(cartItemId, userId, isGuest);
-      setCart((prev) => prev.filter((item) => item.cartItemId !== cartItemId));
+      if (!user && !isGuest) {
+        if (!item) return;
 
+        removeAnonymousCart(item.id);
+
+        setCart((prev) =>
+          prev.filter(
+            (current) =>
+              !(
+                current.id === item.id &&
+                current.color === item.color
+              ),
+          ),
+        );
+      } else {
+        await deleteCartItem(cartItemId, userId, isGuest);
+        markCartChanged();
+        setCart((prev) =>
+          prev.filter((item) => item.cartItemId !== cartItemId),
+        );
+      }
       toast.success("item removed...");
     } catch {
       toast.error("failed to remove");
@@ -100,10 +151,6 @@ export default function Cart() {
     }
   }
 
-  // const subtotal = cart.reduce(
-  //   (total, item) => total + parsePrice(item.price) * Number(item.amount ?? 0),
-  //   0,
-  // );
   if (!hasHydrated || loading) {
     return (
       <main className="mx-auto max-w-7xl px-6 py-12">
@@ -148,7 +195,10 @@ export default function Cart() {
             <section className="space-y-6">
               {cart.map((item) => (
                 <article
-                  key={item.cartItemId}
+                  key={
+                    item.cartItemId ??
+                    `anonymous-${item.product_id}-${item.color}`
+                  }
                   className="flex flex-col gap-4 border-b border-border sm:flex-row sm:items-center"
                 >
                   <Image
@@ -198,7 +248,12 @@ export default function Cart() {
                       ))}
                     </select>
                     <button
-                      onClick={() => handleRemove(item.cartItemId)}
+                      onClick={() =>
+                        handleRemove(
+                          item.cartItemId ?? item.product_id ?? item.id,
+                          item,
+                        )
+                      }
                       className="text-sm text-primary hover:underline cursor-pointer"
                     >
                       Remove

@@ -1,6 +1,6 @@
 import { cart } from "@/type/Cart";
 import LoginUser from "@/type/LoginUser";
-import { CreateOrder } from "@/type/Order";
+import { CreateOrder, Order } from "@/type/Order";
 import { Product } from "@/type/Product";
 import { RegisterUser, RegisterResponse } from "@/type/RegisterUser";
 
@@ -162,6 +162,26 @@ export async function createOrder(data: CreateOrder) {
   });
 
   if (!res.ok) throw new Error("failed to placeOrder");
+
+  return res.json();
+}
+
+export async function getOrders(userId: number | null, isGuest: boolean) {
+  const params = new URLSearchParams();
+
+  if (userId !== null) {
+    params.set("userId", String(userId));
+  } else if (isGuest) {
+    params.set("guest", "true");
+  } else {
+    throw new Error("Please log in or enter guest mode.");
+  }
+
+  const res = await fetch(`${baseUrl}/api/order?${params.toString()}`);
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch orders");
+  }
 
   return res.json();
 }
