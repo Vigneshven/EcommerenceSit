@@ -1,5 +1,6 @@
 "use client";
 
+import { calculateOrderSummary } from "@/lib/utils/orderSummary";
 import { formatPrice, parsePrice } from "@/lib/utils/price";
 import { cart } from "@/type/Cart";
 
@@ -9,17 +10,7 @@ type OrderSummaryProps = {
 };
 
 function OrderSummary({ cart, loading }: OrderSummaryProps) {
-  const subtotal = cart.reduce((total, item) => {
-    return total + parsePrice(item.price) * Number(item.amount ?? 0);
-  }, 0);
-
-  const SHIPPING = 15;
-  const TAX_RATE = 0.1;
-
-  const shipping = subtotal === 0 || subtotal >= 1000 ? 0 : SHIPPING;
-
-  const tax = subtotal * TAX_RATE;
-  const total = subtotal + shipping + tax;
+  const { subtotal, shipping, tax, total } = calculateOrderSummary(cart);
 
   return (
     <aside className="h-fit rounded-2xl bg-primary-light p-6">

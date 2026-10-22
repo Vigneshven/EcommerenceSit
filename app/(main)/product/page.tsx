@@ -1,7 +1,6 @@
 import { getProducts } from "@/api/api";
 import ProductFilterForm from "@/components/ProductFilterForm";
 import ShowProduct from "@/components/ShowProduct";
-import { Suspense } from "react";
 
 async function page() {
   const products = await getProducts();

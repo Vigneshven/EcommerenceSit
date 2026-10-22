@@ -1,5 +1,6 @@
 import { cart } from "@/type/Cart";
 import LoginUser from "@/type/LoginUser";
+import { CreateOrder } from "@/type/Order";
 import { Product } from "@/type/Product";
 import { RegisterUser, RegisterResponse } from "@/type/RegisterUser";
 
@@ -70,9 +71,19 @@ export async function getCart(
   userId?: number | undefined,
   isGuest?: boolean,
 ): Promise<cart[]> {
-  const params = userId ? `?userId=${userId}` : isGuest ? "?guest=true" : "";
+  // const params = userId ? `?userId=${userId}` : isGuest ? "?guest=true" : "";
 
-  const res = await fetch(`${baseUrl}/api/cart${params}`);
+  let url: string;
+
+  if (userId !== undefined) {
+    url = `${baseUrl}/api/cart?userId=${userId}`;
+  } else if (isGuest) {
+    url = `${baseUrl}/api/cart?guest=true`;
+  } else {
+    throw new Error("Cannot fetch without valid owner");
+  }
+
+  const res = await fetch(url);
 
   if (!res.ok) throw new Error("fail to fetch");
 
@@ -137,6 +148,20 @@ export async function deleteCartItem(
   });
 
   if (!res.ok) throw new Error("fail to delete item");
+
+  return res.json();
+}
+
+// orders
+
+export async function createOrder(data: CreateOrder) {
+  const res = await fetch(`${baseUrl}/api/order`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) throw new Error("failed to placeOrder");
 
   return res.json();
 }

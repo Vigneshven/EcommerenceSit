@@ -1,8 +1,9 @@
 import FeaturedProduct from "@/components/FeaturedProduct";
+import FeaturedProductsSkeleton from "@/components/FeaturedProductSkeleton";
 import Image from "next/image";
+import { Suspense } from "react";
 
 export default function Home() {
-
   return (
     <div className="w-full max-w-7xl px-6 mx-auto">
       <div className="flex items-center justify-between gap-10 py-12">
@@ -18,8 +19,7 @@ export default function Home() {
             Tempore repellat explicabo enim soluta temporibus asperiores <br />
             aut obcaecati perferendis porro nobis.
           </p>
-          <button className="hover:cursor-pointer rounded-2xl bg-primary p-4 font-bold text-on-primary"
-          >
+          <button className="hover:cursor-pointer rounded-2xl bg-primary p-4 font-bold text-on-primary">
             OUR PRODUCT
           </button>
         </div>
@@ -43,9 +43,9 @@ export default function Home() {
         </div>
       </div>
 
-      <div>
+      <Suspense fallback={<FeaturedProductsSkeleton />}>
         <FeaturedProduct />
-      </div>
+      </Suspense>
     </div>
   );
 }

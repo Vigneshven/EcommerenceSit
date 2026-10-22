@@ -9,17 +9,18 @@ import { cart as CartItem } from "@/type/Cart";
 import { deleteCartItem, getCart, updateCartItem } from "@/api/api";
 import { toast } from "sonner";
 import OrderSummary from "@/components/OrderSummary";
+import Skeleton from "react-loading-skeleton";
 
 export default function Cart() {
   const router = useRouter();
 
   const user = useAuthStore((state) => state.currentUser);
 
+  const isGuest = useAuthStore((state) => state.isGuest);
+
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
 
   const userId = user?.id;
-
-  const isGuest = !userId;
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,12 +38,19 @@ export default function Cart() {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, isGuest]);
 
   useEffect(() => {
     if (!hasHydrated) return;
-    loadCart();
-  }, [loadCart]);
+    if (user?.id) {
+      loadCart(user.id, false);
+    } else if (isGuest) {
+      loadCart(undefined, true);
+    } else {
+      setCart([]);
+      setLoading(false);
+    }
+  }, [hasHydrated, loadCart, user?.id, isGuest]);
 
   async function handleQtyChange(item: CartItem, quantity: number) {
     setItems(item.cartItemId);
@@ -92,13 +100,38 @@ export default function Cart() {
     }
   }
 
-  const subtotal = cart.reduce(
-    (total, item) => total + parsePrice(item.price) * Number(item.amount ?? 0),
-    0,
-  );
-  if (loading) {
+  // const subtotal = cart.reduce(
+  //   (total, item) => total + parsePrice(item.price) * Number(item.amount ?? 0),
+  //   0,
+  // );
+  if (!hasHydrated || loading) {
     return (
-      <main className="mx-auto max-w-7xl px-6 py-12">Loading cart...</main>
+      <main className="mx-auto max-w-7xl px-6 py-12">
+        <Skeleton height={40} width={250} className="mb-8" />
+
+        <div className="grid gap-10 lg:grid-cols-[1fr_22rem]">
+          <section className="space-y-6">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="flex gap-5 border-b border-border pb-6"
+              >
+                <Skeleton width={128} height={128} borderRadius={12} />
+
+                <div className="flex-1">
+                  <Skeleton width="65%" height={24} />
+                  <Skeleton width="35%" className="mt-3" />
+                  <Skeleton width={90} height={36} className="mt-5" />
+                </div>
+              </div>
+            ))}
+          </section>
+
+          <aside>
+            <Skeleton height={300} borderRadius={16} />
+          </aside>
+        </div>
+      </main>
     );
   }
 
@@ -183,7 +216,7 @@ export default function Cart() {
             </section>
             <aside>
               <OrderSummary cart={cart} loading={loading} />
-              {!user ? (
+              {!user && !isGuest ? (
                 <button
                   onClick={() => router.push("/login")}
                   className="bg-primary w-full px-4 py-3 rounded-lg text-on-primary hover:cursor-pointer"

@@ -11,6 +11,8 @@ function NavBar() {
 
   const user = useAuthStore((state) => state.currentUser);
 
+  const isGuest = useAuthStore((state) => state.isGuest);
+
   return (
     <div>
       <nav className="flex flex-1 gap-3">
@@ -38,7 +40,7 @@ function NavBar() {
         >
           Cart
         </Link>
-        {user && (
+        {(user || isGuest) && (
           <Link
             href={"/checkout"}
             className={`${checkActive("/checkout") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
@@ -46,7 +48,7 @@ function NavBar() {
             Checkout
           </Link>
         )}
-        {user && (
+        {(user || isGuest) && (
           <Link
             href={"/order"}
             className={`${checkActive("/order") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}

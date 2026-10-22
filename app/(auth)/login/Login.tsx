@@ -22,6 +22,7 @@ export default function Login() {
   const router = useRouter();
 
   const loginUser = useAuthStore((state) => state.loginUser);
+  const enterGuestMode = useAuthStore((state) => state.enterGuestMode);
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -55,7 +56,7 @@ export default function Login() {
 
       toast.success("Login successful!");
       router.replace("/");
-    } catch (error) {
+    } catch {
       toast.error("Login failed. Please try again.");
     } finally {
       setIsLoading(false);
@@ -63,14 +64,7 @@ export default function Login() {
   };
 
   const handleGuestLogin = () => {
-    loginUser({
-      user: {
-        id: 0,
-        username: "Guest User",
-        email: "guest@example.com",
-      },
-      token: null,
-    });
+    enterGuestMode();
 
     toast.success("Logged in as guest!");
     router.replace("/");
