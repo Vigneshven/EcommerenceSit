@@ -1,6 +1,6 @@
 import { cart } from "@/type/Cart";
 import LoginUser from "@/type/LoginUser";
-import { CreateOrder, Order } from "@/type/Order";
+import { CreateOrder } from "@/type/Order";
 import { Product } from "@/type/Product";
 import { RegisterUser, RegisterResponse } from "@/type/RegisterUser";
 
