@@ -51,12 +51,11 @@ export async function getOrders(req: Request, res: Response) {
 
 export async function placeOrder(req: Request, res: Response) {
   try {
-    const { userId, guestId, name, address, product, cost } = req.body;
+    const { userId, name, address, product, cost } = req.body;
 
-    const isLoginUser =
-      Number.isInteger(userId) && userId > 0 && guestId == null;
+    const isLoginUser = Number.isInteger(userId) && userId > 0;
 
-    const isguest = userId == null && guestId == "0";
+    const isguest = req.query.guest === "true";
 
     if (!isLoginUser && !isguest)
       return res
@@ -64,7 +63,7 @@ export async function placeOrder(req: Request, res: Response) {
         .json({ message: "please login or enter guest mode" });
 
     if (
-      (userId !== null && (!Number.isInteger(userId) || userId <= 0)) ||
+      (isLoginUser && (!Number.isInteger(userId) || userId <= 0)) ||
       typeof name !== "string" ||
       name.trim().length < 3 ||
       typeof address !== "string" ||

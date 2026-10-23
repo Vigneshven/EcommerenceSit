@@ -1,5 +1,5 @@
 export type CreateOrder = {
-  userd: number | null;
+  userId: number | null;
   name: string;
   address: string;
   product: {

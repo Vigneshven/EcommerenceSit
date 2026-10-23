@@ -59,17 +59,14 @@ export async function getCart(req: Request, res: Response) {
 
 export async function addToCart(req: Request, res: Response) {
   try {
-    const {
-      userId: rawUserId,
-      productId,
-      quantity = 1,
-      color = "pink",
-    } = req.body;
+    const user_id = req.query.userId;
+
+    const { productId, quantity = 1, color = "pink" } = req.body;
 
     const userId =
-      rawUserId === undefined || rawUserId === null || rawUserId === ""
+      user_id === undefined || user_id === null || user_id === ""
         ? undefined
-        : Number(rawUserId);
+        : Number(user_id);
 
     const isGuest = req.query.guest === "true";
     const owner = getOwner(userId, isGuest);

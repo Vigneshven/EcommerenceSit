@@ -103,27 +103,34 @@ export async function addToCart(
   },
   isGuest: boolean = false,
 ) {
-  const params = isGuest && !data.userId ? "?guest=true" : "";
+
+  let url: string;
 
   const headers: HeadersInit = { "Content-Type": "application/json" };
 
-  if (data.userId !== undefined && token) {
-    headers.Authorization = `Bearer ${token}`;
+  if (isGuest) {
+    url = `${baseUrl}/api/cart?guest=true`;
+  } else if (data.userId !== undefined) {
+    url = `${baseUrl}/api/cart?userId=${data.userId}`;
+
+    if (data.userId !== undefined && token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  } else {
+    throw new Error("cannot add items to cart without valid owner");
   }
 
-  const res = await fetch(`${baseUrl}/api/cart${params}`, {
+  const res = await fetch(url, {
     method: "POST",
     headers,
     body: JSON.stringify(data),
   });
 
-  const responseText = await res.text();
-
   if (!res.ok) {
-    throw new Error(responseText || "Failed to add cart item");
+    throw new Error("Failed to add cart item");
   }
 
-  return responseText ? JSON.parse(responseText) : null;
+  return res.json();
 }
 
 export async function updateCartItem(
