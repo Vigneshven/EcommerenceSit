@@ -1,7 +1,11 @@
+import RouteGuard from "@/components/RouteGuard";
+
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="auth-container">
-      <main>{children}</main>
+      <RouteGuard type="public" allowGuest>
+        {children}
+      </RouteGuard>
     </div>
   );
 }
