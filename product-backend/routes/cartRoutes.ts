@@ -5,12 +5,13 @@ import {
   removeCartItem,
   updateCart,
 } from "../controllers/cartController";
+import { requireAuth } from "../middleware/requireAuth";
 
 const router = Router();
 
-router.get("/", getCart);
-router.post("/", addToCart);
-router.put("/:cartItemId", updateCart);
-router.delete("/:cartItemId", removeCartItem);
+router.get("/", requireAuth, getCart);
+router.post("/", requireAuth, addToCart);
+router.put("/:cartItemId", requireAuth, updateCart);
+router.delete("/:cartItemId", requireAuth, removeCartItem);
 
 export default router;

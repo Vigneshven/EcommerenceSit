@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import { createUser, findUserByEmail } from "../models/authModel";
+import jwt from "jsonwebtoken";
 
 export async function register(req: Request, res: Response) {
   try {
@@ -78,6 +79,16 @@ export async function login(req: Request, res: Response) {
       });
     }
 
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+      return res.status(500).json({
+        message: "authentication config error",
+      });
+    }
+
+    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "1hr" });
+
     return res.status(200).json({
       message: "Login successfully",
       user: {
@@ -85,6 +96,7 @@ export async function login(req: Request, res: Response) {
         username: user.username,
         email: user.email,
       },
+      token,
     });
   } catch (error) {
     console.error("Login error:", error);

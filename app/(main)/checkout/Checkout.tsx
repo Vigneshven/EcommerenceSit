@@ -90,14 +90,17 @@ function Checkout() {
         color: item.color,
       }));
 
-      await createOrder({
-        userId: user?.id ?? null,
-        guestId: isGuest ? "0" : null,
-        name: data.firstName,
-        address: data.address,
-        product,
-        cost: total,
-      });
+      await createOrder(
+        {
+          userId: user?.id ?? null,
+          guestId: isGuest ? "0" : null,
+          name: data.firstName,
+          address: data.address,
+          product,
+          cost: total,
+        },
+        isGuest,
+      );
 
       await Promise.all(
         cart.map((item) =>

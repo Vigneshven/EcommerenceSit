@@ -3,8 +3,10 @@ import LoginUser from "@/type/LoginUser";
 import { CreateOrder } from "@/type/Order";
 import { Product } from "@/type/Product";
 import { RegisterUser, RegisterResponse } from "@/type/RegisterUser";
+import useAuthStore from "@/zustandStore/authStore";
 
 const baseUrl = process.env.NEXT_BASE_URL ?? "http://localhost:4000";
+const token = useAuthStore.getState().token;
 
 export async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${baseUrl}/api/products`, {
@@ -71,9 +73,11 @@ export async function getCart(
   userId?: number | undefined,
   isGuest?: boolean,
 ): Promise<cart[]> {
-  // const params = userId ? `?userId=${userId}` : isGuest ? "?guest=true" : "";
-
   let url: string;
+
+  const headers: HeadersInit = {};
+
+  headers.Authorization = `Bearer ${token}`;
 
   if (userId !== undefined) {
     url = `${baseUrl}/api/cart?userId=${userId}`;
@@ -83,7 +87,7 @@ export async function getCart(
     throw new Error("Cannot fetch without valid owner");
   }
 
-  const res = await fetch(url);
+  const res = await fetch(url, { headers });
 
   if (!res.ok) throw new Error("fail to fetch");
 
@@ -100,9 +104,16 @@ export async function addToCart(
   isGuest: boolean = false,
 ) {
   const params = isGuest && !data.userId ? "?guest=true" : "";
+
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+
+  if (data.userId !== undefined && token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${baseUrl}/api/cart${params}`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(data),
   });
 
@@ -122,9 +133,14 @@ export async function updateCartItem(
   isGuest: boolean = false,
 ) {
   const params = userId ? "" : isGuest ? "?guest=true" : "";
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+
+  if (userId !== undefined && token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
   const res = await fetch(`${baseUrl}/api/cart/${cartItemId}${params}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({
       quantity,
       ...(userId !== undefined && userId > 0 ? { userId } : {}),
@@ -142,9 +158,15 @@ export async function deleteCartItem(
   isGuest: boolean = false,
 ) {
   const params = userId ? `?userId=${userId}` : isGuest ? "?guest=true" : "";
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+
+  if (userId !== undefined && token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
 
   const res = await fetch(`${baseUrl}/api/cart/${cartItemId}${params}`, {
     method: "DELETE",
+    headers,
   });
 
   if (!res.ok) throw new Error("fail to delete item");
@@ -154,10 +176,19 @@ export async function deleteCartItem(
 
 // orders
 
-export async function createOrder(data: CreateOrder) {
-  const res = await fetch(`${baseUrl}/api/order`, {
+export async function createOrder(data: CreateOrder, isGuest = false) {
+  const url = isGuest
+    ? `${baseUrl}/api/order?guest=true`
+    : `${baseUrl}/api/order`;
+
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+
+  if (!isGuest && token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+  const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(data),
   });
 
@@ -177,7 +208,11 @@ export async function getOrders(userId: number | null, isGuest: boolean) {
     throw new Error("Please log in or enter guest mode.");
   }
 
-  const res = await fetch(`${baseUrl}/api/order?${params.toString()}`);
+  const res = await fetch(`${baseUrl}/api/order?${params.toString()}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   if (!res.ok) {
     throw new Error("Failed to fetch orders");
