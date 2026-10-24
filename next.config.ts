@@ -5,8 +5,23 @@ const nextConfig: NextConfig = {
   experimental: {
     agentFeedback: true,
   },
-  cacheComponents: true,
-  partialPrefetching: true,
+  cacheComponents: false,
+  partialPrefetching: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "react-vite-comfy-store-v2.netlify.app",
+        pathname: "/assets/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
   turbopack: {
     rules: {
       "*.css": {
