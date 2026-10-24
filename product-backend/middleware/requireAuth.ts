@@ -13,7 +13,9 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     });
   }
 
-  const token = authHeader.slice(7);
+  const token = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : req.cookies?.token;
 
   const secret = process.env.JWT_SECRET;
 

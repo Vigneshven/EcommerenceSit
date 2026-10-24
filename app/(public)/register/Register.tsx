@@ -47,7 +47,8 @@ function Register() {
       reset();
 
       router.replace("/login");
-    } catch (error) {
+      router.refresh();
+    } catch {
       toast.error("Registration Failed");
     } finally {
       setIsLoading(false);

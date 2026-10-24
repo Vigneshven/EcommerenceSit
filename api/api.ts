@@ -6,7 +6,6 @@ import { RegisterUser, RegisterResponse } from "@/type/RegisterUser";
 import useAuthStore from "@/zustandStore/authStore";
 
 const baseUrl = process.env.NEXT_BASE_URL ?? "http://localhost:4000";
-const token = useAuthStore.getState().token;
 
 export async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${baseUrl}/api/products`, {
@@ -37,6 +36,7 @@ export async function loginUsers(data: LoginUser) {
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify(data),
   });
   const result = await res.json();
@@ -48,6 +48,28 @@ export async function loginUsers(data: LoginUser) {
   return result;
 }
 
+export async function logoutUser(): Promise<void> {
+  const res = await fetch(`${baseUrl}/api/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error("Logout successfully");
+  }
+}
+
+export async function guestLogin(): Promise<void> {
+  const res = await fetch(`${baseUrl}/api/auth/guest`, {
+    method: "POST",
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to Enter Guest Mode");
+  }
+}
+
 export async function registerUser(
   data: RegisterUser,
 ): Promise<RegisterResponse> {
@@ -56,6 +78,7 @@ export async function registerUser(
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify(data),
     cache: "no-store",
   });
@@ -74,6 +97,7 @@ export async function getCart(
   isGuest?: boolean,
 ): Promise<cart[]> {
   let url: string;
+  const token = useAuthStore.getState().token;
 
   const headers: HeadersInit = {};
 
@@ -87,7 +111,7 @@ export async function getCart(
     throw new Error("Cannot fetch without valid owner");
   }
 
-  const res = await fetch(url, { headers });
+  const res = await fetch(url, { headers, credentials: "include" });
 
   if (!res.ok) throw new Error("fail to fetch");
 
@@ -103,8 +127,9 @@ export async function addToCart(
   },
   isGuest: boolean = false,
 ) {
-
   let url: string;
+
+  const token = useAuthStore.getState().token;
 
   const headers: HeadersInit = { "Content-Type": "application/json" };
 
@@ -123,6 +148,7 @@ export async function addToCart(
   const res = await fetch(url, {
     method: "POST",
     headers,
+    credentials: "include",
     body: JSON.stringify(data),
   });
 
@@ -141,6 +167,7 @@ export async function updateCartItem(
 ) {
   const params = userId ? "" : isGuest ? "?guest=true" : "";
   const headers: HeadersInit = { "Content-Type": "application/json" };
+  const token = useAuthStore.getState().token;
 
   if (userId !== undefined && token) {
     headers.Authorization = `Bearer ${token}`;
@@ -148,6 +175,7 @@ export async function updateCartItem(
   const res = await fetch(`${baseUrl}/api/cart/${cartItemId}${params}`, {
     method: "PUT",
     headers,
+    credentials: "include",
     body: JSON.stringify({
       quantity,
       ...(userId !== undefined && userId > 0 ? { userId } : {}),
@@ -166,6 +194,7 @@ export async function deleteCartItem(
 ) {
   const params = userId ? `?userId=${userId}` : isGuest ? "?guest=true" : "";
   const headers: HeadersInit = { "Content-Type": "application/json" };
+  const token = useAuthStore.getState().token;
 
   if (userId !== undefined && token) {
     headers.Authorization = `Bearer ${token}`;
@@ -174,6 +203,7 @@ export async function deleteCartItem(
   const res = await fetch(`${baseUrl}/api/cart/${cartItemId}${params}`, {
     method: "DELETE",
     headers,
+    credentials: "include",
   });
 
   if (!res.ok) throw new Error("fail to delete item");
@@ -188,6 +218,8 @@ export async function createOrder(data: CreateOrder, isGuest = false) {
     ? `${baseUrl}/api/order?guest=true`
     : `${baseUrl}/api/order`;
 
+  const token = useAuthStore.getState().token;
+
   const headers: HeadersInit = { "Content-Type": "application/json" };
 
   if (!isGuest && token) {
@@ -196,6 +228,7 @@ export async function createOrder(data: CreateOrder, isGuest = false) {
   const res = await fetch(url, {
     method: "POST",
     headers,
+    credentials: "include",
     body: JSON.stringify(data),
   });
 
@@ -215,10 +248,13 @@ export async function getOrders(userId: number | null, isGuest: boolean) {
     throw new Error("Please log in or enter guest mode.");
   }
 
+  const token = useAuthStore.getState().token;
+
   const res = await fetch(`${baseUrl}/api/order?${params.toString()}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
+    credentials: "include",
   });
 
   if (!res.ok) {

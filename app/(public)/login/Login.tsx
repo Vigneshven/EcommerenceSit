@@ -1,6 +1,6 @@
 "use client";
 
-import { loginUsers } from "@/api/api";
+import { guestLogin, loginUsers } from "@/api/api";
 import Button from "@/components/Button";
 import useAuthStore from "@/zustandStore/authStore";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -56,6 +56,7 @@ export default function Login() {
 
       toast.success("Login successful!");
       router.replace("/");
+      router.refresh();
     } catch {
       toast.error("Login failed. Please try again.");
     } finally {
@@ -63,11 +64,16 @@ export default function Login() {
     }
   };
 
-  const handleGuestLogin = () => {
-    enterGuestMode();
-
-    toast.success("Logged in as guest!");
-    router.replace("/");
+  const handleGuestLogin = async () => {
+    try {
+      await guestLogin();
+      enterGuestMode();
+      toast.success("Logged in as guest!");
+      router.replace("/");
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { login, register } from "../controllers/authController";
+import {
+  guestMode,
+  login,
+  logout,
+  register,
+} from "../controllers/authController";
 import { requireAuth } from "../middleware/requireAuth";
 const router = Router();
 
@@ -12,5 +17,8 @@ router.get("/me", requireAuth, (req, res) => {
     userId: req.userId,
   });
 });
+
+router.post("/logout", logout);
+router.post("/guest", guestMode);
 
 export default router;

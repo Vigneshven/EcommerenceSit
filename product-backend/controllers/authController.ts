@@ -114,3 +114,32 @@ export async function login(req: Request, res: Response) {
     });
   }
 }
+
+export function logout(req: Request, res: Response) {
+  const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NEXT_BASE_URL === "Production",
+    sameSite: "lax" as const,
+    path: "/",
+  };
+
+  res.clearCookie("token", cookieOptions);
+  res.clearCookie("guestMode", cookieOptions);
+
+  return res.status(200).json({
+    messsage: "logout succcessfully",
+  });
+}
+
+export function guestMode(req: Request, res: Response) {
+  res.cookie("guestMode", "true", {
+    httpOnly: true,
+    secure: process.env.NEXT_BASE_URL === "Production",
+    sameSite: "lax",
+    path: "/",
+  });
+
+  return res.status(200).json({
+    message: "Guest Mode Selected",
+  });
+}

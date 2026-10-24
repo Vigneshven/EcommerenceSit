@@ -1,11 +1,20 @@
-import RouteGuard from "@/components/RouteGuard";
+import { Auth } from "@/lib/auth";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function AuthLayout({ children }: LayoutProps<"/">) {
-  return (
-    <div className="auth-container">
-      <RouteGuard type="public" allowGuest>
-        {children}
-      </RouteGuard>
-    </div>
-  );
+export default async function PublicLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const isAuthenticate = await Auth();
+  const cookieStore = await cookies();
+
+  const isGuest = cookieStore.get("guestMode")?.value === "true";
+
+  if (isAuthenticate || isGuest) {
+    redirect("/");
+  }
+
+  return <>{children}</>;
 }

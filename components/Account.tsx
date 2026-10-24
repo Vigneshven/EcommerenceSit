@@ -1,5 +1,6 @@
 "use client";
 
+import { logoutUser } from "@/api/api";
 import useAuthStore from "@/zustandStore/authStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,11 +9,17 @@ function Account() {
   const logOut = useAuthStore((state) => state.logout);
   const currentUser = useAuthStore((state) => state.currentUser);
   const isGuest = useAuthStore((state) => state.isGuest);
-  const route = useRouter();
+  const router = useRouter();
 
-  const handleLogOut = () => {
-    logOut();
-    route.replace("/");
+  const handleLogOut = async () => {
+    try {
+      await logoutUser();
+      logOut();
+      router.replace("/");
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
