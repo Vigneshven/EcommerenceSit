@@ -4,10 +4,7 @@ export async function Auth(): Promise<boolean> {
   const cookie = await cookies();
   const token = cookie.get("token")?.value;
 
-  console.log("token recieve by next", !!token);
-
   if (!token) {
-    console.log("token cookie not found");
     return false;
   }
   try {
@@ -19,11 +16,8 @@ export async function Auth(): Promise<boolean> {
       signal: AbortSignal.timeout(5000),
     });
 
-    console.log("Auth status:", res.status);
-
     return res.ok;
-  } catch (error) {
-    console.log("auth request failed", error);
+  } catch{
     return false;
   }
 }

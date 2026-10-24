@@ -24,6 +24,8 @@ export default function Login() {
   const loginUser = useAuthStore((state) => state.loginUser);
   const enterGuestMode = useAuthStore((state) => state.enterGuestMode);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSessionDialog, setShowSessionDialog] = useState(false);
+  const [pendingLogin, setPendingLogin] = useState<LoginForm | null>(null);
 
   const {
     register,
@@ -44,6 +46,12 @@ export default function Login() {
     try {
       const result = await loginUsers(data);
 
+      if (result.sessionExists) {
+        setPendingLogin(data);
+        setShowSessionDialog(true);
+        return;
+      }
+
       loginUser({
         user: result.user,
         token: result.token ?? null,
@@ -62,6 +70,48 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleContinueHere = async () => {
+    if (!pendingLogin) return;
+    setIsLoading(true);
+    try {
+      const res = await loginUsers({
+        ...pendingLogin,
+        forceNewSession: true,
+      });
+
+      if (res.sessionExists) {
+        toast.error("Another Session is still active");
+        return;
+      }
+
+      loginUser({
+        user: res.user,
+        token: res.token,
+      });
+
+      setShowSessionDialog(false);
+      setPendingLogin(null);
+
+      reset({
+        email: "",
+        password: "",
+      });
+      toast.success("Successfully login previous session replaced");
+      router.replace("/");
+      router.refresh();
+    } catch (error) {
+      console.log(error);
+      toast.error("unable to continue here");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelSession = () => {
+    setShowSessionDialog(false);
+    setPendingLogin(null);
   };
 
   const handleGuestLogin = async () => {
@@ -139,6 +189,49 @@ export default function Login() {
           </Link>
         </p>
       </form>
+      {/* session */}
+      {showSessionDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="session-dialog-title"
+            className="w-full max-w-md rounded-xl border border-border bg-card-background p-6 shadow-xl"
+          >
+            <h2
+              id="session-dialog-title"
+              className="text-xl font-bold text-heading"
+            >
+              Another session is active
+            </h2>
+
+            <p className="my-4 text-sm text-heading">
+              This account is already logged in in another browser. Do you want
+              to replace that session and continue here?
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={handleCancelSession}
+                disabled={isLoading}
+                className="rounded-lg border border-border px-4 py-2"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleContinueHere}
+                disabled={isLoading}
+                className="rounded-lg bg-primary px-4 py-2 text-white disabled:opacity-50"
+              >
+                {isLoading ? "Continuing..." : "Continue here"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

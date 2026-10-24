@@ -13,8 +13,7 @@ export async function getProducts(req: Request, res: Response) {
     }));
 
     return res.json(products);
-  } catch (error) {
-    console.log("failed to fetch product", error);
+  } catch {
     return res.status(500).json({
       message: "failed to fetch products",
     });

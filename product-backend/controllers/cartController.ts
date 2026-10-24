@@ -48,9 +48,7 @@ export async function getCart(req: Request, res: Response) {
 
     const items = await getCartItems(owner);
     return res.json(items);
-  } catch (error) {
-    console.error("Failed to fetch cart:", error);
-
+  } catch {
     return res.status(500).json({
       message: "Failed to fetch cart",
     });
@@ -99,9 +97,7 @@ export async function addToCart(req: Request, res: Response) {
     return res.status(200).json({
       message: "Cart item added",
     });
-  } catch (error) {
-    console.error("Failed to add cart item:", error);
-
+  } catch {
     return res.status(500).json({
       message: "Failed to add cart item",
     });
@@ -147,9 +143,7 @@ export async function updateCart(req: Request, res: Response) {
     return res.json({
       message: "Cart quantity updated",
     });
-  } catch (error) {
-    console.error("Failed to update cart:", error);
-
+  } catch {
     return res.status(500).json({
       message: "Failed to update cart",
     });
@@ -187,9 +181,7 @@ export async function removeCartItem(req: Request, res: Response) {
     return res.json({
       message: "Item removed",
     });
-  } catch (error) {
-    console.error("Failed to remove cart item:", error);
-
+  } catch {
     return res.status(500).json({
       message: "Failed to remove cart item",
     });

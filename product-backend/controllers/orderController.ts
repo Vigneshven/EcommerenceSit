@@ -89,8 +89,7 @@ export async function placeOrder(req: Request, res: Response) {
       message: "Order placed successfully",
       id: orderId,
     });
-  } catch (error) {
-    console.error("Place order error:", error);
+  } catch {
     return res.status(500).json({
       message: "Failed to place order",
     });

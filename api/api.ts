@@ -30,22 +30,30 @@ export async function getProductById(id: string): Promise<Product | null> {
   return res.json();
 }
 
-export async function loginUsers(data: LoginUser) {
+export async function loginUsers(
+  data: LoginUser & { forceNewSession?: boolean },
+) {
   const res = await fetch(`${baseUrl}/api/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: JSON.stringify(data),
+    body: JSON.stringify({
+      ...data,
+      forceNewSession: data.forceNewSession ?? false,
+    }),
   });
   const result = await res.json();
 
+  if (res.status === 409) {
+    return { sessionExits: true };
+  }
   if (!res.ok) {
     throw new Error(result.message);
   }
 
-  return result;
+  return { ...result, sessionExits: false };
 }
 
 export async function logoutUser(): Promise<void> {

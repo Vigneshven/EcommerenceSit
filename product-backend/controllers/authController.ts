@@ -1,6 +1,12 @@
 import type { Request, Response } from "express";
-import { createUser, findUserByEmail } from "../models/authModel";
+import {
+  createUser,
+  findUserByEmail,
+  getActiveSession,
+  updateActiveSession,
+} from "../models/authModel";
 import jwt from "jsonwebtoken";
+import { randomUUID } from "crypto";
 
 export async function register(req: Request, res: Response) {
   try {
@@ -46,9 +52,7 @@ export async function register(req: Request, res: Response) {
         email: trimmedEmail,
       },
     });
-  } catch (error) {
-    console.error("Registration error:", error);
-
+  } catch {
     return res.status(500).json({
       message: "Registration failed",
     });
@@ -87,7 +91,25 @@ export async function login(req: Request, res: Response) {
       });
     }
 
-    const token = jwt.sign({ userId: user.id }, secret, { expiresIn: "1hr" });
+    // session
+
+    const forceNewSession = req.body.forceNewSession === "true";
+    const activeSession = await getActiveSession(user.id);
+
+    if (activeSession && !forceNewSession) {
+      return res.status(409).json({
+        code: "session_exists",
+        message: "Another session is active",
+      });
+    }
+
+    const sessionId = randomUUID();
+
+    await updateActiveSession(user.id, sessionId);
+
+    const token = jwt.sign({ userId: user.id, sessionId }, secret, {
+      expiresIn: "1hr",
+    });
 
     res.cookie("token", token, {
       httpOnly: true,

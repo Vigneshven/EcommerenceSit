@@ -1,7 +1,12 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { getActiveSession } from "../models/authModel";
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+export async function requireAuth(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const authHeader = req.headers.authorization;
   const isGuest = req.query.guest === "true";
 
@@ -33,6 +38,15 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     ) {
       return res.status(401).json({
         message: "Invalid Token",
+      });
+    }
+
+    const activeSession = await getActiveSession(decode.userId);
+
+    if (activeSession !== decode.sessionId) {
+      return res.status(401).json({
+        code: "session_replaced",
+        message: "Your session is not active",
       });
     }
 
