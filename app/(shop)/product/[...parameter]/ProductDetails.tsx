@@ -73,12 +73,13 @@ export default function ProductDetails({ product }: Props) {
     <div>
       <div className="mx-auto w-full max-w-7xl px-6 py-12">
         <div className="flex flex-col items-center justify-between gap-10 md:flex-row">
-          <div className="w-full md:w-1/2">
+          <div className="relative w-full h-72 md:w-1/2 overflow-hidden">
             <Image
               src={product.image}
               alt={product.name}
-              width={400}
-              height={500}
+              fill
+              sizes="(max-width: 768px) 100vw 50vw"
+              className="object-cover"
               loading="eager"
             />
           </div>
