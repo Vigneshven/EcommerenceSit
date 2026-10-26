@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { getActiveSession } from "../models/authModel";
 
 export async function requireAuth(
   req: Request,
@@ -41,14 +40,6 @@ export async function requireAuth(
       });
     }
 
-    const activeSession = await getActiveSession(decode.userId);
-
-    if (activeSession !== decode.sessionId) {
-      return res.status(401).json({
-        code: "session_replaced",
-        message: "Your session is not active",
-      });
-    }
 
     req.userId = decode.userId;
     next();

@@ -1,12 +1,6 @@
 import type { Request, Response } from "express";
-import {
-  createUser,
-  findUserByEmail,
-  getActiveSession,
-  updateActiveSession,
-} from "../models/authModel";
+import { createUser, findUserByEmail } from "../models/authModel";
 import jwt from "jsonwebtoken";
-import { randomUUID } from "crypto";
 
 export async function register(req: Request, res: Response) {
   try {
@@ -91,30 +85,14 @@ export async function login(req: Request, res: Response) {
       });
     }
 
-    // session
-
-    const forceNewSession = req.body.forceNewSession === "true";
-    const activeSession = await getActiveSession(user.id);
-
-    if (activeSession && !forceNewSession) {
-      return res.status(409).json({
-        code: "session_exists",
-        message: "Another session is active",
-      });
-    }
-
-    const sessionId = randomUUID();
-
-    await updateActiveSession(user.id, sessionId);
-
-    const token = jwt.sign({ userId: user.id, sessionId }, secret, {
+    const token = jwt.sign({ userId: user.id }, secret, {
       expiresIn: "1hr",
     });
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NEXT_BASE_URL === "Production",
-      sameSite: "lax",
+      // secure: process.env.NEXT_BASE_URL === "Production",
+      // sameSite: "lax",
       path: "/",
       expires: new Date(4127288280000), //15/10/2100 in unix timestamp
     });
@@ -140,8 +118,8 @@ export async function login(req: Request, res: Response) {
 export function logout(req: Request, res: Response) {
   const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NEXT_BASE_URL === "Production",
-    sameSite: "lax" as const,
+    // secure: process.env.NEXT_BASE_URL === "Production",
+    // sameSite: "lax" as const,
     path: "/",
   };
 
@@ -156,8 +134,8 @@ export function logout(req: Request, res: Response) {
 export function guestMode(req: Request, res: Response) {
   res.cookie("guestMode", "true", {
     httpOnly: true,
-    secure: process.env.NEXT_BASE_URL === "Production",
-    sameSite: "lax",
+    // secure: process.env.NEXT_BASE_URL === "Production",
+    // sameSite: "lax",
     path: "/",
   });
 
