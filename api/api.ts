@@ -47,13 +47,13 @@ export async function loginUsers(
   const result = await res.json();
 
   if (res.status === 409) {
-    return { sessionExits: true };
+    return { sessionExists: true };
   }
   if (!res.ok) {
     throw new Error(result.message);
   }
 
-  return { ...result, sessionExits: false };
+  return { ...result, sessionExists: false };
 }
 
 export async function logoutUser(): Promise<void> {
