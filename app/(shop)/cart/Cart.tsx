@@ -5,7 +5,7 @@ import useAuthStore from "@/zustandStore/authStore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { cart as CartItem } from "@/type/Cart";
+import type { CartItem } from "@/zustandStore/ShopStore";
 import { deleteCartItem, getCart, updateCartItem } from "@/api/api";
 import { toast } from "sonner";
 import OrderSummary from "@/components/OrderSummary";
@@ -19,7 +19,7 @@ export default function Cart() {
 
   const isGuest = useAuthStore((state) => state.isGuest);
 
-  const emptyCart: import("@/zustandStore/ShopStore").CartItem[] = [];
+  const emptyCart: CartItem[] = [];
 
   const anonymousCart = useShopStore(
     (state) => state.cart["anonymous"] ?? emptyCart,
@@ -44,7 +44,18 @@ export default function Cart() {
 
     try {
       const items = await getCart(userId, isGuest);
-      setCart(items);
+      setCart(
+        items.map((item) => ({
+          id: item.product_id ?? item.cartItemId,
+          image: item.image,
+          name: item.name,
+          company: item.company ?? "",
+          price: item.price,
+          amount: item.amount,
+          color: item.color ?? "",
+          cartItemId: item.cartItemId,
+        })),
+      );
     } catch {
       toast.error("Unable to load cart");
     } finally {
@@ -61,16 +72,17 @@ export default function Cart() {
     }
 
     if (user?.id) {
-      loadCart(user.id, false);
+      loadCart();
     } else if (isGuest) {
-      loadCart(undefined, true);
+      loadCart();
     } else {
       setLoading(false);
     }
   }, [hasHydrated, loadCart, user?.id, isGuest]);
 
   async function handleQtyChange(item: CartItem, quantity: number) {
-    setItems(item.cartItemId);
+    const itemId = item.cartItemId ?? item.id;
+    setItems(itemId);
 
     try {
       if (!user && !isGuest) {
@@ -85,7 +97,7 @@ export default function Cart() {
           ),
         );
       } else {
-        await updateCartItem(item.cartItemId, quantity, userId, isGuest);
+        await updateCartItem(itemId, quantity, userId, isGuest);
         await loadCart();
 
         setCart((prev) =>
@@ -97,11 +109,11 @@ export default function Cart() {
         );
 
         setMaxAmount((prev) => {
-          const currentMax = prev[item.cartItemId] ?? 5;
+          const currentMax = prev[itemId] ?? 5;
 
           return {
             ...prev,
-            [item.cartItemId]:
+            [itemId]:
               quantity >= currentMax
                 ? Math.min(currentMax + 5, 100)
                 : currentMax,
@@ -237,7 +249,7 @@ export default function Cart() {
                       {Array.from(
                         {
                           length:
-                            maxAmount[item.cartItemId] ??
+                          maxAmount[item.cartItemId ?? item.id] ??
                             Math.max(5, item.amount),
                         },
                         (_, i) => i + 1,

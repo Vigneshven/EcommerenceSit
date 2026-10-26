@@ -87,7 +87,7 @@ function Checkout() {
         name: item.name,
         amount: item.amount,
         price: item.price,
-        color: item.color,
+        color: item.color ?? "",
       }));
 
       await createOrder(

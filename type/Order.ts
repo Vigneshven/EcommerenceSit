@@ -1,5 +1,6 @@
 export type CreateOrder = {
   userId: number | null;
+  guestId?: string | null;
   name: string;
   address: string;
   product: {

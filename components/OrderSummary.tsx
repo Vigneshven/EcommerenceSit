@@ -2,10 +2,12 @@
 
 import { calculateOrderSummary } from "@/lib/utils/orderSummary";
 import { formatPrice, parsePrice } from "@/lib/utils/price";
-import { cart } from "@/type/Cart";
+import type { cart } from "@/type/Cart";
+
+type CartSummaryItem = Pick<cart, "name" | "price" | "amount">;
 
 type OrderSummaryProps = {
-  cart: cart[];
+  cart: CartSummaryItem[];
   loading: boolean;
 };
 

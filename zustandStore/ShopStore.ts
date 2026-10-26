@@ -4,6 +4,8 @@ import useAuthStore from "./authStore";
 
 export type CartItem = {
   id: number;
+  cartItemId?: number;
+  product_id?: number | null;
   image: string;
   name: string;
   company: string;

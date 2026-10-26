@@ -1,5 +1,5 @@
 import express from "express";
-import cors = require("cors");
+import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "../product-backend/routes/authRoutes";
 import productRoutes from "../product-backend/routes/productRoutes";

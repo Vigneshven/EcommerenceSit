@@ -1,11 +1,13 @@
 import { parsePrice } from "@/lib/utils/price";
 import type { cart } from "@/type/Cart";
 
+type CartSummaryItem = Pick<cart, "name" | "price" | "amount">;
+
 const SHIPPING = 15;
 const TAX_RATE = 0.1;
 const FREE_SHIPPING_LIMIT = 1000;
 
-export function calculateOrderSummary(cart: cart[]) {
+export function calculateOrderSummary(cart: CartSummaryItem[]) {
   const subtotal = cart.reduce((total, item) => {
     return total + parsePrice(item.price) * Number(item.amount ?? 0);
   }, 0);

@@ -8,7 +8,7 @@ type ProductState = {
 
 const useProductStore = create<ProductState>((set) => ({
   product: [],
-  setProducts: (products) => set({ products }),
+  setProducts: (products) => set({ product: products }),
 }));
 
 export default useProductStore;
