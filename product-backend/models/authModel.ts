@@ -17,14 +17,24 @@ export async function findUserByEmail(email: string) {
   return rows[0] ?? null;
 }
 
+export async function updatePasswordByHash(
+  userId: number,
+  passwordHash: string,
+): Promise<void> {
+  await pool.execute(`update users set password=? where id=?`, [
+    userId,
+    passwordHash,
+  ]);
+}
+
 export async function createUser(
   username: string,
   email: string,
-  password: string,
+  passwordHash: string,
 ) {
   const [rows] = await pool.execute<ResultSetHeader>(
     "insert into users (username,email,password) values (?,?,?)",
-    [username, email, password],
+    [username, email, passwordHash],
   );
 
   return rows.insertId;

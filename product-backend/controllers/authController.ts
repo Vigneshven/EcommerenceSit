@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { createUser, findUserByEmail } from "../models/authModel";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 export async function register(req: Request, res: Response) {
   try {
@@ -36,7 +37,13 @@ export async function register(req: Request, res: Response) {
       });
     }
 
-    const userId = await createUser(trimmedUsername, trimmedEmail, password);
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    const userId = await createUser(
+      trimmedUsername,
+      trimmedEmail,
+      passwordHash,
+    );
 
     return res.status(201).json({
       message: "Registration successful",
@@ -71,7 +78,15 @@ export async function login(req: Request, res: Response) {
     const trimmedEmail = email.trim().toLowerCase();
     const user = await findUserByEmail(trimmedEmail);
 
-    if (!user || user.password !== password) {
+    if (!user) {
+      return res.status(401).json({
+        message: "Invalid email and password",
+      });
+    }
+
+    const comparePassword = bcrypt.compare(password, user.password);
+
+    if (!comparePassword) {
       return res.status(401).json({
         message: "Invalid email and password",
       });
