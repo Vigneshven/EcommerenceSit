@@ -5,7 +5,10 @@ import { Product } from "@/type/Product";
 import { RegisterUser, RegisterResponse } from "@/type/RegisterUser";
 import useAuthStore from "@/zustandStore/authStore";
 
-const baseUrl = process.env.NEXT_BASE_URL ?? "http://localhost:4000";
+const baseUrl =
+  process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_BASE_URL ||
+  "http://localhost:4000";
 
 export async function getProducts(): Promise<Product[]> {
   const res = await fetch(`${baseUrl}/api/products`, {
@@ -30,30 +33,22 @@ export async function getProductById(id: string): Promise<Product | null> {
   return res.json();
 }
 
-export async function loginUsers(
-  data: LoginUser & { forceNewSession?: boolean },
-) {
+export async function loginUsers(data: LoginUser) {
   const res = await fetch(`${baseUrl}/api/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     credentials: "include",
-    body: JSON.stringify({
-      ...data,
-      forceNewSession: data.forceNewSession ?? false,
-    }),
+    body: JSON.stringify(data),
   });
   const result = await res.json();
 
-  if (res.status === 409) {
-    return { sessionExists: true };
-  }
   if (!res.ok) {
     throw new Error(result.message);
   }
 
-  return { ...result, sessionExists: false };
+  return result;
 }
 
 export async function logoutUser(): Promise<void> {
@@ -63,7 +58,7 @@ export async function logoutUser(): Promise<void> {
   });
 
   if (!res.ok) {
-    throw new Error("Logout successfully");
+    throw new Error("Failed to logout");
   }
 }
 

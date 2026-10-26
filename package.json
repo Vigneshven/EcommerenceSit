@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -H 0.0.0.0 -p 3000",
+    "backend": "tsx product-backend/server.ts",
     "lint": "eslint",
     "server": "tsx watch product-backend/server.ts"
   },
