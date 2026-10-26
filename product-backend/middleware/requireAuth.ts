@@ -31,7 +31,8 @@ export async function requireAuth(
   try {
     const decode = jwt.verify(token, secret);
     if (
-      typeof decode === "string" ||
+      typeof decode !== "object" ||
+      decode === null ||
       !Number.isInteger(decode.userId) ||
       decode.userId <= 0
     ) {
@@ -39,7 +40,6 @@ export async function requireAuth(
         message: "Invalid Token",
       });
     }
-
 
     req.userId = decode.userId;
     next();

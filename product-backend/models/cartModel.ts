@@ -1,10 +1,9 @@
 import { ResultSetHeader, RowDataPacket } from "mysql2";
 import pool from "../config/db";
 
-export type CartOwner = {
-  column: "user_id" | "guest_id";
-  value: number;
-};
+export type CartOwner =
+  | { column: "user_id"; value: number }
+  | { column: "guest_id"; value: string };
 
 export async function getCartItems(owner: CartOwner) {
   const [rows] = await pool.query<RowDataPacket[]>(

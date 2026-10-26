@@ -25,7 +25,14 @@ export type OrderRow = RowDataPacket & {
 
 export async function getOrders(req: Request, res: Response) {
   try {
-    const userId = Number(req.query.userId);
+    if (!req.userId) {
+      return res.status(401).json({
+        message: "Authentication Required",
+      });
+    }
+
+    const userId = req.userId;
+
     const guest = req.query.guest === "true";
 
     const rows = guest ? await getGuestOrder() : await getOrdersByUser(userId);
@@ -51,7 +58,14 @@ export async function getOrders(req: Request, res: Response) {
 
 export async function placeOrder(req: Request, res: Response) {
   try {
-    const { userId, name, address, product, cost } = req.body;
+    const { name, address, product, cost } = req.body;
+
+    if (!req.userId) {
+      return res.status(401).json({
+        message: "Authentication Required",
+      });
+    }
+    const userId = req.userId;
 
     const isLoginUser = Number.isInteger(userId) && userId > 0;
 

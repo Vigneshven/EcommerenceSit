@@ -6,8 +6,9 @@ import {
   deleteCartItem as deleteItem,
   type CartOwner,
 } from "../models/cartModel";
+import { randomUUID } from "node:crypto";
 
-const GUEST_ID = 0;
+const GUEST_ID = randomUUID();
 
 function getOwner(
   userId: number | undefined,
@@ -30,12 +31,13 @@ function getOwner(
 
 export async function getCart(req: Request, res: Response) {
   try {
-    const rawUserId = req.query.userId;
+    if (!req.userId) {
+      return res.status(401).json({
+        message: "Authentication Required",
+      });
+    }
 
-    const userId =
-      typeof rawUserId === "string" && rawUserId !== ""
-        ? Number(rawUserId)
-        : undefined;
+    const userId = req.userId;
 
     const isGuest = req.query.guest === "true";
     const owner = getOwner(userId, isGuest);
@@ -57,14 +59,15 @@ export async function getCart(req: Request, res: Response) {
 
 export async function addToCart(req: Request, res: Response) {
   try {
-    const user_id = req.query.userId;
+    if (!req.userId) {
+      return res.status(401).json({
+        message: "Authentication Required",
+      });
+    }
+
+    const userId = req.userId;
 
     const { productId, quantity = 1, color = "pink" } = req.body;
-
-    const userId =
-      user_id === undefined || user_id === null || user_id === ""
-        ? undefined
-        : Number(user_id);
 
     const isGuest = req.query.guest === "true";
     const owner = getOwner(userId, isGuest);
@@ -106,12 +109,13 @@ export async function addToCart(req: Request, res: Response) {
 
 export async function updateCart(req: Request, res: Response) {
   try {
-    const rawUserId = req.body.userId;
+    if (!req.userId) {
+      return res.status(401).json({
+        message: "Authentication Required",
+      });
+    }
 
-    const userId =
-      rawUserId === undefined || rawUserId === null || rawUserId === ""
-        ? undefined
-        : Number(rawUserId);
+    const userId = req.userId;
 
     const isGuest = req.query.guest === "true";
     const owner = getOwner(userId, isGuest);
@@ -152,12 +156,13 @@ export async function updateCart(req: Request, res: Response) {
 
 export async function removeCartItem(req: Request, res: Response) {
   try {
-    const rawUserId = req.query.userId;
+    if (!req.userId) {
+      return res.status(401).json({
+        message: "Authentication Required",
+      });
+    }
 
-    const userId =
-      typeof rawUserId === "string" && rawUserId !== ""
-        ? Number(rawUserId)
-        : undefined;
+    const userId = req.userId;
 
     const isGuest = req.query.guest === "true";
     const owner = getOwner(userId, isGuest);
