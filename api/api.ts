@@ -111,7 +111,7 @@ export async function getCart(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(isGuest ? url : `${url}?userId=${userId}`, {
+  const res = await fetch(isGuest ? url : `${url}?`, {
     method: "GET",
     headers,
     credentials: "include",
@@ -140,7 +140,7 @@ export async function addToCart(
   if (isGuest) {
     url = `${baseUrl}/api/cart/guest`;
   } else if (data.userId !== undefined) {
-    url = `${baseUrl}/api/cart?userId=${data.userId}`;
+    url = `${baseUrl}/api/cart`;
 
     if (data.userId !== undefined && token) {
       headers.Authorization = `Bearer ${token}`;
@@ -264,7 +264,7 @@ export async function getOrders(
 
   const url = isGuest
     ? `${baseUrl}/api/order/guest`
-    : `${baseUrl}/api/order?userId=${userId}`;
+    : `${baseUrl}/api/order`;
 
   if (!isGuest && token) {
     headers.Authorization = `Bearer ${token}`;
