@@ -6,24 +6,18 @@ import {
   deleteCartItem as deleteItem,
   type CartOwner,
 } from "../models/cartModel";
-import { randomUUID } from "node:crypto";
 
-const GUEST_ID = randomUUID();
-
-function getOwner(
-  userId: number | undefined,
-  isGuestUser: boolean,
-): CartOwner | null {
-  if (userId !== undefined) {
-    if (!Number.isInteger(userId) || userId <= 0) {
+function getOwner(req: Request): CartOwner | null {
+  if (req.userId !== undefined) {
+    if (!Number.isInteger(req.userId) || req.userId <= 0) {
       return null;
     }
 
-    return { column: "user_id", value: userId };
+    return { column: "user_id", value: req.userId };
   }
 
-  if (isGuestUser) {
-    return { column: "guest_id", value: GUEST_ID };
+  if (req.guestId) {
+    return { column: "guest_id", value: req.guestId };
   }
 
   return null;
@@ -31,23 +25,28 @@ function getOwner(
 
 export async function getCart(req: Request, res: Response) {
   try {
-    if (!req.userId) {
+    let owner = getOwner(req);
+
+    if (req.userId !== undefined) {
+      if (!Number.isInteger(req.userId) || req.userId <= 0) {
+        return res.status(401).json({
+          message: "Invalid authentication user",
+        });
+      }
+      owner = {
+        column: "user_id",
+        value: req.userId,
+      };
+    } else if (req.guestId) {
+      owner = {
+        column: "guest_id",
+        value: req.guestId,
+      };
+    } else {
       return res.status(401).json({
-        message: "Authentication Required",
+        message: "authenticate user or guest required",
       });
     }
-
-    const userId = req.userId;
-
-    const isGuest = req.query.guest === "true";
-    const owner = getOwner(userId, isGuest);
-
-    if (!owner) {
-      return res.status(400).json({
-        message: "Invalid user ID or cart owner",
-      });
-    }
-
     const items = await getCartItems(owner);
     return res.json(items);
   } catch {
@@ -59,18 +58,24 @@ export async function getCart(req: Request, res: Response) {
 
 export async function addToCart(req: Request, res: Response) {
   try {
-    if (!req.userId) {
+    const owner = getOwner(req);
+    if (!owner) {
       return res.status(401).json({
         message: "Authentication Required",
       });
     }
 
-    const userId = req.userId;
+    // const userId = req.userId;
 
     const { productId, quantity = 1, color = "pink" } = req.body;
 
-    const isGuest = req.query.guest === "true";
-    const owner = getOwner(userId, isGuest);
+    // const isGuest = req.query.guest === "true";
+
+    if (!owner) {
+      return res.status(401).json({
+        message: "cart identity required",
+      });
+    }
 
     const product_Id = Number(productId);
     const quantity_count = Number(quantity);
@@ -109,22 +114,30 @@ export async function addToCart(req: Request, res: Response) {
 
 export async function updateCart(req: Request, res: Response) {
   try {
-    if (!req.userId) {
+    const owner = getOwner(req);
+    const cartItemId = Number(req.params.cartItemId);
+
+    if (!owner) {
       return res.status(401).json({
-        message: "Authentication Required",
+        message: "authentication required",
+      });
+    }
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+      return res.status(400).json({
+        message: "request body is missing",
       });
     }
 
-    const userId = req.userId;
+    if (req.body?.quantity === undefined) {
+      console.log("quantity missing");
+      return res.status(400).json({
+        message: "quantity is required",
+      });
+    }
 
-    const isGuest = req.query.guest === "true";
-    const owner = getOwner(userId, isGuest);
-
-    const cartItemId = Number(req.params.cartItemId);
     const quantity = Number(req.body.quantity);
 
     if (
-      !owner ||
       !Number.isInteger(cartItemId) ||
       cartItemId <= 0 ||
       !Number.isInteger(quantity) ||
@@ -156,16 +169,22 @@ export async function updateCart(req: Request, res: Response) {
 
 export async function removeCartItem(req: Request, res: Response) {
   try {
-    if (!req.userId) {
+    const owner = getOwner(req);
+    if (!owner) {
       return res.status(401).json({
         message: "Authentication Required",
       });
     }
 
-    const userId = req.userId;
+    // const userId = req.userId;
 
-    const isGuest = req.query.guest === "true";
-    const owner = getOwner(userId, isGuest);
+    // const isGuest = req.query.guest === "true";
+
+    if (!owner) {
+      return res.status(401).json({
+        message: "cart identity required",
+      });
+    }
 
     const cartItemId = Number(req.params.cartItemId);
 

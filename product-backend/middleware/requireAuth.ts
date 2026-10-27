@@ -7,28 +7,30 @@ export async function requireAuth(
   next: NextFunction,
 ) {
   const authHeader = req.headers.authorization;
-  const isGuest = req.query.guest === "true";
+  // const isGuest = req.query.guest === "true";
 
-  if (isGuest) return next();
+  // if (isGuest) return next();
+  const BearerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : undefined;
 
-  if (!authHeader?.startsWith("Bearer ")) {
+  const cookieToken = req.cookies?.token as string | undefined;
+
+  const token = BearerToken || cookieToken;
+
+  if (!token) {
     return res.status(401).json({
       message: "authorizztion token require",
     });
   }
-
-  const token = authHeader?.startsWith("Bearer ")
-    ? authHeader.slice(7)
-    : req.cookies?.token;
-
-  const secret = process.env.JWT_SECRET;
-
-  if (!secret) {
-    return res.status(500).json({
-      message: "authentication config error",
-    });
-  }
   try {
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+      return res.status(500).json({
+        message: "authentication config error",
+      });
+    }
     const decode = jwt.verify(token, secret);
     if (
       typeof decode !== "object" ||

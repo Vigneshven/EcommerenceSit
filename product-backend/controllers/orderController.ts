@@ -25,17 +25,17 @@ export type OrderRow = RowDataPacket & {
 
 export async function getOrders(req: Request, res: Response) {
   try {
-    if (!req.userId) {
+    let rows;
+
+    if (req.userId) {
+      rows = await getOrdersByUser(req.userId);
+    } else if (req.guestId) {
+      rows = await getGuestOrder(req.guestId);
+    } else {
       return res.status(401).json({
         message: "Authentication Required",
       });
     }
-
-    const userId = req.userId;
-
-    const guest = req.query.guest === "true";
-
-    const rows = guest ? await getGuestOrder() : await getOrdersByUser(userId);
 
     const orders = rows.map((row) => ({
       id: row.order_id,
@@ -60,24 +60,22 @@ export async function placeOrder(req: Request, res: Response) {
   try {
     const { name, address, product, cost } = req.body;
 
-    if (!req.userId) {
-      return res.status(401).json({
-        message: "Authentication Required",
-      });
-    }
     const userId = req.userId;
 
-    const isLoginUser = Number.isInteger(userId) && userId > 0;
+    const guest_Id = req.guestId;
 
-    const isguest = req.query.guest === "true";
+    const isLoginUser = Number.isInteger(userId);
 
-    if (!isLoginUser && !isguest)
-      return res
-        .status(401)
-        .json({ message: "please login or enter guest mode" });
+    const isGuestUser = !isLoginUser && typeof guest_Id === "string";
+
+    if (!isLoginUser && !isGuestUser) {
+      return res.status(401).json({
+        message: "Please login or enter as guest users",
+      });
+    }
 
     if (
-      (isLoginUser && (!Number.isInteger(userId) || userId <= 0)) ||
+      (isLoginUser && !Number.isInteger(userId)) ||
       typeof name !== "string" ||
       name.trim().length < 3 ||
       typeof address !== "string" ||
@@ -92,8 +90,8 @@ export async function placeOrder(req: Request, res: Response) {
       });
     }
     const orderId = await createOrder({
-      userId: isLoginUser ? userId : null,
-      guestId: isguest ? "0" : null,
+      userId: isLoginUser ? userId! : null,
+      guestId: isLoginUser ? null : guest_Id!,
       name: name.trim(),
       address: address.trim(),
       product: product as OrderProduct[],

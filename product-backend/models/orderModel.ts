@@ -30,13 +30,13 @@ export async function getOrdersByUser(userId: number) {
   return row;
 }
 
-export async function getGuestOrder() {
+export async function getGuestOrder(guestId: string) {
   const [row] = await pool.execute<OrderRow[]>(
     `select order_id,user_id,name,address,product,cost,date_time
             from orders
             where guest_id=? and user_id is null
             order by date_time`,
-    ["0"],
+    [guestId],
   );
   return row;
 }

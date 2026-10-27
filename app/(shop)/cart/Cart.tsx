@@ -142,10 +142,7 @@ export default function Cart() {
         setCart((prev) =>
           prev.filter(
             (current) =>
-              !(
-                current.id === item.id &&
-                current.color === item.color
-              ),
+              !(current.id === item.id && current.color === item.color),
           ),
         );
       } else {
@@ -249,7 +246,7 @@ export default function Cart() {
                       {Array.from(
                         {
                           length:
-                          maxAmount[item.cartItemId ?? item.id] ??
+                            maxAmount[item.cartItemId ?? item.id] ??
                             Math.max(5, item.amount),
                         },
                         (_, i) => i + 1,

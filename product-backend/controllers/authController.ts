@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { createUser, findUserByEmail } from "../models/authModel";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import { randomUUID } from "node:crypto";
 
 export async function register(req: Request, res: Response) {
   try {
@@ -139,7 +140,7 @@ export function logout(req: Request, res: Response) {
   };
 
   res.clearCookie("token", cookieOptions);
-  res.clearCookie("guestMode", cookieOptions);
+  res.clearCookie("guest_id", cookieOptions);
 
   return res.status(200).json({
     messsage: "logout succcessfully",
@@ -147,11 +148,10 @@ export function logout(req: Request, res: Response) {
 }
 
 export function guestMode(req: Request, res: Response) {
-  res.cookie("guestMode", "true", {
+  res.cookie("guest_id", randomUUID(), {
     httpOnly: true,
-    // secure: process.env.NEXT_BASE_URL === "Production",
-    // sameSite: "lax",
     path: "/",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
   return res.status(200).json({

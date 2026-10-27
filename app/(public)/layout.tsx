@@ -10,7 +10,7 @@ export default async function PublicLayout({
   const isAuthenticate = await Auth();
   const cookieStore = await cookies();
 
-  const isGuest = cookieStore.get("guestMode")?.value === "true";
+  const isGuest = cookieStore.get("guest_id");
 
   if (isAuthenticate || isGuest) {
     redirect("/");
