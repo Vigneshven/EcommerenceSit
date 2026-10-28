@@ -6,12 +6,13 @@ import {
   removeCartItem,
   updateCart,
 } from "../controllers/cartController";
+import { guestCsrf } from "../middleware/guestCsrf";
 
 const router = Router();
 
-router.get("/", guestSession, getCart);
+router.get("/", guestSession, guestCsrf, getCart);
 router.post("/", guestSession, addToCart);
-router.put("/:cartItemId", guestSession, updateCart);
-router.delete("/:cartItemId", guestSession, removeCartItem);
+router.put("/:cartItemId", guestSession, guestCsrf, updateCart);
+router.delete("/:cartItemId", guestSession, guestCsrf, removeCartItem);
 
 export default router;

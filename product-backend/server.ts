@@ -7,6 +7,7 @@ import cartRoutes from "../product-backend/routes/cartRoutes";
 import orderRoutes from "../product-backend/routes/orderRoutes";
 import guestCartRoutes from "../product-backend/routes/guestCartRoutes";
 import guestOrderRoutes from "../product-backend/routes/guestOrderRoutes";
+import guestSessionRoutes from "../product-backend/routes/guestSessionRoutes";
 
 const app = express();
 const PORT = 4000;
@@ -25,10 +26,12 @@ app.use(
   }),
 );
 
+
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
+app.use("/api/guest", guestSessionRoutes);
 app.use("/api/cart/guest", guestCartRoutes);
 app.use("/api/order/guest", guestOrderRoutes);
 
