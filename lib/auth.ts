@@ -10,14 +10,14 @@ export async function Auth(): Promise<boolean> {
   try {
     const res = await fetch(`${process.env.NEXT_BASE_URL}/api/auth/me`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Cookie: `token=${token}`,
       },
       cache: "no-store",
       signal: AbortSignal.timeout(5000),
     });
 
     return res.ok;
-  } catch{
+  } catch {
     return false;
   }
 }

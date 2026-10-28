@@ -7,9 +7,6 @@ export async function requireAuth(
   next: NextFunction,
 ) {
   const authHeader = req.headers.authorization;
-  // const isGuest = req.query.guest === "true";
-
-  // if (isGuest) return next();
   const BearerToken = authHeader?.startsWith("Bearer ")
     ? authHeader.slice(7)
     : undefined;

@@ -108,10 +108,10 @@ export async function login(req: Request, res: Response) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      // secure: process.env.NEXT_BASE_URL === "Production",
-      // sameSite: "lax",
+      secure: process.env.NEXT_BASE_URL === "Production",
+      sameSite: "lax",
       path: "/",
-      expires: new Date(4127288280000), //15/10/2100 in unix timestamp
+      maxAge: 60 * 60 * 1000,
     });
 
     return res.status(200).json({
@@ -121,7 +121,6 @@ export async function login(req: Request, res: Response) {
         username: user.username,
         email: user.email,
       },
-      token,
     });
   } catch (error) {
     console.error("Login error:", error);

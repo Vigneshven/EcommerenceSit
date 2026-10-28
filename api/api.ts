@@ -53,7 +53,7 @@ export async function loginUsers(data: LoginUser) {
 }
 
 export async function logoutUser(): Promise<void> {
-  const { isGuest, token, logout } = useAuthStore.getState();
+  const { isGuest, logout } = useAuthStore.getState();
 
   if (isGuest) {
     const csrfToken = getGuestCsrfToken();
@@ -73,7 +73,9 @@ export async function logoutUser(): Promise<void> {
     const res = await fetch(`${baseUrl}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
-      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (!res.ok) {
@@ -120,20 +122,15 @@ export async function getCart(
   userId?: number | undefined,
   isGuest?: boolean,
 ): Promise<cart[]> {
-  const token = useAuthStore.getState().token;
-
   const headers: HeadersInit = { "Content-Type": "application/json" };
 
   const url = isGuest ? `${baseUrl}/api/cart/guest` : `${baseUrl}/api/cart`;
-
-  if (!isGuest && token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
 
   const res = await fetch(url, {
     method: "GET",
     headers,
     credentials: "include",
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -156,8 +153,6 @@ export async function addToCart(
 ) {
   let url: string;
 
-  const token = useAuthStore.getState().token;
-
   const headers: HeadersInit = { "Content-Type": "application/json" };
 
   if (isGuest) {
@@ -167,10 +162,6 @@ export async function addToCart(
     headers["X-CSRF-TOKEN"] = csrfToken;
   } else if (data.userId !== undefined) {
     url = `${baseUrl}/api/cart`;
-
-    if (data.userId !== undefined && token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
   } else {
     throw new Error("cannot add items to cart without valid owner");
   }
@@ -199,7 +190,6 @@ export async function updateCartItem(
     ? `${baseUrl}/api/cart/guest/${cartItemId}`
     : `${baseUrl}/api/cart/${cartItemId}`;
   const headers: HeadersInit = { "Content-Type": "application/json" };
-  const token = useAuthStore.getState().token;
 
   if (isGuest) {
     const csrfToken = getGuestCsrfToken();
@@ -208,8 +198,6 @@ export async function updateCartItem(
       throw new Error("Guest csrf missing");
     }
     headers["X-CSRF-TOKEN"] = csrfToken;
-  } else if (token) {
-    headers.Authorization = `Bearer ${token}`;
   }
 
   const res = await fetch(url, {
@@ -236,7 +224,6 @@ export async function deleteCartItem(
     ? `${baseUrl}/api/cart/guest/${cartItemId}`
     : `${baseUrl}/api/cart/${cartItemId}`;
   const headers: HeadersInit = { "Content-Type": "application/json" };
-  const token = useAuthStore.getState().token;
 
   if (isGuest) {
     const csrfToken = getGuestCsrfToken();
@@ -245,8 +232,6 @@ export async function deleteCartItem(
       throw new Error("Guest csrf missing");
     }
     headers["X-CSRF-TOKEN"] = csrfToken;
-  } else if (token) {
-    headers.Authorization = `Bearer ${token}`;
   }
 
   const res = await fetch(url, {
@@ -263,8 +248,7 @@ export async function deleteCartItem(
 // orders
 
 export async function createOrder(data: CreateOrder, isGuest = false) {
-  const token = useAuthStore.getState().token;
-  const useGuestRoute = isGuest && !token;
+  const useGuestRoute = isGuest;
   const url = useGuestRoute
     ? `${baseUrl}/api/order/guest`
     : `${baseUrl}/api/order`;
@@ -275,10 +259,6 @@ export async function createOrder(data: CreateOrder, isGuest = false) {
     const csrfToken = getGuestCsrfToken();
     if (!csrfToken) throw new Error("Guest csrf missing");
     headers["X-CSRF-TOKEN"] = csrfToken;
-  }
-
-  if (!useGuestRoute && token) {
-    headers.Authorization = `Bearer ${token}`;
   }
   const res = await fetch(url, {
     method: "POST",
@@ -296,18 +276,13 @@ export async function getOrders(
   userId: number | null,
   isGuest: boolean,
 ): Promise<Order[]> {
-  const token = useAuthStore.getState().token;
-  const useGuestRoute = isGuest && !token;
+  const useGuestRoute = isGuest;
 
   const headers: HeadersInit = {};
 
   const url = useGuestRoute
     ? `${baseUrl}/api/order/guest`
     : `${baseUrl}/api/order`;
-
-  if (!useGuestRoute && token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
 
   const res = await fetch(url, {
     method: "GET",
@@ -321,4 +296,3 @@ export async function getOrders(
 
   return res.json();
 }
-
