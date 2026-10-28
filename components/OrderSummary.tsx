@@ -1,7 +1,7 @@
 "use client";
 
 import { calculateOrderSummary } from "@/lib/utils/orderSummary";
-import { formatPrice, parsePrice } from "@/lib/utils/price";
+import { formatPrice } from "@/lib/utils/price";
 import type { cart } from "@/type/Cart";
 
 type CartSummaryItem = Pick<cart, "name" | "price" | "amount">;

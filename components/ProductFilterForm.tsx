@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import z from "zod";
 import Button from "./Button";
 import useFilterStore from "@/zustandStore/filterStore";
@@ -37,7 +37,7 @@ function ProductFilterForm() {
   const searchParams = useSearchParams();
   const queryString = searchParams.toString();
 
-  const { register, handleSubmit, reset, watch } = useForm<Inputs>({
+  const { control, register, handleSubmit, reset } = useForm<Inputs>({
     resolver: zodResolver(schema),
     defaultValues: {
       search: "",
@@ -68,7 +68,7 @@ function ProductFilterForm() {
     });
   }, [queryString, reset]);
 
-  const selectedPrice = watch("selling_price");
+  const selectedPrice = useWatch({ control, name: "selling_price" });
 
   const setFilters = useFilterStore((state) => state.setFilters);
 
