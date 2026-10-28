@@ -2,7 +2,8 @@ import type { Request, Response } from "express";
 import { createUser, findUserByEmail } from "../models/authModel";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { randomUUID } from "node:crypto";
+import { clearGuestCookies } from "../utils/guestSession";
+import { createGuestSession } from "./guestSessionController";
 
 export async function register(req: Request, res: Response) {
   try {
@@ -140,21 +141,22 @@ export function logout(req: Request, res: Response) {
   };
 
   res.clearCookie("token", cookieOptions);
-  res.clearCookie("guest_id", cookieOptions);
+  clearGuestCookies(res);
 
   return res.status(200).json({
     messsage: "logout succcessfully",
   });
 }
 
-export function guestMode(req: Request, res: Response) {
-  res.cookie("guest_id", randomUUID(), {
-    httpOnly: true,
-    path: "/",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-
-  return res.status(200).json({
-    message: "Guest Mode Selected",
-  });
+export async function guestMode(req: Request, res: Response) {
+  try {
+    await createGuestSession(res);
+    return res.status(201).json({
+      message: "Guest Mode Selected",
+    });
+  } catch {
+    return res.status(500).json({
+      message: "Failed to start guest session",
+    });
+  }
 }

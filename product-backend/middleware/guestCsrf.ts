@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import pool from "../config/db";
 import { CsrfRow } from "../type/GuestSession";
+import { GUEST_CSRF_COOKIE } from "../utils/guestSession";
 
 export async function guestCsrf(
   req: Request,
@@ -16,7 +17,7 @@ export async function guestCsrf(
   }
 
   const guestId = req.guestId;
-  const cookieToken = req.cookies?.guest_csrf;
+  const cookieToken = req.cookies?.[GUEST_CSRF_COOKIE];
   const headerToken = req.get("X-CSRF-TOKEN");
 
   if (

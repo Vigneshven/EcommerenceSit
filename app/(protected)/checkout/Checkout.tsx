@@ -93,7 +93,6 @@ function Checkout() {
       await createOrder(
         {
           userId: user?.id ?? null,
-          guestId: isGuest ? "0" : null,
           name: data.firstName,
           address: data.address,
           product,

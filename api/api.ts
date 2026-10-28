@@ -24,7 +24,6 @@ export async function getProducts(): Promise<Product[]> {
 
   return res.json();
 }
-
 export async function getProductById(id: string): Promise<Product | null> {
   const res = await fetch(`${baseUrl}/api/products/${id}`, {
     next: { revalidate: 60 },
@@ -35,7 +34,6 @@ export async function getProductById(id: string): Promise<Product | null> {
 
   return res.json();
 }
-
 export async function loginUsers(data: LoginUser) {
   const res = await fetch(`${baseUrl}/api/auth/login`, {
     method: "POST",
@@ -60,12 +58,6 @@ export async function logoutUser(): Promise<void> {
   if (isGuest) {
     const csrfToken = getGuestCsrfToken();
 
-    const url = `${baseUrl}/api/guest/sessions`;
-
-    console.log("Guest logout URL:", url);
-    console.log("Has CSRF token:", Boolean(csrfToken));
-    console.log("Sending guest logout request...");
-
     const res = await fetch(`${baseUrl}/api/guest/sessions`, {
       method: "DELETE",
       credentials: "include",
@@ -73,9 +65,6 @@ export async function logoutUser(): Promise<void> {
         ...(csrfToken ? { "X-CSRF-TOKEN": csrfToken } : {}),
       },
     });
-
-    console.log("Response received:", res.status);
-    console.log("Response body:", await res.clone().text());
 
     if (!res.ok) {
       throw new Error("failed to end guest session");
@@ -135,18 +124,6 @@ export async function getCart(
 
   const headers: HeadersInit = { "Content-Type": "application/json" };
 
-  // if (isGuest) {
-  //   const csrfToken = getGuestCsrfToken();
-
-  //   if (!csrfToken) {
-  //     throw new Error("Guest csrf missing");
-  //   }
-
-  //   headers["X-CSRF-TOKEN"] = csrfToken;
-  // } else if (token) {
-  //   headers.Authorization = `Bearer ${token}`;
-  // }
-
   const url = isGuest ? `${baseUrl}/api/cart/guest` : `${baseUrl}/api/cart`;
 
   if (!isGuest && token) {
@@ -185,6 +162,9 @@ export async function addToCart(
 
   if (isGuest) {
     url = `${baseUrl}/api/cart/guest`;
+    const csrfToken = getGuestCsrfToken();
+    if (!csrfToken) throw new Error("Guest csrf missing");
+    headers["X-CSRF-TOKEN"] = csrfToken;
   } else if (data.userId !== undefined) {
     url = `${baseUrl}/api/cart`;
 
@@ -232,9 +212,6 @@ export async function updateCartItem(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  // if (!isGuest && token) {
-  //   headers.Authorization = `Bearer ${token}`;
-  // }
   const res = await fetch(url, {
     method: "PUT",
     headers,
@@ -272,10 +249,6 @@ export async function deleteCartItem(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  // if (!isGuest && token) {
-  //   headers.Authorization = `Bearer ${token}`;
-  // }
-
   const res = await fetch(url, {
     method: "DELETE",
     headers,
@@ -296,6 +269,12 @@ export async function createOrder(data: CreateOrder, isGuest = false) {
 
   const headers: HeadersInit = { "Content-Type": "application/json" };
 
+  if (isGuest) {
+    const csrfToken = getGuestCsrfToken();
+    if (!csrfToken) throw new Error("Guest csrf missing");
+    headers["X-CSRF-TOKEN"] = csrfToken;
+  }
+
   if (!isGuest && token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -315,15 +294,6 @@ export async function getOrders(
   userId: number | null,
   isGuest: boolean,
 ): Promise<Order[]> {
-  // const params = new URLSearchParams();
-
-  // if (userId !== null) {
-  //   params.set("userId", String(userId));
-  // } else if (isGuest) {
-  //   params.set("guest", "true");
-  // } else {
-  //   throw new Error("Please log in or enter guest mode.");
-  // }
   const token = useAuthStore.getState().token;
 
   const headers: HeadersInit = {};
@@ -347,13 +317,3 @@ export async function getOrders(
   return res.json();
 }
 
-export async function endGuestSessionRequest() {
-  const response = await fetch(`${baseUrl}/api/guest/session`, {
-    method: "DELETE",
-    credentials: "include",
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to end guest session");
-  }
-}

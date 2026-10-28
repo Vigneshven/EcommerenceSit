@@ -11,7 +11,7 @@ import { guestCsrf } from "../middleware/guestCsrf";
 const router = Router();
 
 router.get("/", guestSession, guestCsrf, getCart);
-router.post("/", guestSession, addToCart);
+router.post("/", guestSession, guestCsrf, addToCart);
 router.put("/:cartItemId", guestSession, guestCsrf, updateCart);
 router.delete("/:cartItemId", guestSession, guestCsrf, removeCartItem);
 

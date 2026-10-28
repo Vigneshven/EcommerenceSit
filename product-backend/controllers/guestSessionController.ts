@@ -1,40 +1,63 @@
-import type { CookieOptions, Request, Response } from "express";
-import { createHash } from "node:crypto";
-import pool from "../config/db";
+import type { Request, Response } from "express";
+import {
+  GUEST_CSRF_COOKIE,
+  GUEST_SESSION_COOKIE,
+  clearGuestCookies,
+  guestCookieOptions,
+  guestCsrfCookieOptions,
+  hashGuestToken,
+} from "../utils/guestSession";
+import { randomBytes, randomUUID } from "node:crypto";
+import {
+  insertGuestSession,
+  revokeGuestSession,
+} from "../models/guestSessionModel";
 
 export async function EndGuestSession(req: Request, res: Response) {
   try {
-    const token = req.cookies?.guest_session;
+    const token = req.cookies?.[GUEST_SESSION_COOKIE] as string | undefined;
+    const csrfCookie = req.cookies?.[GUEST_CSRF_COOKIE];
+    const csrfHeader = req.get("X-CSRF-TOKEN");
 
-    if (typeof token === "string" && req.guestId) {
-      const tokenHash = createHash("sha256").update(token).digest("hex");
+    if (token) {
+      if (
+        typeof csrfCookie !== "string" ||
+        typeof csrfHeader !== "string" ||
+        csrfCookie !== csrfHeader
+      ) {
+        return res.status(403).json({
+          message: "Invalid or missing csrf token",
+        });
+      }
 
-      await pool.execute(
-        `update guest_sessions
-        set revoked_at = utc_timestamp()
-        where guest_id=? and token_hash=? and revoked_at is null`,
-        [req.guestId, tokenHash],
+      const revoked = await revokeGuestSession(
+        hashGuestToken(token),
+        csrfHeader,
       );
+
+      if (!revoked) {
+        return res.status(403).json({
+          message: "Invalid or expired guest session",
+        });
+      }
     }
 
-    const guestCookieOptions: CookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-    };
-
-    res.clearCookie("guest_session", guestCookieOptions);
-    res.clearCookie("guest_csrf", {
-      ...guestCookieOptions,
-      httpOnly: false,
-    });
-    res.clearCookie("guest_id", guestCookieOptions);
-
-    res.status(204).end();
+    clearGuestCookies(res);
+    return res.status(204).end();
   } catch {
     return res.status(500).json({
-      message: "failed to end guest session",
+      message: "Failed to end guest session",
     });
   }
+}
+
+export async function createGuestSession(res: Response): Promise<void> {
+  const guestId = randomUUID();
+  const sessionToken = randomBytes(32).toString("base64url");
+  const csrfToken = randomBytes(32).toString("base64url");
+
+  await insertGuestSession(guestId, hashGuestToken(sessionToken), csrfToken);
+
+  res.cookie(GUEST_SESSION_COOKIE, sessionToken, guestCookieOptions);
+  res.cookie(GUEST_CSRF_COOKIE, csrfToken, guestCsrfCookieOptions);
 }
