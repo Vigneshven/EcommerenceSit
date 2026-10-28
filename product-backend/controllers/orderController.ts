@@ -58,7 +58,7 @@ export async function getOrders(req: Request, res: Response) {
 
 export async function placeOrder(req: Request, res: Response) {
   try {
-    const { name, address, product, cost } = req.body;
+    const { name, address } = req.body ?? {};
 
     const userId = req.userId;
 
@@ -80,28 +80,41 @@ export async function placeOrder(req: Request, res: Response) {
       name.trim().length < 3 ||
       typeof address !== "string" ||
       address.trim().length < 5 ||
-      !Array.isArray(product) ||
-      product.length === 0 ||
-      !Number.isFinite(cost) ||
-      cost < 0
+      !req.body ||
+      typeof req.body !== "object" ||
+      Array.isArray(req.body)
     ) {
       return res.status(400).json({
         message: "Invalid order details",
       });
     }
-    const orderId = await createOrder({
+    const order = await createOrder({
       userId: isLoginUser ? userId! : null,
       guestId: isLoginUser ? null : guest_Id!,
       name: name.trim(),
       address: address.trim(),
-      product: product as OrderProduct[],
-      cost,
     });
     return res.status(201).json({
       message: "Order placed successfully",
-      id: orderId,
+      id: order.orderId,
+      product: order.product,
+      subtotal: order.subtotal,
+      tax: order.tax,
+      shipping: order.shipping,
+      cost: order.cost,
     });
-  } catch {
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      [
+        "Order must contains at least one product",
+        "Invalid product price in db",
+      ].includes(error.message)
+    ) {
+      return res.status(400).json({
+        message: error.message,
+      });
+    }
     return res.status(500).json({
       message: "Failed to place order",
     });

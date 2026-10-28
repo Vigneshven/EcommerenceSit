@@ -1,15 +1,6 @@
 export type CreateOrder = {
-  userId: number | null;
   name: string;
   address: string;
-  product: {
-    id: number;
-    name: string;
-    amount: number;
-    price: string;
-    color: string;
-  }[];
-  cost: number;
 };
 
 export type OrderProduct = {

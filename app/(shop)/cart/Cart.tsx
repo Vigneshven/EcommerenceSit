@@ -29,6 +29,7 @@ export default function Cart() {
 
   const removeAnonymousCart = useShopStore((state) => state.removeFromCart);
   const markCartChanged = useShopStore((state) => state.markCartChanged);
+  const cartVersion = useShopStore((state) => state.cartVersion);
 
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
 
@@ -43,7 +44,7 @@ export default function Cart() {
     setLoading(true);
 
     try {
-      const items = await getCart(userId, isGuest);
+      const items = await getCart(userId, !userId && isGuest);
       setCart(
         items.map((item) => ({
           id: item.product_id ?? item.cartItemId,
@@ -78,7 +79,7 @@ export default function Cart() {
     } else {
       setLoading(false);
     }
-  }, [hasHydrated, loadCart, user?.id, isGuest]);
+  }, [hasHydrated, loadCart, user?.id, isGuest, cartVersion]);
 
   async function handleQtyChange(item: CartItem, quantity: number) {
     const itemId = item.cartItemId ?? item.id;
@@ -97,7 +98,7 @@ export default function Cart() {
           ),
         );
       } else {
-        await updateCartItem(itemId, quantity, userId, isGuest);
+        await updateCartItem(itemId, quantity, userId, !userId && isGuest);
         await loadCart();
 
         setCart((prev) =>
@@ -146,7 +147,7 @@ export default function Cart() {
           ),
         );
       } else {
-        await deleteCartItem(cartItemId, userId, isGuest);
+        await deleteCartItem(cartItemId, userId, !userId && isGuest);
         markCartChanged();
         setCart((prev) =>
           prev.filter((item) => item.cartItemId !== cartItemId),

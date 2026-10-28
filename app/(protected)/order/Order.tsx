@@ -26,7 +26,7 @@ function Order() {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-        const data = await getOrders(users?.id ?? null, isGuest);
+        const data = await getOrders(users?.id ?? null, !users?.id && isGuest);
         setOrders(data);
       } catch (error) {
         console.log(error);

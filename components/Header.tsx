@@ -41,7 +41,7 @@ function Header() {
     let active = true;
     const owner = user ? `user:${user.id}` : "guest";
 
-    getCart(user?.id, guest)
+    getCart(user?.id, !user?.id && guest)
       .then((items) => {
         if (active) {
           setDbCart(items);

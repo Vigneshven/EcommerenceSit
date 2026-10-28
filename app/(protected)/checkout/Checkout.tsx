@@ -1,9 +1,8 @@
 "use client";
 
-import { createOrder, deleteCartItem, getCart } from "@/api/api";
+import { createOrder, getCart } from "@/api/api";
 import Button from "@/components/Button";
 import OrderSummary from "@/components/OrderSummary";
-import { calculateOrderSummary } from "@/lib/utils/orderSummary";
 import { cart } from "@/type/Cart";
 import useAuthStore from "@/zustandStore/authStore";
 import useShopStore from "@/zustandStore/ShopStore";
@@ -73,8 +72,6 @@ function Checkout() {
     loadCart();
   }, [loadCart, hasHydrated]);
 
-  const { total } = calculateOrderSummary(cart);
-
   const handlePlaceOrder = async (data: shippingForm) => {
     if (cart.length === 0) {
       toast.error("Your Cart is Empty");
@@ -82,29 +79,12 @@ function Checkout() {
     }
     setPlaceOrder(true);
     try {
-      const product = cart.map((item) => ({
-        id: item.cartItemId,
-        name: item.name,
-        amount: item.amount,
-        price: item.price,
-        color: item.color ?? "",
-      }));
-
       await createOrder(
         {
-          userId: user?.id ?? null,
           name: data.firstName,
           address: data.address,
-          product,
-          cost: total,
         },
-        isGuest,
-      );
-
-      await Promise.all(
-        cart.map((item) =>
-          deleteCartItem(item.cartItemId, user?.id, !user?.id && isGuest),
-        ),
+        !user?.id && isGuest,
       );
       markCartChanged();
       setCart([]);

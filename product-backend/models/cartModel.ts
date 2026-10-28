@@ -36,7 +36,7 @@ export async function getCartItems(owner: CartOwner) {
 
   const [rows] = await pool.query<RowDataPacket[]>(
     `
-            select ci.cart_item_id as cartItemId,ci.product_id as id,ci.quantity as amount,ci.color,
+            select ci.cart_item_id as cartItemId,ci.product_id as product_id,ci.quantity as amount,ci.color,
             p.image,p.name,p.company,p.category,p.description,p.price,p.free_shipping
             from cart_items ci
             join products p on p.id = ci.product_id
