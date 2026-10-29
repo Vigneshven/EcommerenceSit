@@ -108,7 +108,7 @@ export async function login(req: Request, res: Response) {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NEXT_BASE_URL === "Production",
+      secure: process.env.NODE_ENV === "Production",
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 1000,
@@ -134,8 +134,8 @@ export async function login(req: Request, res: Response) {
 export function logout(req: Request, res: Response) {
   const cookieOptions = {
     httpOnly: true,
-    // secure: process.env.NEXT_BASE_URL === "Production",
-    // sameSite: "lax" as const,
+    secure: process.env.NODE_ENV === "Production",
+    sameSite: "lax" as const,
     path: "/",
   };
 

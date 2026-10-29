@@ -8,11 +8,13 @@ import orderRoutes from "../product-backend/routes/orderRoutes";
 import guestCartRoutes from "../product-backend/routes/guestCartRoutes";
 import guestOrderRoutes from "../product-backend/routes/guestOrderRoutes";
 import guestSessionRoutes from "../product-backend/routes/guestSessionRoutes";
+import { generalApiLimiter } from "./middleware/rateLimit";
 
 const app = express();
 const PORT = 4000;
 
-app.use(express.json());
+app.use("/api", generalApiLimiter);
+app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
 app.use(
   cors({
@@ -35,6 +37,6 @@ app.use("/api/guest", guestSessionRoutes);
 app.use("/api/cart/guest", guestCartRoutes);
 app.use("/api/order/guest", guestOrderRoutes);
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`server running on http://localhost:${PORT}`);
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`server running on http://localhost:${PORT}`);
 });
