@@ -8,7 +8,7 @@ export async function Auth(): Promise<boolean> {
     return false;
   }
   try {
-    const res = await fetch(`${process.env.NEXT_BASE_URL}/api/auth/me`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
       headers: {
         Cookie: `token=${token}`,
       },

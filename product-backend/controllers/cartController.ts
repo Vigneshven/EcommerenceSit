@@ -105,7 +105,8 @@ export async function addToCart(req: Request, res: Response) {
     return res.status(200).json({
       message: "Cart item added",
     });
-  } catch {
+  } catch (error) {
+    console.log(error);
     return res.status(500).json({
       message: "Failed to add cart item",
     });
@@ -196,7 +197,7 @@ export async function removeCartItem(req: Request, res: Response) {
 
     const result = await deleteItem(owner, cartItemId);
 
-    if (result.affectedRows === 0) {
+    if (result.affectedRow === 0) {
       return res.status(404).json({
         message: "Cart item not found",
       });

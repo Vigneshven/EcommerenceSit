@@ -16,6 +16,9 @@
 # next.js
 /.next/
 /out/
+/.agents/
+/.claude/
+/.windsurf/
 
 # production
 /build
@@ -40,3 +43,5 @@ certificate/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/lib/generated/prisma

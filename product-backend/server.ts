@@ -37,6 +37,6 @@ app.use("/api/guest", guestSessionRoutes);
 app.use("/api/cart/guest", guestCartRoutes);
 app.use("/api/order/guest", guestOrderRoutes);
 
-  app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, "0.0.0.0", () => {
     console.log(`server running on http://localhost:${PORT}`);
 });

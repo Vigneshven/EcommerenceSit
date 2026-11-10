@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../prisma/generated/prisma/client"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model cart_items {
+  cart_item_id Int       @id @default(autoincrement())
+  user_id      Int?
+  guest_id     String?   @db.VarChar(64)
+  product_id   Int
+  quantity     Int       @default(1)
+  color        String    @default("pink") @db.VarChar(50)
+  created_at   DateTime? @default(now()) @db.Timestamp(0)
+  updated_at   DateTime? @default(now()) @db.Timestamp(0)
+  products     products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cart_product")
+  users        users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cart_user")
+
+  @@unique([guest_id, product_id, color], map: "unique_guest_cart")
+  @@unique([user_id, product_id, color], map: "unique_user_cart")
+  @@index([product_id], map: "fk_cart_product")
+}
+
+model guest_sessions {
+  guest_id     String    @id @db.Char(36)
+  token_hash   String    @unique(map: "token_hash") @db.Char(64)
+  csrf_token   String    @db.Char(64)
+  created_at   DateTime  @default(now()) @db.Timestamp(0)
+  expires_at   DateTime  @db.DateTime(0)
+  revoked_at   DateTime? @db.DateTime(0)
+  last_seen_at DateTime  @default(now()) @db.DateTime(0)
+}
+
+model orders {
+  order_id  Int       @id @default(autoincrement())
+  name      String    @db.VarChar(100)
+  address   String    @db.VarChar(500)
+  product   Json
+  cost      Decimal   @db.Decimal(10, 2)
+  date_time DateTime? @default(now()) @db.Timestamp(0)
+  user_id   Int?
+  guest_id  String?   @db.VarChar(100)
+}
+
+model products {
+  id             Int          @id
+  image          String       @db.Text
+  name           String       @db.VarChar(255)
+  category       String       @db.VarChar(100)
+  company        String       @db.VarChar(100)
+  price          Decimal      @db.Decimal(10, 2)
+  description    String?      @db.Text
+  amount         Int          @default(1)
+  free_shipping  Boolean      @default(false)
+  stock_quantity Int          @default(0)
+  cart_items     cart_items[]
+}
+
+model users {
+  id         Int          @id @default(autoincrement())
+  username   String       @db.VarChar(100)
+  email      String       @unique(map: "email") @db.VarChar(255)
+  password   String       @db.VarChar(255)
+  created_at DateTime?    @default(now()) @db.Timestamp(0)
+  cart_items cart_items[]
+}

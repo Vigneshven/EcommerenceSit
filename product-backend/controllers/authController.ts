@@ -5,6 +5,13 @@ import bcrypt from "bcryptjs";
 import { clearGuestCookies } from "../utils/guestSession";
 import { createGuestSession } from "./guestSessionController";
 
+const authCookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+};
+
 export async function register(req: Request, res: Response) {
   try {
     const { username, email, password } = req.body;
@@ -107,10 +114,7 @@ export async function login(req: Request, res: Response) {
     });
 
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "Production",
-      sameSite: "lax",
-      path: "/",
+      ...authCookieOptions,
       maxAge: 60 * 60 * 1000,
     });
 
@@ -132,14 +136,7 @@ export async function login(req: Request, res: Response) {
 }
 
 export function logout(req: Request, res: Response) {
-  const cookieOptions = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "Production",
-    sameSite: "lax" as const,
-    path: "/",
-  };
-
-  res.clearCookie("token", cookieOptions);
+  res.clearCookie("token", authCookieOptions);
   clearGuestCookies(res);
 
   return res.status(200).json({
@@ -149,6 +146,8 @@ export function logout(req: Request, res: Response) {
 
 export async function guestMode(req: Request, res: Response) {
   try {
+    res.clearCookie("token", authCookieOptions);
+    clearGuestCookies(res);
     await createGuestSession(res);
     return res.status(201).json({
       message: "Guest Mode Selected",
