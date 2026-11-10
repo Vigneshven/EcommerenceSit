@@ -18,32 +18,32 @@ function NavBar() {
       <nav className="flex flex-1 gap-3">
         <Link
           href={"/"}
-          className={`${checkActive("/") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
+          className={`flex items-center justify-center ${checkActive("/") ? "w-17 bg-primary-dark text-primary-light p-1 rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
         >
           Home
         </Link>
         <Link
           href={"/about"}
-          className={`${checkActive("/about") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
+          className={`flex items-center justify-center ${checkActive("/about") ? " w-17 bg-primary-dark text-primary-light p-1 rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
         >
           About
         </Link>
         <Link
           href={"/product"}
-          className={`${checkActive("/product") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
+          className={`flex items-center justify-center ${checkActive("/product") ? " w-17 bg-primary-dark text-primary-light p-1 rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
         >
           Product
         </Link>
         <Link
           href={"/cart"}
-          className={`${checkActive("/cart") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
+          className={`flex items-center justify-center ${checkActive("/cart") ? " w-17 bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
         >
           Cart
         </Link>
         {(user || isGuest) && (
           <Link
             href={"/checkout"}
-            className={`${checkActive("/checkout") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
+            className={`flex items-center justify-center ${checkActive("/checkout") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
           >
             Checkout
           </Link>
@@ -51,7 +51,7 @@ function NavBar() {
         {(user || isGuest) && (
           <Link
             href={"/order"}
-            className={`${checkActive("/order") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
+            className={`flex items-center justify-center ${checkActive("/order") ? "bg-primary-dark text-primary-light p-1  rounded text-center dark:text-amber-50" : "text-header-text hover:bg-hover-background"}`}
           >
             Order
           </Link>
