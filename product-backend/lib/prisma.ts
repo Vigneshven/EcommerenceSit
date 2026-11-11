@@ -7,7 +7,7 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient } from "../prisma/generated/prisma/client/client";
 
 dotenv.config({
-  path: path.resolve(process.cwd(), "product-backend/.env"),
+  path: path.resolve(__dirname, "../.env"),
 });
 
 const databaseURL = process.env.DB_URL;
@@ -31,7 +31,7 @@ const pool = mariadb.createPool({
 
   ssl: {
     ca: readFileSync(
-      path.resolve(process.cwd(), "product-backend/certificate/ca.pem"),
+      path.resolve(__dirname, "../certificate/ca.pem"),
     ),
   },
 });

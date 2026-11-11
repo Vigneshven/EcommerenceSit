@@ -14,7 +14,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <SkeletonTheme baseColor="#f0f6ff">
           <AppErrorBoundary>{children}</AppErrorBoundary>
         </SkeletonTheme>
-        <Toaster position="top-right" richColors />
+        <Toaster position="bottom-right" richColors />
         <ThemeInitializer />
       </body>
     </html>
