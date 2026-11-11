@@ -12,7 +12,7 @@ export async function findValidGuestSession(tokenHash: string) {
   // );
   // return rows[0] ?? null;
 
-  return prisma.guest_sessions.findFirst({
+  return await prisma.guest_sessions.findFirst({
     where: {
       token_hash: tokenHash,
       revoked_at: null,
@@ -39,7 +39,7 @@ export async function updateGuestSession(guestId: string, tokenHash: string) {
   //   [guestId, tokenHash],
   // );
 
-  return prisma.guest_sessions.updateMany({
+  return await prisma.guest_sessions.updateMany({
     where: {
       guest_id: guestId,
       token_hash: tokenHash,
@@ -62,7 +62,7 @@ export async function insertGuestSession(
   //   [guestId, tokenHash, csrfToken],
   // );
 
-  return prisma.guest_sessions.create({
+  return await prisma.guest_sessions.create({
     data: {
       guest_id: guestId,
       token_hash: tokenHash,

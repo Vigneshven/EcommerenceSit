@@ -35,7 +35,7 @@ export async function getProductById(id: number) {
 
   // return rows[0] ?? null;
 
-  return prisma.products.findUnique({
+  return await prisma.products.findUnique({
     where: {
       id: id,
     },

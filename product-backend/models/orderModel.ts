@@ -17,7 +17,7 @@ export async function getOrdersByUser(userId: number) {
   // );
 
   // return row;
-  return prisma.orders.findMany({
+  return await prisma.orders.findMany({
     where: {
       user_id: userId,
     },
@@ -37,7 +37,7 @@ export async function getGuestOrder(guestId: string) {
   // );
   // return row;
 
-  return prisma.orders.findMany({
+  return await prisma.orders.findMany({
     where: {
       guest_id: guestId,
     },

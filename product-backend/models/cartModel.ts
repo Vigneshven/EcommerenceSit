@@ -126,7 +126,7 @@ export async function addCartItems(data: {
     ? { user_id: owner.value as number, guest_id: null }
     : { user_id: null, guest_id: owner.value as string };
 
-  return prisma.cart_items.upsert({
+  return await prisma.cart_items.upsert({
     where,
     create: {
       ...ownerData,

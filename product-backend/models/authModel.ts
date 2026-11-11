@@ -8,7 +8,7 @@ export async function findUserByEmail(email: string) {
 
   // return rows[0] ?? null;
 
-  return prisma.users.findUnique({
+  return await prisma.users.findUnique({
     where: {
       email,
     },
