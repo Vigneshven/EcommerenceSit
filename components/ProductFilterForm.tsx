@@ -168,7 +168,7 @@ function ProductFilterForm() {
             <input
               type="range"
               min={0}
-              max={4000}
+              max={1000000}
               {...register("selling_price", { valueAsNumber: true })}
             />
           </div>

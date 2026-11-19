@@ -13,6 +13,7 @@
     "prisma:push": "prisma db push",
     "prisma:pull": "prisma db pull",
     "prisma:status": "prisma migrate status",
+    "prisma:seed": "prisma db seed",
     "prisma:studio": "prisma studio"
   },
   "dependencies": {
