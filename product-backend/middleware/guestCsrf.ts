@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import pool from "../config/db";
-import { CsrfRow } from "../type/GuestSession";
+import { prisma } from "../lib/prisma";
 import { GUEST_CSRF_COOKIE } from "../utils/guestSession";
 
 export async function guestCsrf(
@@ -31,17 +30,16 @@ export async function guestCsrf(
     });
   }
 
-  const [rows] = await pool.execute<CsrfRow[]>(
-    `select csrf_token
-    from guest_sessions
-    where guest_id=?
-    and revoked_at is null
-    and expires_at > utc_timestamp()
-    limit 1`,
-    [guestId],
-  );
+  const session = await prisma.guest_sessions.findFirst({
+    where: {
+      guest_id: guestId,
+      revoked_at: null,
+      expires_at: { gt: new Date() },
+    },
+    select: { csrf_token: true },
+  });
 
-  if (!rows[0] || rows[0].csrf_token !== headerToken) {
+  if (!session || session.csrf_token !== headerToken) {
     return res.status(403).json({
       message: "failed to validate csrf token",
     });

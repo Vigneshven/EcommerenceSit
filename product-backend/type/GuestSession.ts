@@ -1,12 +1,10 @@
-import { RowDataPacket } from "mysql2";
-
-export type GuestSessionRow = RowDataPacket & {
+export type GuestSessionRow = {
   guest_id: string;
   csrf_token: string;
   expires_at: string;
   revoked_at: Date | null;
 };
 
-export type CsrfRow = RowDataPacket & {
+export type CsrfRow = {
   csrf_token: string;
 };

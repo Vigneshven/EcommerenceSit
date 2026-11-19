@@ -1,4 +1,5 @@
 import { prisma } from "../lib/prisma";
+import { Prisma } from "../prisma/generated/prisma/client/client";
 
 export type OrderProduct = {
   id: number;
@@ -40,6 +41,7 @@ export async function getGuestOrder(guestId: string) {
   return await prisma.orders.findMany({
     where: {
       guest_id: guestId,
+      user_id: null,
     },
     orderBy: {
       date_time: "asc",
@@ -141,7 +143,8 @@ export async function createOrder(data: {
   // } finally {
   //   connection.release();
   // }
-  return prisma.$transaction(async (tsx) => {
+  return prisma.$transaction(
+  async (tsx) => {
     const cartProducts = await tsx.cart_items.findMany({
       where:
         data.userId !== null
@@ -210,5 +213,8 @@ export async function createOrder(data: {
       shipping,
       cost,
     };
-  });
+  },
+  // Replaces the old "select ... for update": concurrent checkouts of the same cart cannot both succeed.
+  { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+  );
 }

@@ -140,7 +140,7 @@ export function logout(req: Request, res: Response) {
   clearGuestCookies(res);
 
   return res.status(200).json({
-    messsage: "logout succcessfully",
+    message: "logout succcessfully",
   });
 }
 

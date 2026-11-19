@@ -4,7 +4,6 @@ import {
   getGuestOrder,
   getOrdersByUser,
 } from "../models/orderModel";
-import { RowDataPacket } from "mysql2";
 
 export type OrderProduct = {
   id: number;
@@ -14,7 +13,7 @@ export type OrderProduct = {
   color: string;
 };
 
-export type OrderRow = RowDataPacket & {
+export type OrderRow = {
   order_id: number;
   name: string;
   address: string;

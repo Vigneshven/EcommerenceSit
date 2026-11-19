@@ -138,6 +138,7 @@ export async function addCartItems(data: {
       quantity: {
         increment: quantity,
       },
+      updated_at: new Date(),
     },
   });
 }

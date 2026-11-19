@@ -1,13 +1,11 @@
 import dotenv from "dotenv";
 import path from "node:path";
-import { readFileSync } from "node:fs";
-import mariadb from "mariadb";
 
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient } from "../prisma/generated/prisma/client/client";
 
 dotenv.config({
-  path: path.resolve(__dirname, "../.env"),
+  path: path.resolve(process.cwd(), ".env"),
 });
 
 const databaseURL = process.env.DB_URL;
@@ -18,24 +16,19 @@ if (!databaseURL) {
 
 const db = new URL(databaseURL);
 
-const pool = mariadb.createPool({
+const adapter = new PrismaMariaDb({
   host: db.hostname,
-  port: Number(db.port),
-  user: db.username,
-  password: db.password,
-  database: db.pathname.slice(1),
+  port: db.port ? Number(db.port) : 3306,
+  user: decodeURIComponent(db.username),
+  password: decodeURIComponent(db.password),
+  database: decodeURIComponent(db.pathname.slice(1)),
 
   connectionLimit: 5,
   connectTimeout: 10_000,
   acquireTimeout: 20_000,
 
-  ssl: {
-    ca: readFileSync(
-      path.resolve(__dirname, "../certificate/ca.pem"),
-    ),
-  },
+  // For hosted databases that require SSL, uncomment and provide the CA:
+  // ssl: { ca: readFileSync(path.resolve(process.cwd(), "certificate/ca.pem")) },
 });
-const adapter = new PrismaMariaDb(pool);
 
 export const prisma = new PrismaClient({ adapter });
-

@@ -67,7 +67,7 @@ export async function insertGuestSession(
       guest_id: guestId,
       token_hash: tokenHash,
       csrf_token: csrfToken,
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
   });
 }
