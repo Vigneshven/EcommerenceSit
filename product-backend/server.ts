@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import express from "express";
-import helmet from "helmet"
+import helmet from "helmet";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/authRoutes";
@@ -16,6 +16,7 @@ dotenv.config();
 
 const app = express();
 const PORT = Number(process.env.PORT) || 4000;
+const FRONTENDPORT = Number(process.env.FRONTENDPORT) || 3000;
 
 app.use(helmet());
 app.disable("x-powered-by");
@@ -26,11 +27,10 @@ app.use(
     //   "http://127.0.0.1:3000",
     //   "http://192.168.1.12:3000",
     // ],
-    origin: "http://localhost:3000",
+    origin: `http://localhost:${FRONTENDPORT}`,
     credentials: true,
   }),
 );
-
 
 app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
@@ -49,11 +49,10 @@ app.use("/api", root);
 
 app.use((_, response) => {
   return response.status(404).json({
-    message: "Resource not found"
-  })
-})
+    message: "Resource not found",
+  });
+});
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`server running on http://localhost:${PORT}`);
 });
-
