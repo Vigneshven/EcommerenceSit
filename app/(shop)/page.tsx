@@ -26,7 +26,7 @@ export default function Home() {
         <div className="flex w-1/2 gap-3 rounded-3xl bg-primary-dark">
           <Image
             className="border-8  rounded-3xl h-110 min-w-0 flex-7 object-cover"
-            src="https://react-vite-comfy-store-v2.netlify.app/assets/hero1-deae5a1f.webp"
+            src="/sofa.jpg"
             alt="sofa"
             width={300}
             height={400}
@@ -34,7 +34,7 @@ export default function Home() {
           />
           <Image
             className="border-b-8 border-l-8 border-t-8 rounded-3xl h-110 min-w-0 flex-3 object-cover"
-            src="https://react-vite-comfy-store-v2.netlify.app/assets/hero2-2271e3ad.webp"
+            src="/chair.jpg"
             alt="sofa"
             width={300}
             height={400}

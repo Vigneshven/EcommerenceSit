@@ -11,6 +11,7 @@ import guestCartRoutes from "./routes/guestCartRoutes";
 import guestOrderRoutes from "./routes/guestOrderRoutes";
 import guestSessionRoutes from "./routes/guestSessionRoutes";
 import { generalApiLimiter } from "./middleware/rateLimit";
+import paymentRoutes from "./routes/paymentRoutes";
 
 dotenv.config();
 
@@ -31,12 +32,11 @@ app.use(
     credentials: true,
   }),
 );
-
-app.use(express.json({ limit: "100kb" }));
 app.use(cookieParser());
 app.use("/", generalApiLimiter);
 
 const root = express.Router();
+app.use("/api", root);
 root.use("/auth", authRoutes);
 root.use("/products", productRoutes);
 root.use("/cart/guest", guestCartRoutes);
@@ -44,8 +44,12 @@ root.use("/cart", cartRoutes);
 root.use("/order", orderRoutes);
 root.use("/guest", guestSessionRoutes);
 root.use("/order/guest", guestOrderRoutes);
-
-app.use("/api", root);
+root.use(
+  "/payment/webhook",
+  express.raw({ type: "application/json" }),
+  paymentRoutes,
+);
+app.use(express.json());
 
 app.use((_, response) => {
   return response.status(404).json({
