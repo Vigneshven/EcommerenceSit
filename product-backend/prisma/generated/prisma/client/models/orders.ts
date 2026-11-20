@@ -46,6 +46,10 @@ export type OrdersMinAggregateOutputType = {
   date_time: Date | null
   user_id: number | null
   guest_id: string | null
+  order_status: string | null
+  payment_status: string | null
+  stripe_session_id: string | null
+  stripe_payment_id: string | null
 }
 
 export type OrdersMaxAggregateOutputType = {
@@ -56,6 +60,10 @@ export type OrdersMaxAggregateOutputType = {
   date_time: Date | null
   user_id: number | null
   guest_id: string | null
+  order_status: string | null
+  payment_status: string | null
+  stripe_session_id: string | null
+  stripe_payment_id: string | null
 }
 
 export type OrdersCountAggregateOutputType = {
@@ -67,6 +75,10 @@ export type OrdersCountAggregateOutputType = {
   date_time: number
   user_id: number
   guest_id: number
+  order_status: number
+  payment_status: number
+  stripe_session_id: number
+  stripe_payment_id: number
   _all: number
 }
 
@@ -91,6 +103,10 @@ export type OrdersMinAggregateInputType = {
   date_time?: true
   user_id?: true
   guest_id?: true
+  order_status?: true
+  payment_status?: true
+  stripe_session_id?: true
+  stripe_payment_id?: true
 }
 
 export type OrdersMaxAggregateInputType = {
@@ -101,6 +117,10 @@ export type OrdersMaxAggregateInputType = {
   date_time?: true
   user_id?: true
   guest_id?: true
+  order_status?: true
+  payment_status?: true
+  stripe_session_id?: true
+  stripe_payment_id?: true
 }
 
 export type OrdersCountAggregateInputType = {
@@ -112,6 +132,10 @@ export type OrdersCountAggregateInputType = {
   date_time?: true
   user_id?: true
   guest_id?: true
+  order_status?: true
+  payment_status?: true
+  stripe_session_id?: true
+  stripe_payment_id?: true
   _all?: true
 }
 
@@ -210,6 +234,10 @@ export type OrdersGroupByOutputType = {
   date_time: Date | null
   user_id: number | null
   guest_id: string | null
+  order_status: string
+  payment_status: string
+  stripe_session_id: string | null
+  stripe_payment_id: string | null
   _count: OrdersCountAggregateOutputType | null
   _avg: OrdersAvgAggregateOutputType | null
   _sum: OrdersSumAggregateOutputType | null
@@ -244,6 +272,10 @@ export type ordersWhereInput = {
   date_time?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   user_id?: Prisma.IntNullableFilter<"orders"> | number | null
   guest_id?: Prisma.StringNullableFilter<"orders"> | string | null
+  order_status?: Prisma.StringFilter<"orders"> | string
+  payment_status?: Prisma.StringFilter<"orders"> | string
+  stripe_session_id?: Prisma.StringNullableFilter<"orders"> | string | null
+  stripe_payment_id?: Prisma.StringNullableFilter<"orders"> | string | null
 }
 
 export type ordersOrderByWithRelationInput = {
@@ -255,11 +287,17 @@ export type ordersOrderByWithRelationInput = {
   date_time?: Prisma.SortOrderInput | Prisma.SortOrder
   user_id?: Prisma.SortOrderInput | Prisma.SortOrder
   guest_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  order_status?: Prisma.SortOrder
+  payment_status?: Prisma.SortOrder
+  stripe_session_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripe_payment_id?: Prisma.SortOrderInput | Prisma.SortOrder
   _relevance?: Prisma.ordersOrderByRelevanceInput
 }
 
 export type ordersWhereUniqueInput = Prisma.AtLeast<{
   order_id?: number
+  stripe_session_id?: string
+  stripe_payment_id?: string
   AND?: Prisma.ordersWhereInput | Prisma.ordersWhereInput[]
   OR?: Prisma.ordersWhereInput[]
   NOT?: Prisma.ordersWhereInput | Prisma.ordersWhereInput[]
@@ -270,7 +308,9 @@ export type ordersWhereUniqueInput = Prisma.AtLeast<{
   date_time?: Prisma.DateTimeNullableFilter<"orders"> | Date | string | null
   user_id?: Prisma.IntNullableFilter<"orders"> | number | null
   guest_id?: Prisma.StringNullableFilter<"orders"> | string | null
-}, "order_id">
+  order_status?: Prisma.StringFilter<"orders"> | string
+  payment_status?: Prisma.StringFilter<"orders"> | string
+}, "order_id" | "stripe_session_id" | "stripe_payment_id">
 
 export type ordersOrderByWithAggregationInput = {
   order_id?: Prisma.SortOrder
@@ -281,6 +321,10 @@ export type ordersOrderByWithAggregationInput = {
   date_time?: Prisma.SortOrderInput | Prisma.SortOrder
   user_id?: Prisma.SortOrderInput | Prisma.SortOrder
   guest_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  order_status?: Prisma.SortOrder
+  payment_status?: Prisma.SortOrder
+  stripe_session_id?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripe_payment_id?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ordersCountOrderByAggregateInput
   _avg?: Prisma.ordersAvgOrderByAggregateInput
   _max?: Prisma.ordersMaxOrderByAggregateInput
@@ -300,6 +344,10 @@ export type ordersScalarWhereWithAggregatesInput = {
   date_time?: Prisma.DateTimeNullableWithAggregatesFilter<"orders"> | Date | string | null
   user_id?: Prisma.IntNullableWithAggregatesFilter<"orders"> | number | null
   guest_id?: Prisma.StringNullableWithAggregatesFilter<"orders"> | string | null
+  order_status?: Prisma.StringWithAggregatesFilter<"orders"> | string
+  payment_status?: Prisma.StringWithAggregatesFilter<"orders"> | string
+  stripe_session_id?: Prisma.StringNullableWithAggregatesFilter<"orders"> | string | null
+  stripe_payment_id?: Prisma.StringNullableWithAggregatesFilter<"orders"> | string | null
 }
 
 export type ordersCreateInput = {
@@ -310,6 +358,10 @@ export type ordersCreateInput = {
   date_time?: Date | string | null
   user_id?: number | null
   guest_id?: string | null
+  order_status?: string
+  payment_status?: string
+  stripe_session_id?: string | null
+  stripe_payment_id?: string | null
 }
 
 export type ordersUncheckedCreateInput = {
@@ -321,6 +373,10 @@ export type ordersUncheckedCreateInput = {
   date_time?: Date | string | null
   user_id?: number | null
   guest_id?: string | null
+  order_status?: string
+  payment_status?: string
+  stripe_session_id?: string | null
+  stripe_payment_id?: string | null
 }
 
 export type ordersUpdateInput = {
@@ -331,6 +387,10 @@ export type ordersUpdateInput = {
   date_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guest_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_status?: Prisma.StringFieldUpdateOperationsInput | string
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripe_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripe_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ordersUncheckedUpdateInput = {
@@ -342,6 +402,10 @@ export type ordersUncheckedUpdateInput = {
   date_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guest_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_status?: Prisma.StringFieldUpdateOperationsInput | string
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripe_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripe_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ordersCreateManyInput = {
@@ -353,6 +417,10 @@ export type ordersCreateManyInput = {
   date_time?: Date | string | null
   user_id?: number | null
   guest_id?: string | null
+  order_status?: string
+  payment_status?: string
+  stripe_session_id?: string | null
+  stripe_payment_id?: string | null
 }
 
 export type ordersUpdateManyMutationInput = {
@@ -363,6 +431,10 @@ export type ordersUpdateManyMutationInput = {
   date_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guest_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_status?: Prisma.StringFieldUpdateOperationsInput | string
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripe_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripe_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ordersUncheckedUpdateManyInput = {
@@ -374,6 +446,10 @@ export type ordersUncheckedUpdateManyInput = {
   date_time?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   user_id?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   guest_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  order_status?: Prisma.StringFieldUpdateOperationsInput | string
+  payment_status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripe_session_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripe_payment_id?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ordersOrderByRelevanceInput = {
@@ -391,6 +467,10 @@ export type ordersCountOrderByAggregateInput = {
   date_time?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   guest_id?: Prisma.SortOrder
+  order_status?: Prisma.SortOrder
+  payment_status?: Prisma.SortOrder
+  stripe_session_id?: Prisma.SortOrder
+  stripe_payment_id?: Prisma.SortOrder
 }
 
 export type ordersAvgOrderByAggregateInput = {
@@ -407,6 +487,10 @@ export type ordersMaxOrderByAggregateInput = {
   date_time?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   guest_id?: Prisma.SortOrder
+  order_status?: Prisma.SortOrder
+  payment_status?: Prisma.SortOrder
+  stripe_session_id?: Prisma.SortOrder
+  stripe_payment_id?: Prisma.SortOrder
 }
 
 export type ordersMinOrderByAggregateInput = {
@@ -417,6 +501,10 @@ export type ordersMinOrderByAggregateInput = {
   date_time?: Prisma.SortOrder
   user_id?: Prisma.SortOrder
   guest_id?: Prisma.SortOrder
+  order_status?: Prisma.SortOrder
+  payment_status?: Prisma.SortOrder
+  stripe_session_id?: Prisma.SortOrder
+  stripe_payment_id?: Prisma.SortOrder
 }
 
 export type ordersSumOrderByAggregateInput = {
@@ -444,6 +532,10 @@ export type ordersSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   date_time?: boolean
   user_id?: boolean
   guest_id?: boolean
+  order_status?: boolean
+  payment_status?: boolean
+  stripe_session_id?: boolean
+  stripe_payment_id?: boolean
 }, ExtArgs["result"]["orders"]>
 
 
@@ -457,9 +549,13 @@ export type ordersSelectScalar = {
   date_time?: boolean
   user_id?: boolean
   guest_id?: boolean
+  order_status?: boolean
+  payment_status?: boolean
+  stripe_session_id?: boolean
+  stripe_payment_id?: boolean
 }
 
-export type ordersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"order_id" | "name" | "address" | "product" | "cost" | "date_time" | "user_id" | "guest_id", ExtArgs["result"]["orders"]>
+export type ordersOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"order_id" | "name" | "address" | "product" | "cost" | "date_time" | "user_id" | "guest_id" | "order_status" | "payment_status" | "stripe_session_id" | "stripe_payment_id", ExtArgs["result"]["orders"]>
 
 export type $ordersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "orders"
@@ -473,6 +569,10 @@ export type $ordersPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     date_time: Date | null
     user_id: number | null
     guest_id: string | null
+    order_status: string
+    payment_status: string
+    stripe_session_id: string | null
+    stripe_payment_id: string | null
   }, ExtArgs["result"]["orders"]>
   composites: {}
 }
@@ -850,6 +950,10 @@ export interface ordersFieldRefs {
   readonly date_time: Prisma.FieldRef<"orders", 'DateTime'>
   readonly user_id: Prisma.FieldRef<"orders", 'Int'>
   readonly guest_id: Prisma.FieldRef<"orders", 'String'>
+  readonly order_status: Prisma.FieldRef<"orders", 'String'>
+  readonly payment_status: Prisma.FieldRef<"orders", 'String'>
+  readonly stripe_session_id: Prisma.FieldRef<"orders", 'String'>
+  readonly stripe_payment_id: Prisma.FieldRef<"orders", 'String'>
 }
     
 

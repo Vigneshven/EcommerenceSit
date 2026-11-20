@@ -825,7 +825,11 @@ export const OrdersScalarFieldEnum = {
   cost: 'cost',
   date_time: 'date_time',
   user_id: 'user_id',
-  guest_id: 'guest_id'
+  guest_id: 'guest_id',
+  order_status: 'order_status',
+  payment_status: 'payment_status',
+  stripe_session_id: 'stripe_session_id',
+  stripe_payment_id: 'stripe_payment_id'
 } as const
 
 export type OrdersScalarFieldEnum = (typeof OrdersScalarFieldEnum)[keyof typeof OrdersScalarFieldEnum]
@@ -918,7 +922,11 @@ export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 export const ordersOrderByRelevanceFieldEnum = {
   name: 'name',
   address: 'address',
-  guest_id: 'guest_id'
+  guest_id: 'guest_id',
+  order_status: 'order_status',
+  payment_status: 'payment_status',
+  stripe_session_id: 'stripe_session_id',
+  stripe_payment_id: 'stripe_payment_id'
 } as const
 
 export type ordersOrderByRelevanceFieldEnum = (typeof ordersOrderByRelevanceFieldEnum)[keyof typeof ordersOrderByRelevanceFieldEnum]

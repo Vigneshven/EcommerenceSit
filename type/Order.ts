@@ -4,10 +4,11 @@ export type CreateOrder = {
 };
 
 export type OrderProduct = {
+  cartItemId: number;
   id: number;
   name: string;
   amount: number;
-  price: string | number;
+  price: number;
   color: string;
 };
 
@@ -18,4 +19,10 @@ export type Order = {
   product: OrderProduct[];
   cost: number;
   dateTime: string;
+  payment: {
+    status: string;
+    provider: string;
+    transactionId: string | null;
+  };
+  orderStatus: string;
 };

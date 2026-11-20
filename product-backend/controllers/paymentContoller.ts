@@ -1,44 +1,57 @@
-import type { Request, Response } from "express";
-import crypto from "node:crypto";
+import { type Request, type Response } from "express";
+import { errorResponse, successResponse } from "../utils/apiResponse";
+import { createCheckout } from "../services/paymentServices";
 
-export async function razorpayWebHook(req: Request, res: Response) {
+export async function createPaymentCheckout(req: Request, res: Response) {
   try {
-    const signature = req.headers["x-razorpay-signature"];
-    const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
-
-    if (!secret || typeof signature !== "string") {
-      return res.status(400).json({
-        message: "Missing webhook signature",
-      });
-    }
-
-    const expectedSignature = crypto
-      .createHmac("sha256", secret)
-      .update(req.body)
-      .digest();
-
-    const receivedSignature = Buffer.from(signature, "hex");
+    const { name, address } = req.body;
 
     if (
-      receivedSignature.length !== expectedSignature.length ||
-      !crypto.timingSafeEqual(receivedSignature, expectedSignature)
+      typeof name !== "string" ||
+      typeof address !== "string" ||
+      !name.trim() ||
+      !address.trim()
     ) {
-      return res.status(400).json({
-        message: "Invalid webhook signature",
+      return errorResponse(res, {
+        message: "Invalid order details",
+        statusCode: 400,
       });
     }
 
-    const event = JSON.parse(req.body.toString());
+    let owner: { userId: number | null; guestId: string | null };
 
-    console.log("event ", event);
+    if (typeof req.userId === "number" && req.userId > 0) {
+      owner = {
+        userId: req.userId,
+        guestId: null,
+      };
+    } else if (typeof req.guestId === "string") {
+      owner = {
+        userId: null,
+        guestId: req.guestId,
+      };
+    } else {
+      return errorResponse(res, {
+        message: "Authentication or guest session required",
+        statusCode: 401,
+      });
+    }
 
-    return res.status(200).json({
-      message: "Webhook signature verified",
+    const checkout = await createCheckout(owner, {
+      name: name,
+      address: address,
+    });
+
+    return successResponse(res, {
+      message: "Checkout session created succcesfully",
+      data: checkout,
+      statusCode: 201,
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      message: "WebHook failed",
+    return errorResponse(res, {
+      message: "Failed to create payment session",
+      statusCode: 500,
     });
   }
 }

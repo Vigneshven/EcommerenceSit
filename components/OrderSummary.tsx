@@ -35,8 +35,8 @@ function OrderSummary({ cart, loading }: OrderSummaryProps) {
           </div>
           <div>
             <div className="flex justify-between">
-              <span>Total</span>
-              <span>{formatPrice(total)}</span>
+              <span className="font-bold text-xl">Total</span>
+              <span className="font-bold text-xl">{formatPrice(total)}</span>
             </div>
           </div>
         </div>

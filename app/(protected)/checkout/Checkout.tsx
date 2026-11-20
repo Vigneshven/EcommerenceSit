@@ -1,13 +1,12 @@
 "use client";
 
-import { createOrder, getCart } from "@/api/api";
+import { createPayoutCheckout, getCart } from "@/api/api";
 import Button from "@/components/Button";
 import OrderSummary from "@/components/OrderSummary";
 import { cart } from "@/type/Cart";
 import useAuthStore from "@/zustandStore/authStore";
-import useShopStore from "@/zustandStore/ShopStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { CreditCard } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Skeleton from "react-loading-skeleton";
@@ -22,12 +21,9 @@ const shippingSchema = z.object({
 type shippingForm = z.infer<typeof shippingSchema>;
 
 function Checkout() {
-  const router = useRouter();
-
   const user = useAuthStore((state) => state.currentUser);
   const isGuest = useAuthStore((state) => state.isGuest);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
-  const markCartChanged = useShopStore((state) => state.markCartChanged);
 
   const [cart, setCart] = useState<cart[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,17 +75,18 @@ function Checkout() {
     }
     setPlaceOrder(true);
     try {
-      await createOrder(
-        {
-          name: data.firstName,
-          address: data.address,
-        },
-        !user?.id && isGuest,
+      const response = await createPayoutCheckout(
+        data.firstName,
+        data.address,
+        isGuest,
       );
-      markCartChanged();
-      setCart([]);
-      toast.success("Order Placed Successfully...");
-      router.push("/order");
+
+      const checkoutUrl = response?.data?.checkoutUrl as string | undefined;
+      if (!checkoutUrl) {
+        throw new Error("Stripe checkout URL was not returned");
+      }
+
+      window.location.assign(checkoutUrl);
     } catch (error) {
       console.log(error);
       toast.error("Failed to Place Order...");
@@ -176,6 +173,42 @@ function Checkout() {
             </section>
             <div className="flex flex-col gap-2">
               <OrderSummary cart={cart} loading={loading} />
+              <div className="rounded-xl border border-border p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="font-bold text-lg">Payment Details</h2>
+
+                  <span className="text-xs rounded-full bg-green-100 text-green-700 px-3 py-1">
+                    Secure
+                  </span>
+                </div>
+
+                <div className="rounded-lg bg-primary-light p-4 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">Payment provider</span>
+                    <span className="font-semibold">Stripe</span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-white p-3">
+                      <span className="text-xl">
+                        <CreditCard />
+                      </span>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold">Credit / Debit Card</p>
+                      <p className="text-sm text-gray-500">
+                        Secure payment through Stripe
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-3">
+                    <p className="text-sm text-gray-600">Payment status</p>
+                    <p className="font-semibold text-yellow-600">Pending</p>
+                  </div>
+                </div>
+              </div>
               <Button type="submit" disabled={placeOrder} className="w-full">
                 {placeOrder ? "Placing Order..." : "Place Your Order"}
               </Button>

@@ -288,11 +288,58 @@ export async function getOrders(
     method: "GET",
     headers,
     credentials: "include",
+    cache: "no-store",
   });
 
   if (!res.ok) {
-    throw new Error("Failed to fetch orders");
+    const errorBody = await res.json().catch(() => null);
+    throw new Error(errorBody?.message || "Failed to fetch orders");
   }
 
-  return res.json();
+  const result = await res.json();
+
+  if (Array.isArray(result)) {
+    return result;
+  }
+
+  if (Array.isArray(result?.data)) {
+    return result.data;
+  }
+
+  throw new Error("Invalid orders response");
+}
+
+export async function createPayoutCheckout(
+  name: string,
+  address: string,
+  isGuest: boolean,
+) {
+  const url = isGuest
+    ? `${baseUrl}/api/payment/guest/checkout`
+    : `${baseUrl}/api/payment/checkout`;
+
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  if (isGuest) {
+    const csrfToken = getGuestCsrfToken();
+    if (!csrfToken) {
+      throw new Error("Guest CSRF token is missing");
+    }
+    headers["X-CSRF-TOKEN"] = csrfToken;
+  }
+  const res = await fetch(url, {
+    method: "POST",
+    credentials: "include",
+    headers,
+    body: JSON.stringify({ name, address }),
+  });
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error("Unable to create checkout session");
+  }
+
+  return data;
 }

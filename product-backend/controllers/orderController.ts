@@ -1,26 +1,18 @@
 import { type Request, type Response } from "express";
-import {
-  createOrder,
-  getGuestOrder,
-  getOrdersByUser,
-} from "../models/orderModel";
+import { getGuestOrder, getOrdersByUser } from "../models/orderModel";
+import { errorResponse, successResponse } from "../utils/apiResponse";
 
-export type OrderProduct = {
-  id: number;
-  name: string;
-  amount: number;
-  price: string;
-  color: string;
-};
+function normalizeProducts(product: unknown) {
+  if (Array.isArray(product)) return product;
+  if (typeof product !== "string") return [];
 
-export type OrderRow = {
-  order_id: number;
-  name: string;
-  address: string;
-  product: OrderProduct[] | string;
-  cost: string | number;
-  date_time: string;
-};
+  try {
+    const parsed = JSON.parse(product);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
 
 export async function getOrders(req: Request, res: Response) {
   try {
@@ -40,82 +32,27 @@ export async function getOrders(req: Request, res: Response) {
       id: row.order_id,
       name: row.name,
       address: row.address,
-      product:
-        typeof row.product === "string" ? JSON.parse(row.product) : row.product,
+      product: normalizeProducts(row.product),
       cost: Number(row.cost),
       dateTime: row.date_time,
+      payment: {
+        status: row.payment_status,
+        provider: row.stripe_payment_id || row.stripe_session_id ? "Stripe" : null,
+        transactionId: row.stripe_payment_id,
+      },
+      orderStatus: row.order_status,
     }));
 
-    return res.json(orders);
+    return successResponse(res, {
+      message: "Orders fetched successfully",
+      data: orders,
+      statusCode: 200,
+    });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      message: "failed to fetch orders",
-    });
-  }
-}
-
-export async function placeOrder(req: Request, res: Response) {
-  try {
-    const { name, address } = req.body ?? {};
-
-    const userId = req.userId;
-
-    const guest_Id = req.guestId;
-
-    const isLoginUser = Number.isInteger(userId);
-
-    const isGuestUser = !isLoginUser && typeof guest_Id === "string";
-
-    if (!isLoginUser && !isGuestUser) {
-      return res.status(401).json({
-        message: "Please login or enter as guest users",
-      });
-    }
-
-    if (
-      (isLoginUser && !Number.isInteger(userId)) ||
-      typeof name !== "string" ||
-      name.trim().length < 3 ||
-      typeof address !== "string" ||
-      address.trim().length < 5 ||
-      !req.body ||
-      typeof req.body !== "object" ||
-      Array.isArray(req.body)
-    ) {
-      return res.status(400).json({
-        message: "Invalid order details",
-      });
-    }
-    const order = await createOrder({
-      userId: isLoginUser ? userId! : null,
-      guestId: isLoginUser ? null : guest_Id!,
-      name: name.trim(),
-      address: address.trim(),
-    });
-    return res.status(201).json({
-      message: "Order placed successfully",
-      id: order.orderId,
-      product: order.product,
-      subtotal: order.subtotal,
-      tax: order.tax,
-      shipping: order.shipping,
-      cost: order.cost,
-    });
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      [
-        "Order must contains at least one product",
-        "Invalid product price in db",
-      ].includes(error.message)
-    ) {
-      return res.status(400).json({
-        message: error.message,
-      });
-    }
-    return res.status(500).json({
-      message: "Failed to place order",
+    return errorResponse(res, {
+      message: "Failed to fetch orders",
+      statusCode: 500,
     });
   }
 }

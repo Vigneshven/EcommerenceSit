@@ -14,28 +14,66 @@ function Order() {
   const isGuest = useAuthStore((state) => state.isGuest);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
 
+  const userId = users?.id;
+
   useEffect(() => {
     if (!hasHydrated) return;
 
-    if (!users && !isGuest) {
-      setOrders([]);
-      setLoading(false);
-      return;
-    }
+    if (!userId && !isGuest) return;
 
-    const fetchOrder = async () => {
+    const fetchOrder = async (showLoading = true) => {
       try {
-        setLoading(true);
-        const data = await getOrders(users?.id ?? null, !users?.id && isGuest);
-        setOrders(data);
+        if (showLoading) setLoading(true);
+        const data = await getOrders(userId ?? null, !userId && isGuest);
+        setOrders(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.log(error);
+        console.error(error);
+        setOrders([]);
       } finally {
-        setLoading(false);
+        if (showLoading) setLoading(false);
       }
     };
     fetchOrder();
-  }, [users?.id, isGuest, hasHydrated]);
+
+    const pollingId = window.setInterval(() => fetchOrder(false), 5000);
+
+    const refreshOnReturn = () => {
+      if (document.visibilityState === "visible") {
+        fetchOrder();
+      }
+    };
+
+    window.addEventListener("focus", refreshOnReturn);
+    document.addEventListener("visibilitychange", refreshOnReturn);
+
+    return () => {
+      window.clearInterval(pollingId);
+      window.removeEventListener("focus", refreshOnReturn);
+      document.removeEventListener("visibilitychange", refreshOnReturn);
+    };
+  }, [userId, isGuest, hasHydrated]);
+
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "paid":
+      case "delivered":
+        return "bg-green-100 text-green-700";
+
+      case "processing":
+      case "preparing":
+        return "bg-blue-100 text-blue-700";
+
+      case "pending":
+        return "bg-yellow-100 text-yellow-700";
+
+      case "failed":
+      case "cancelled":
+        return "bg-red-100 text-red-700";
+
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  };
 
   if (!hasHydrated || loading) {
     return (
@@ -85,12 +123,14 @@ function Order() {
             <table className="w-full min-w-175 text-left border-8">
               <thead className="bg-primary-light">
                 <tr className="text-center">
-                  <td className="p-3">Order ID</td>
-                  <td className="p-3">Name</td>
-                  <td className="p-3">Address</td>
-                  <td className="p-3">Product</td>
-                  <td className="p-3">Cost</td>
-                  <td className="p-3">Date and Time</td>
+                  <th className="p-3">Order ID</th>
+                  <th className="p-3">Name</th>
+                  <th className="p-3">Address</th>
+                  <th className="p-3">Products</th>
+                  <th className="p-3">Total</th>
+                  <th className="p-3">Payment</th>
+                  <th className="p-3">Order Status</th>
+                  <th className="p-3">Date and Time</th>
                 </tr>
               </thead>
               <tbody>
@@ -115,6 +155,30 @@ function Order() {
                       </div>
                     </td>
                     <td className="p-3">{order.cost}</td>
+                    <td className="p-3">
+                      <div className="flex flex-col items-center gap-2">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusStyle(
+                            order.payment.status,
+                          )}`}
+                        >
+                          {order.payment.status}
+                        </span>
+
+                        <span className="text-xs text-muted-foreground">
+                          {order.payment.provider}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusStyle(
+                          order.orderStatus,
+                        )}`}
+                      >
+                        {order.orderStatus}
+                      </span>
+                    </td>
                     <td className="p-3">{order.dateTime}</td>
                   </tr>
                 ))}

@@ -12,6 +12,7 @@ import guestOrderRoutes from "./routes/guestOrderRoutes";
 import guestSessionRoutes from "./routes/guestSessionRoutes";
 import { generalApiLimiter } from "./middleware/rateLimit";
 import paymentRoutes from "./routes/paymentRoutes";
+import { stripeWebHook } from "./controllers/stripeWebHookController";
 
 dotenv.config();
 
@@ -23,16 +24,18 @@ app.use(helmet());
 app.disable("x-powered-by");
 app.use(
   cors({
-    // origin: [
-    //   "http://localhost:3000",
-    //   "http://127.0.0.1:3000",
-    //   "http://192.168.1.12:3000",
-    // ],
     origin: `http://localhost:${FRONTENDPORT}`,
     credentials: true,
   }),
 );
 app.use(cookieParser());
+app.use(
+  "/api/payment/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebHook,
+);
+app.use(express.json());
+app.use("/api/payment", paymentRoutes);
 app.use("/", generalApiLimiter);
 
 const root = express.Router();
@@ -44,12 +47,6 @@ root.use("/cart", cartRoutes);
 root.use("/order", orderRoutes);
 root.use("/guest", guestSessionRoutes);
 root.use("/order/guest", guestOrderRoutes);
-root.use(
-  "/payment/webhook",
-  express.raw({ type: "application/json" }),
-  paymentRoutes,
-);
-app.use(express.json());
 
 app.use((_, response) => {
   return response.status(404).json({
