@@ -21,8 +21,9 @@ export type Order = {
   dateTime: string;
   payment: {
     status: string;
-    provider: string;
+    provider: string | null;
     transactionId: string | null;
+    sessionId: string | null;
   };
   orderStatus: string;
 };

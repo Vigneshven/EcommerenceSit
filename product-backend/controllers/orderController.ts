@@ -39,6 +39,7 @@ export async function getOrders(req: Request, res: Response) {
         status: row.payment_status,
         provider: row.stripe_payment_id || row.stripe_session_id ? "Stripe" : null,
         transactionId: row.stripe_payment_id,
+        sessionId: row.stripe_session_id,
       },
       orderStatus: row.order_status,
     }));

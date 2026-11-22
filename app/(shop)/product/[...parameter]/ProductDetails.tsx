@@ -112,7 +112,7 @@ export default function ProductDetails({ product }: Props) {
 
             <button
               type="button"
-              className="rounded-2xl bg-primary px-6 py-4 font-bold"
+              className="rounded-2xl bg-primary px-6 py-4 font-bold text-white"
               onClick={handleAddToCart}
               disabled={adding}
             >

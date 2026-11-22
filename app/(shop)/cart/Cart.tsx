@@ -4,7 +4,7 @@ import { formatPrice, parsePrice } from "@/lib/utils/price";
 import useAuthStore from "@/zustandStore/authStore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { CartItem } from "@/zustandStore/ShopStore";
 import { deleteCartItem, getCart, updateCartItem } from "@/api/api";
 import { toast } from "sonner";
@@ -35,51 +35,48 @@ export default function Cart() {
 
   const userId = user?.id;
 
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [serverCart, setServerCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<number | null>(null);
-
   const [maxAmount, setMaxAmount] = useState<Record<number, number>>({});
-  const loadCart = useCallback(async () => {
-    setLoading(true);
 
-    try {
-      const items = await getCart(userId, !userId && isGuest);
-      setCart(
-        items.map((item) => ({
-          id: item.product_id ?? item.cartItemId,
-          image: item.image,
-          name: item.name,
-          company: item.company ?? "",
-          price: item.price,
-          amount: item.amount,
-          color: item.color ?? "",
-          cartItemId: item.cartItemId,
-        })),
-      );
-    } catch {
-      toast.error("Unable to load cart");
-    } finally {
-      setLoading(false);
-    }
-  }, [userId, isGuest]);
+  const isLocalCart = !user && !isGuest;
+  const cart = isLocalCart ? anonymousCart : serverCart;
 
   useEffect(() => {
-    if (!hasHydrated) return;
+    if (!hasHydrated || isLocalCart) return;
 
-    if (!user && !isGuest) {
-      setCart(anonymousCart);
-      setLoading(false);
-    }
+    let active = true;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const items = await getCart(userId, !userId && isGuest);
+        if (!active) return;
+        setServerCart(
+          items.map((item) => ({
+            id: item.product_id ?? item.cartItemId,
+            image: item.image,
+            name: item.name,
+            company: item.company ?? "",
+            price: item.price,
+            amount: item.amount,
+            color: item.color ?? "",
+            cartItemId: item.cartItemId,
+          })),
+        );
+      } catch {
+        if (active) toast.error("Unable to load cart");
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
 
-    if (user?.id) {
-      loadCart();
-    } else if (isGuest) {
-      loadCart();
-    } else {
-      setLoading(false);
-    }
-  }, [hasHydrated, loadCart, user?.id, isGuest, cartVersion]);
+    void load();
+
+    return () => {
+      active = false;
+    };
+  }, [cartVersion, hasHydrated, isGuest, isLocalCart, userId]);
 
   async function handleQtyChange(item: CartItem, quantity: number) {
     const itemId = item.cartItemId ?? item.id;
@@ -91,17 +88,9 @@ export default function Cart() {
           id: item.product_id ?? item.id,
           amount: quantity,
         });
-
-        setCart((prev) =>
-          prev.map((current) =>
-            current.id === item.id ? { ...current, amount: quantity } : current,
-          ),
-        );
       } else {
         await updateCartItem(itemId, quantity, userId, !userId && isGuest);
-        await loadCart();
-
-        setCart((prev) =>
+        setServerCart((prev) =>
           prev.map((current) =>
             current.cartItemId === item.cartItemId
               ? { ...current, amount: quantity }
@@ -137,20 +126,12 @@ export default function Cart() {
     try {
       if (!user && !isGuest) {
         if (!item) return;
-
         removeAnonymousCart(item.id);
-
-        setCart((prev) =>
-          prev.filter(
-            (current) =>
-              !(current.id === item.id && current.color === item.color),
-          ),
-        );
       } else {
         await deleteCartItem(cartItemId, userId, !userId && isGuest);
         markCartChanged();
-        setCart((prev) =>
-          prev.filter((item) => item.cartItemId !== cartItemId),
+        setServerCart((prev) =>
+          prev.filter((current) => current.cartItemId !== cartItemId),
         );
       }
       toast.success("item removed...");
@@ -201,85 +182,90 @@ export default function Cart() {
         {cart.length === 0 ? (
           <h2>Your Cart is Empty</h2>
         ) : (
-          <div className="grid  gap-10 lg:grid-cols-[1fr_22rem]">
+          <div className="grid gap-10 lg:grid-cols-[1fr_22rem]">
             <section className="space-y-6">
-              {cart.map((item) => (
+              {cart.map((item, index) => (
                 <article
                   key={
-                    item.cartItemId ??
-                    `anonymous-${item.product_id}-${item.color}`
+                    item.cartItemId != null
+                      ? `cart-${item.cartItemId}`
+                      : `anon-${item.id}-${item.color}-${index}`
                   }
-                  className="flex flex-col gap-4 border-b border-border sm:flex-row sm:items-center"
+                  className="flex flex-col gap-4 border-b border-border sm:flex-row sm:items-center sm:justify-between pb-6"
                 >
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    width={600}
-                    height={600}
-                    className="h-32 w-38 object-cover rounded-xl"
-                    loading="eager"
-                  ></Image>
-                  <div className="flex gap-40 w-full">
-                    <div className="flex flex-col gap-2">
-                      <h2 className="font-semibold text-heading">
+                  <div className="flex items-center gap-4 flex-1">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      width={600}
+                      height={600}
+                      className="h-28 w-28 shrink-0 object-cover rounded-xl"
+                      loading="eager"
+                    />
+                    <div className="flex flex-col gap-2 min-w-0">
+                      <h2 className="font-semibold text-heading truncate">
                         {item.name}
                       </h2>
-                      <p className="text-muted-text">{item.company}</p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <span>Color:</span>
+                      <p className="text-muted-text text-sm">{item.company}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">Color:</span>
                         <span
-                          className="h-5 w-5 rounded-full border border-border"
+                          className="h-4 w-4 rounded-full border border-border"
                           style={{ backgroundColor: item.color }}
                         ></span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-col items-center gap-3 mr-50">
-                    <label>Amount</label>
-                    <select
-                      value={item.amount}
-                      disabled={items === item.cartItemId}
-                      onChange={(e) => {
-                        handleQtyChange(item, Number(e.target.value));
-                      }}
-                      className="rounded-lg border border-border bg-input-background p-2 text-heading"
-                    >
-                      {Array.from(
-                        {
-                          length:
-                            maxAmount[item.cartItemId ?? item.id] ??
-                            Math.max(5, item.amount),
-                        },
-                        (_, i) => i + 1,
-                      ).map((amount) => (
-                        <option key={amount} value={amount}>
-                          {amount}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      onClick={() =>
-                        handleRemove(
-                          item.cartItemId ?? item.product_id ?? item.id,
-                          item,
-                        )
-                      }
-                      className="text-sm text-primary hover:underline cursor-pointer"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <div className="flex items-center justify-between gap-4 sm:flex-col">
-                    <p>
-                      {formatPrice(
-                        parsePrice(item.price) * Number(item.amount ?? 0),
-                      )}
-                    </p>
+
+                  <div className="flex items-center justify-between sm:justify-end gap-8 w-full sm:w-auto">
+                    <div className="flex flex-col items-start sm:items-center gap-2">
+                      <label className="text-xs text-muted-text">Amount</label>
+                      <select
+                        value={item.amount}
+                        disabled={items === item.cartItemId}
+                        onChange={(e) => {
+                          handleQtyChange(item, Number(e.target.value));
+                        }}
+                        className="rounded-lg border border-border bg-input-background p-1.5 text-heading text-sm"
+                      >
+                        {Array.from(
+                          {
+                            length:
+                              maxAmount[item.cartItemId ?? item.id] ??
+                              Math.max(5, item.amount),
+                          },
+                          (_, i) => i + 1,
+                        ).map((amount) => (
+                          <option key={amount} value={amount}>
+                            {amount}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={() =>
+                          handleRemove(
+                            item.cartItemId ?? item.product_id ?? item.id,
+                            item,
+                          )
+                        }
+                        className="text-xs text-primary hover:underline cursor-pointer mt-1"
+                      >
+                        Remove
+                      </button>
+                    </div>
+
+                    <div className="text-right font-medium">
+                      <p>
+                        {formatPrice(
+                          parsePrice(item.price) * Number(item.amount ?? 0),
+                        )}
+                      </p>
+                    </div>
                   </div>
                 </article>
               ))}
             </section>
-            <aside>
+            <aside className="space-y-4">
               <OrderSummary cart={cart} loading={loading} />
               {!user && !isGuest ? (
                 <button

@@ -25,7 +25,11 @@ export async function handleStripeWebHook(event: StripeEvent) {
       }
       const expectedAmount = Math.round(Number(order.cost) * 100);
 
-      if (expectedAmount !== expectedAmount) {
+      if (
+        !Number.isSafeInteger(expectedAmount) ||
+        session.amount_total !== expectedAmount ||
+        session.currency?.toLowerCase() !== "inr"
+      ) {
         throw new Error("Invalid payment amount");
       }
 
@@ -34,10 +38,9 @@ export async function handleStripeWebHook(event: StripeEvent) {
       await completePaymentOrder({
         orderId,
         sessionId: session.id,
-        paymentId:
-          typeof session.payment_intent === "string"
-            ? session.payment_intent
-            : "",
+        paymentId: typeof session.payment_intent === "string"
+          ? session.payment_intent
+          : session.payment_intent?.id ?? null,
         cartItemId: products.map((item) => item.cartItemId),
         userId: order.user_id,
         guestId: order.guest_id,

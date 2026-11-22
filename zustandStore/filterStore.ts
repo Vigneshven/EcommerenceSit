@@ -12,8 +12,9 @@ const initialState: Inputs = {
   category: "all",
   company: "all",
   sortBy: "a-z",
-  selling_price: 4000,
   free_shipping: false,
+  minPrice: 0,
+  maxPrice: 0,
 };
 
 const useFilterStore = create<FilterState>()(

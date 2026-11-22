@@ -13,6 +13,8 @@ node_modules/
 # testing
 /coverage
 
+/patches
+
 # next.js
 /.next/
 /out/

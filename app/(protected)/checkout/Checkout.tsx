@@ -2,11 +2,11 @@
 
 import { createPayoutCheckout, getCart } from "@/api/api";
 import Button from "@/components/Button";
+import StripePaymentForm from "@/components/checkout/StripePaymentForm";
 import OrderSummary from "@/components/OrderSummary";
 import { cart } from "@/type/Cart";
 import useAuthStore from "@/zustandStore/authStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CreditCard } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import Skeleton from "react-loading-skeleton";
@@ -14,11 +14,12 @@ import { toast } from "sonner";
 import z from "zod";
 
 const shippingSchema = z.object({
-  firstName: z.string().trim().min(3, "Enter at least 3 character"),
+  firstName: z.string().trim().min(3, "Enter at least 3 characters"),
+  email: z.string().trim().email("Enter a valid email address"),
   address: z.string().trim().min(5, "Enter at least 5 characters"),
 });
 
-type shippingForm = z.infer<typeof shippingSchema>;
+type ShippingForm = z.infer<typeof shippingSchema>;
 
 function Checkout() {
   const user = useAuthStore((state) => state.currentUser);
@@ -28,19 +29,27 @@ function Checkout() {
   const [cart, setCart] = useState<cart[]>([]);
   const [loading, setLoading] = useState(true);
   const [placeOrder, setPlaceOrder] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [paymentEmail, setPaymentEmail] = useState("");
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
-  } = useForm<shippingForm>({
+  } = useForm<ShippingForm>({
     resolver: zodResolver(shippingSchema),
     defaultValues: {
       firstName: "",
+      email: "",
       address: "",
     },
   });
-
+  useEffect(() => {
+    if (user?.email) {
+      setValue("email", user.email);
+    }
+  }, [user?.email, setValue]);
   const loadCart = useCallback(async () => {
     if (!hasHydrated) return;
     try {
@@ -57,6 +66,7 @@ function Checkout() {
       }
     } catch (error) {
       console.log(error);
+      toast.error("Unable to load your cart");
     } finally {
       setLoading(false);
     }
@@ -68,7 +78,7 @@ function Checkout() {
     loadCart();
   }, [loadCart, hasHydrated]);
 
-  const handlePlaceOrder = async (data: shippingForm) => {
+  const handlePlaceOrder = async (data: ShippingForm) => {
     if (cart.length === 0) {
       toast.error("Your Cart is Empty");
       return;
@@ -80,16 +90,15 @@ function Checkout() {
         data.address,
         isGuest,
       );
-
-      const checkoutUrl = response?.data?.checkoutUrl as string | undefined;
-      if (!checkoutUrl) {
-        throw new Error("Stripe checkout URL was not returned");
+      if (!response.clientSecret) {
+        throw new Error("Stripe client secret was not returned");
       }
-
-      window.location.assign(checkoutUrl);
+      setPaymentEmail(data.email.trim());
+      setClientSecret(response.clientSecret);
+      toast.success("Payment form is ready");
     } catch (error) {
-      console.log(error);
-      toast.error("Failed to Place Order...");
+      console.error(error);
+      toast.error("Failed to prepare checkout");
     } finally {
       setPlaceOrder(false);
     }
@@ -134,87 +143,80 @@ function Checkout() {
           <p className="mb-4">Your Cart is Empty</p>
         </div>
       ) : (
-        <form onSubmit={handleSubmit(handlePlaceOrder)}>
-          <div className="grid grid-8 lg:grid-cols-[1fr_22rem]">
-            <section className="flex flex-col gap-10 justify-center">
-              <h2 className="font-bold text-2xl">Shipping Information</h2>
-              <div className="flex flex-col gap-10">
-                <div className="flex flex-1 gap-10 items-center">
+        <div className="grid gap-10 lg:grid-cols-[1fr_22rem]">
+          <section className="flex flex-col gap-8">
+            {!clientSecret && (
+              <form
+                onSubmit={handleSubmit(handlePlaceOrder)}
+                className="flex flex-col gap-8"
+              >
+                <h2 className="text-2xl font-bold">Shipping Information</h2>
+                <div className="flex flex-col gap-2">
                   <label>First Name</label>
-                  <div className="flex flex-col gap-1">
-                    <input
-                      type="text"
-                      {...register("firstName")}
-                      placeholder="Enter Your Name"
-                      className="border-2 rounded h-10 border-primary-light w-76 "
-                    />
-                    {errors.firstName && (
-                      <p className="text-red">{errors.firstName.message}</p>
-                    )}
-                  </div>
+                  <input
+                    {...register("firstName")}
+                    placeholder="Enter Your Name"
+                    className="h-10 rounded border-2 border-primary-light px-3"
+                  />
+                  {errors.firstName && (
+                    <p className="text-red-500">{errors.firstName.message}</p>
+                  )}
                 </div>
-                <div className="flex flex-col gap-10">
-                  <div className="flex flex-1 gap-10 items-center">
-                    <label>Address</label>
-                    <div className="flex flex-col gap-1">
-                      <input
-                        type="text"
-                        {...register("address")}
-                        placeholder="Enter Address"
-                        className="border-2 rounded h-10 border-primary-light w-76"
-                      />
-                      {errors.address && (
-                        <p className="text-red">{errors.address.message}</p>
-                      )}
-                    </div>
-                  </div>
+                <div className="flex flex-col gap-2">
+                  <label>Email Address</label>
+                  <input
+                    {...register("email")}
+                    placeholder="Enter Your Email"
+                    className="h-10 rounded border-2 border-primary-light px-3"
+                  />
+                  {errors.email && (
+                    <p className="text-red-500">{errors.email.message}</p>
+                  )}
                 </div>
-              </div>
-            </section>
-            <div className="flex flex-col gap-2">
-              <OrderSummary cart={cart} loading={loading} />
-              <div className="rounded-xl border border-border p-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="font-bold text-lg">Payment Details</h2>
-
-                  <span className="text-xs rounded-full bg-green-100 text-green-700 px-3 py-1">
-                    Secure
-                  </span>
+                <div className="flex flex-col gap-2">
+                  <label>Address</label>
+                  <input
+                    {...register("address")}
+                    placeholder="Enter Address"
+                    className="h-10 rounded border-2 border-primary-light px-3"
+                  />
+                  {errors.address && (
+                    <p className="text-red-500">{errors.address.message}</p>
+                  )}
                 </div>
-
-                <div className="rounded-lg bg-primary-light p-4 space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Payment provider</span>
-                    <span className="font-semibold">Stripe</span>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-white p-3">
-                      <span className="text-xl">
-                        <CreditCard />
-                      </span>
-                    </div>
-
-                    <div>
-                      <p className="font-semibold">Credit / Debit Card</p>
-                      <p className="text-sm text-gray-500">
-                        Secure payment through Stripe
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="border-t pt-3">
-                    <p className="text-sm text-gray-600">Payment status</p>
-                    <p className="font-semibold text-yellow-600">Pending</p>
-                  </div>
-                </div>
-              </div>
-              <Button type="submit" disabled={placeOrder} className="w-full">
-                {placeOrder ? "Placing Order..." : "Place Your Order"}
-              </Button>
-            </div>
-          </div>
-        </form>
+                <Button
+                  type="submit"
+                  disabled={placeOrder}
+                  className="rounded-md bg-black px-5 py-3 text-white"
+                >
+                  {placeOrder ? "Preparing Payment..." : "Continue to Payment"}
+                </Button>
+              </form>
+            )}
+          </section>
+          <aside className="flex flex-col gap-6">
+            <OrderSummary cart={cart} loading={loading} />
+            {clientSecret && (
+              <section className="space-y-5">
+                <h2 className="text-2xl font-bold">Payment Information</h2>
+                <StripePaymentForm
+                  clientSecret={clientSecret}
+                  email={paymentEmail}
+                />
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setClientSecret(null);
+                    setPaymentEmail("");
+                  }}
+                  className="text-sm underline"
+                >
+                  Back to Shipping Information
+                </Button>
+              </section>
+            )}
+          </aside>
+        </div>
       )}
     </main>
   );

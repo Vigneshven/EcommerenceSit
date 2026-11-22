@@ -1,6 +1,9 @@
 "use client";
 
-import { readProductFilters } from "@/lib/ProductSearchParam";
+import {
+  readProductFilters,
+  type ProductPriceBounds,
+} from "@/lib/ProductSearchParam";
 import { Product } from "@/type/Product";
 import useProductStore from "@/zustandStore/ProductStore";
 import { Grid2X2, Menu } from "lucide-react";
@@ -11,6 +14,7 @@ import { useEffect, useMemo, useState } from "react";
 
 interface ShowProductProps {
   initialProducts: Product[];
+  priceBounds: ProductPriceBounds;
 }
 
 const PRODUCTS_PER_PAGE = 9;
@@ -21,12 +25,16 @@ function getPrice(price: string | number): number {
     : Number(price.replace(/[^0-9.]/g, ""));
 }
 
-export default function ShowProduct({ initialProducts }: ShowProductProps) {
+export default function ShowProduct({
+  initialProducts,
+  priceBounds,
+}: ShowProductProps) {
   const searchParams = useSearchParams();
   const queryString = searchParams.toString();
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [pageByQuery, setPageByQuery] = useState<Record<string, number>>({});
   const [view, setView] = useState<"grid" | "list">("grid");
+  const currentPage = pageByQuery[queryString] ?? 1;
 
   const cachedProduct = useProductStore((state) => state.product);
 
@@ -35,8 +43,8 @@ export default function ShowProduct({ initialProducts }: ShowProductProps) {
   const product = cachedProduct.length > 0 ? cachedProduct : initialProducts;
 
   const filters = useMemo(
-    () => readProductFilters(new URLSearchParams(queryString)),
-    [queryString],
+    () => readProductFilters(new URLSearchParams(queryString), priceBounds),
+    [queryString, priceBounds],
   );
 
   useEffect(() => {
@@ -66,9 +74,10 @@ export default function ShowProduct({ initialProducts }: ShowProductProps) {
       result = result.filter((product) => product.company === filters.company);
     }
 
-    result = result.filter(
-      (product) => getPrice(product.price) <= filters.selling_price,
-    );
+    result = result.filter((product) => {
+      const price = getPrice(product.price);
+      return price >= filters.minPrice && price <= filters.maxPrice;
+    });
 
     if (filters.free_shipping) {
       result = result.filter((product) => product.free_shipping);
@@ -92,12 +101,14 @@ export default function ShowProduct({ initialProducts }: ShowProductProps) {
     return result;
   }, [product, filters]);
 
-  const [previousQuery, setPreviousQuery] = useState(queryString);
-
-  if (previousQuery !== queryString) {
-    setPreviousQuery(queryString);
-    setCurrentPage(1);
-  }
+  const setCurrentPage = (page: number | ((page: number) => number)) => {
+    setPageByQuery((prev) => {
+      const current = prev[queryString] ?? 1;
+      const next = typeof page === "function" ? page(current) : page;
+      if (next === current) return prev;
+      return { ...prev, [queryString]: next };
+    });
+  };
 
   const totalPages = Math.ceil(filterProducts.length / PRODUCTS_PER_PAGE);
 

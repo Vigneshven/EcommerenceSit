@@ -109,3 +109,61 @@
     color: var(--color-on-primary);
   }
 }
+
+@layer utilities {
+  .range-thumb {
+    @-webkit-slider-thumb {
+      pointer-events: auto;
+      height: 1rem;
+      width: 1rem;
+      appearance: none;
+      border-radius: 9999px;
+      background-color: var(--primary, #3b82f6);
+    }
+    @-moz-range-thumb {
+      pointer-events: auto;
+      height: 1rem;
+      width: 1rem;
+      border-radius: 9999px;
+      border: 0;
+      background-color: var(--primary, #3b82f6);
+    }
+  }
+  .range-input {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    height: 1.5rem;
+    width: 100%;
+    appearance: none;
+    background: transparent;
+  }
+
+  .range-input::-webkit-slider-runnable-track {
+    background: transparent;
+  }
+
+  .range-input::-moz-range-track {
+    background: transparent;
+  }
+
+  .range-input::-webkit-slider-thumb {
+    pointer-events: auto;
+    height: 1rem;
+    width: 1rem;
+    appearance: none;
+    border-radius: 9999px;
+    background-color: var(--primary, #3b82f6);
+    cursor: pointer;
+  }
+
+  .range-input::-moz-range-thumb {
+    pointer-events: auto;
+    height: 1rem;
+    width: 1rem;
+    border-radius: 9999px;
+    border: 0;
+    background-color: var(--primary, #3b82f6);
+    cursor: pointer;
+  }
+}

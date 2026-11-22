@@ -1,3 +1,4 @@
+import Button from "@/components/Button";
 import FeaturedProduct from "@/components/FeaturedProduct";
 import FeaturedProductsSkeleton from "@/components/FeaturedProductSkeleton";
 import Image from "next/image";
@@ -19,9 +20,9 @@ export default function Home() {
             Tempore repellat explicabo enim soluta temporibus asperiores <br />
             aut obcaecati perferendis porro nobis.
           </p>
-          <button className="hover:cursor-pointer rounded-2xl bg-primary p-4 font-bold text-on-primary">
+          <Button className="hover:cursor-pointer rounded-2xl bg-primary p-4 font-bold text-on-primary">
             OUR PRODUCT
-          </button>
+          </Button>
         </div>
         <div className="flex w-1/2 gap-3 rounded-3xl bg-primary-dark">
           <Image

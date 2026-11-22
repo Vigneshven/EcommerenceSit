@@ -5,11 +5,7 @@ import { CreateOrder, Order } from "@/type/Order";
 import { Product } from "@/type/Product";
 import { RegisterUser, RegisterResponse } from "@/type/RegisterUser";
 import useAuthStore from "@/zustandStore/authStore";
-
-// const baseUrl =
-//   process.env.NEXT_PUBLIC_API_URL ||
-//   process.env.NEXT_BASE_URL ||
-//   "http://localhost:4000";
+import { CheckoutResponse } from "./types/types";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -313,7 +309,7 @@ export async function createPayoutCheckout(
   name: string,
   address: string,
   isGuest: boolean,
-) {
+): Promise<CheckoutResponse> {
   const url = isGuest
     ? `${baseUrl}/api/payment/guest/checkout`
     : `${baseUrl}/api/payment/checkout`;
@@ -341,5 +337,11 @@ export async function createPayoutCheckout(
     throw new Error("Unable to create checkout session");
   }
 
-  return data;
+  const checkout = data.data;
+
+  if (!checkout?.clientSecret) {
+    throw new Error("Stripe client secret is missing");
+  }
+
+  return checkout;
 }

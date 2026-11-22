@@ -5,7 +5,7 @@ import {
   updatePaymentFailed,
   updateStripeSession,
 } from "../models/paymentModel";
-import { PaymentOrderProduct, PaymentOwner } from "../type/payment";
+import type { PaymentOrderProduct, PaymentOwner } from "../type/payment";
 
 export async function createCheckout(
   owner: PaymentOwner,
@@ -62,6 +62,7 @@ export async function createCheckout(
   });
   try {
     const session = await stripe.checkout.sessions.create({
+      ui_mode: "elements",
       mode: "payment",
       line_items: [
         ...products.map((item) => ({
@@ -107,19 +108,18 @@ export async function createCheckout(
       metadata: {
         orderId: String(order.order_id),
       },
-      success_url: `${process.env.FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/payment/cancel`,
+      return_url: `${process.env.FRONTEND_URL}/order`,
     });
 
-    if (!session.url) {
-      throw new Error("Stripe checkout url not found");
+    if (!session.client_secret) {
+      throw new Error("Stripe client secret not found");
     }
 
     await updateStripeSession(order.order_id, session.id);
 
     return {
       orderId: order.order_id,
-      checkoutUrl: session.url,
+      clientSecret: session.client_secret,
       sessionId: session.id,
       subtotal: subtotal,
       tax: tax,

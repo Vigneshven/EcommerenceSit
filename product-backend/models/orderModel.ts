@@ -7,14 +7,14 @@ export type OrderProduct = {
   price: string | number;
   color: string;
 };
+
 export async function getOrdersByUser(userId: number) {
   return await prisma.orders.findMany({
     where: {
       user_id: userId,
-      payment_status: "paid",
     },
     orderBy: {
-      date_time: "asc",
+      date_time: "desc",
     },
   });
 }
@@ -24,10 +24,9 @@ export async function getGuestOrder(guestId: string) {
     where: {
       guest_id: guestId,
       user_id: null,
-      payment_status: "paid",
     },
     orderBy: {
-      date_time: "asc",
+      date_time: "desc",
     },
   });
 }

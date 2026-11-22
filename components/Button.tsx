@@ -15,6 +15,7 @@ function Button({
   varient = "primary",
   onClick,
   className = "",
+  disabled = false,
 }: ButtonProps) {
   const baseStyles =
     "basis-[calc(25%-12px)] flex flex-col justify-center items-center rounded-2xl cursor-pointer p-4 transition-colors duration-200";
@@ -28,6 +29,7 @@ function Button({
     <button
       type={type}
       onClick={onClick}
+      disabled={disabled}
       className={`${baseStyles} ${variants[varient]} ${className}`}
     >
       {children}
