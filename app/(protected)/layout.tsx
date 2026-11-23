@@ -1,8 +1,8 @@
-import Header from "../../components/Header";
-import Account from "../../components/Account";
 import { Auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import Account from "@/components/Account";
+import Header from "@/components/Header";
 
 export default async function ProtectedLayout({
   children,

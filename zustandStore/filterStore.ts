@@ -1,5 +1,5 @@
+import { Inputs } from "@/components/ProductFilterForm";
 import { create } from "zustand";
-import type { Inputs } from "../components/ProductFilterForm";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 type FilterState = Inputs & {

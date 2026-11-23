@@ -1,19 +1,14 @@
 "use client";
 
-import {
-  createPayoutCheckout,
-  getCart,
-  getOrders,
-  getPendingCheckouts,
-  PendingCheckout,
-} from "@/api/api";
+import { createPayoutCheckout, getCart, getOrders } from "@/api/api";
 import Button from "@/components/Button";
 import StripePaymentForm from "@/components/checkout/StripePaymentForm";
 import OrderSummary from "@/components/OrderSummary";
 import { cart } from "@/type/Cart";
 import useAuthStore from "@/zustandStore/authStore";
-import usePaymentStore from "@/zustandStore/PaymentStore";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Check, CheckCircle2, LoaderCircle, ShoppingBag } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -40,19 +35,9 @@ function Checkout() {
   const [placeOrder, setPlaceOrder] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentEmail, setPaymentEmail] = useState("");
-  const [pendingCheckouts, setPendingCheckouts] = useState<PendingCheckout[]>(
-    [],
-  );
-
-  const {
-    pendingSessionId,
-    paymentSubmitted,
-    paymentConfirmed,
-    setPendingPayment,
-    confirmPayment,
-    clearPayment,
-    markPaymentSubmitted,
-  } = usePaymentStore();
+  const [pendingSessionId, setPendingSessionId] = useState<string | null>(null);
+  const [paymentSubmitted, setPaymentSubmitted] = useState(false);
+  const [paymentConfirmed, setPaymentConfirmed] = useState(false);
 
   const {
     register,
@@ -92,9 +77,8 @@ function Checkout() {
         );
 
         if (currentOrder?.payment?.status?.toLowerCase() === "paid") {
-          confirmPayment();
+          setPaymentConfirmed(true);
           toast.success("Payment confirmed successfully!");
-          router.replace("/order");
         }
       } catch (error) {
         console.log(error);
@@ -112,14 +96,7 @@ function Checkout() {
       active = false;
       clearInterval(interval);
     };
-  }, [
-    paymentSubmitted,
-    pendingSessionId,
-    user?.id,
-    isGuest,
-    confirmPayment,
-    router,
-  ]);
+  }, [paymentSubmitted, pendingSessionId, user?.id, isGuest, router]);
 
   const loadCart = useCallback(async () => {
     if (!hasHydrated) return;
@@ -144,24 +121,10 @@ function Checkout() {
   }, [user, hasHydrated, isGuest]);
 
   useEffect(() => {
-    if (paymentConfirmed && cart.length > 0) {
-      clearPayment();
-    }
-  }, [paymentConfirmed, cart.length, clearPayment]);
-
-  useEffect(() => {
     if (!hasHydrated) return;
 
     loadCart();
   }, [loadCart, hasHydrated]);
-
-  useEffect(() => {
-    if (!hasHydrated || (!user?.id && !isGuest)) return;
-
-    void getPendingCheckouts(isGuest)
-      .then(setPendingCheckouts)
-      .catch((error) => console.log(error));
-  }, [hasHydrated, isGuest, user?.id]);
 
   const handlePlaceOrder = async (data: ShippingForm) => {
     if (cart.length === 0) {
@@ -178,11 +141,7 @@ function Checkout() {
       if (!response.clientSecret) {
         throw new Error("Stripe client secret was not returned");
       }
-      setPendingPayment(response.sessionId, {
-        firstName: data.firstName,
-        email: data.email,
-        address: data.address,
-      });
+      setPendingSessionId(response.sessionId);
       setPaymentEmail(data.email.trim());
       setClientSecret(response.clientSecret);
       toast.success("Payment form is ready");
@@ -228,6 +187,7 @@ function Checkout() {
   return (
     <main className="mx-auto max-w-6xl px-4 py-10">
       <h1 className="mb-8 text-3xl font-bold">Place Order</h1>
+
       {cart.length === 0 ? (
         <div className="rounded-2xl bg-primary-light p-8">
           <p className="mb-4">Your Cart is Empty</p>
@@ -235,12 +195,13 @@ function Checkout() {
       ) : (
         <div className="grid gap-10 lg:grid-cols-[1fr_22rem]">
           <section className="flex flex-col gap-8">
-            {!clientSecret && !paymentConfirmed && (
+            {!clientSecret && !paymentConfirmed && !paymentSubmitted && (
               <form
                 onSubmit={handleSubmit(handlePlaceOrder)}
                 className="flex flex-col gap-8"
               >
                 <h2 className="text-2xl font-bold">Shipping Information</h2>
+
                 <div className="flex flex-col gap-2">
                   <label>First Name</label>
                   <input
@@ -252,6 +213,7 @@ function Checkout() {
                     <p className="text-red-500">{errors.firstName.message}</p>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
                   <label>Email Address</label>
                   <input
@@ -263,6 +225,7 @@ function Checkout() {
                     <p className="text-red-500">{errors.email.message}</p>
                   )}
                 </div>
+
                 <div className="flex flex-col gap-2">
                   <label>Address</label>
                   <input
@@ -274,6 +237,7 @@ function Checkout() {
                     <p className="text-red-500">{errors.address.message}</p>
                   )}
                 </div>
+
                 <Button
                   type="submit"
                   disabled={placeOrder}
@@ -283,47 +247,24 @@ function Checkout() {
                 </Button>
               </form>
             )}
-            {pendingCheckouts.length > 0 && (
-              <section className="rounded-2xl border border-yellow-300 bg-yellow-50 p-5">
-                <h2 className="text-xl font-bold text-yellow-900">
-                  Pending Payments
-                </h2>
-                <div className="mt-4 space-y-3">
-                  {pendingCheckouts.map((checkout) => (
-                    <div
-                      key={checkout.sessionId}
-                      className="rounded-xl border border-yellow-200 bg-white p-4 text-sm"
-                    >
-                      <div className="flex items-center justify-between gap-3">
-                        <p className="font-semibold">Payment Pending</p>
-                        <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold uppercase text-yellow-800">
-                          {checkout.status}
-                        </span>
-                      </div>
-                      <p className="mt-2">Name: {checkout.name}</p>
-                      <p>Total: ₹{checkout.cost}</p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </section>
-          <aside className="flex flex-col gap-6">
-            <OrderSummary cart={cart} loading={loading} />
             {clientSecret && !paymentSubmitted && (
               <section className="space-y-5">
                 <h2 className="text-2xl font-bold">Payment Information</h2>
+
                 <StripePaymentForm
                   clientSecret={clientSecret}
                   email={paymentEmail}
-                  onPaymentSubmitted={markPaymentSubmitted}
+                  onPaymentSubmitted={() => setPaymentSubmitted(true)}
                 />
+
                 <Button
                   type="button"
                   onClick={() => {
                     setClientSecret(null);
                     setPaymentEmail("");
-                    clearPayment();
+                    setPendingSessionId(null);
+                    setPaymentSubmitted(false);
+                    setPaymentConfirmed(false);
                   }}
                   className="text-sm underline"
                 >
@@ -332,31 +273,71 @@ function Checkout() {
               </section>
             )}
             {paymentSubmitted && !paymentConfirmed && (
-              <div className="rounded-xl border border-yellow-300 bg-yellow-50 p-6 text-center">
-                <div className="flex items-center gap-3">
-                  <span className="h-3 w-3 rounded-full bg-yellow-500" />
-                  <h2 className="font-semibold text-yellow-800">
-                    Payment Pending
-                  </h2>
+              <div className="flex min-h-105 flex-col items-center justify-center rounded-2xl border border-gray-200 bg-white px-6 py-12 text-center shadow-sm">
+                <div className="relative mb-8 flex h-24 w-24 items-center justify-center">
+                  <div className="absolute inset-0 animate-ping rounded-full bg-yellow-100 opacity-60" />
+                  <div className="absolute inset-2 animate-pulse rounded-full bg-yellow-100" />
+                  <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-yellow-50">
+                    <LoaderCircle className="h-9 w-9 animate-spin text-yellow-500" />
+                  </div>
                 </div>
-                <p className="mt-3 text-sm text-yellow-800">
-                  Your payment is being processed. Please wait.
+                <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+                  Processing Your Payment
+                </h2>
+
+                <p className="mt-3 max-w-sm text-sm leading-6 text-gray-500">
+                  Please wait while we securely verify your payment. This may
+                  take a few moments.
                 </p>
-                <p className="text-sm text-yellow-800">
-                  Your order will appear after Stripe confirms payment.
+                <div className="mt-8 h-1.5 w-full max-w-xs overflow-hidden rounded-full bg-gray-100">
+                  <div className="h-full w-1/3 animate-[progress_2s_ease-in-out_infinite] rounded-full bg-yellow-500" />
+                </div>
+                <div className="mt-5 flex items-center gap-2 text-sm font-medium text-yellow-600">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-yellow-500" />
+                  Verifying payment with Stripe...
+                </div>
+
+                <p className="mt-3 text-xs text-gray-400">
+                  Please don`t close or refresh this checkout page.
                 </p>
               </div>
             )}
             {paymentConfirmed && (
-              <div className="rounded-xl border border-green-300 bg-green-50 p-6 text-center">
-                <h3 className="font-semibold text-green-800">
-                  Payment Confirmed
-                </h3>
-                <p className="mt-3 text-sm text-green-800">
-                  Your payment has been confirmed successfully.
+              <div className="flex min-h-105 flex-col items-center justify-center rounded-2xl border border-green-200 bg-white px-6 py-12 text-center shadow-sm">
+                <div className="relative mb-8 flex h-28 w-28 items-center justify-center">
+                  <div className="absolute inset-0 animate-ping rounded-full bg-green-100 opacity-50" />
+                  <div className="absolute inset-3 rounded-full bg-green-100 animate-pulse" />
+                  <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-green-500 shadow-lg shadow-green-200">
+                    <Check
+                      className="h-12 w-12 animate-[checkPop_0.5s_ease-out_forwards] text-white"
+                      strokeWidth={4}
+                    />
+                  </div>
+                </div>
+                <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+                  Order Confirmed!
+                </h2>
+
+                <p className="mt-3 max-w-sm text-sm leading-6 text-gray-500">
+                  Your payment was successful and your order has been confirmed.
+                  Thank you for shopping with us!
                 </p>
+                <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-green-50 px-4 py-2 text-sm font-semibold text-green-700">
+                  <CheckCircle2 size={16} />
+                  Payment Successful
+                </div>
+                <Link
+                  href="/product"
+                  className="mt-8 inline-flex items-center gap-2 rounded-lg bg-black px-7 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-gray-800"
+                >
+                  <ShoppingBag size={18} />
+                  Continue Shopping
+                </Link>
               </div>
             )}
+          </section>
+          <aside>
+            <OrderSummary cart={cart} loading={loading} />
           </aside>
         </div>
       )}

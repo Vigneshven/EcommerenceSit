@@ -1,21 +1,20 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonProps = {
-  children: ReactNode;
-  type?: ButtonHTMLAttributes<HTMLButtonElement>["type"];
+type ButtonProps = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "className"
+> & {
+  children?: ReactNode;
   varient?: "primary" | "reset";
-  onClick?: ButtonHTMLAttributes<HTMLButtonElement>["onClick"];
   className?: string;
-  disabled?: boolean;
 };
 
 function Button({
   children,
-  type = "button",
+  type: buttonType = "button",
   varient = "primary",
-  onClick,
   className = "",
-  disabled = false,
+  ...props
 }: ButtonProps) {
   const baseStyles =
     "basis-[calc(25%-12px)] flex flex-col justify-center items-center rounded-2xl cursor-pointer p-4 transition-colors duration-200";
@@ -27,9 +26,8 @@ function Button({
 
   return (
     <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
+      {...props}
+      type={buttonType}
       className={`${baseStyles} ${variants[varient]} ${className}`}
     >
       {children}

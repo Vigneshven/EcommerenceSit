@@ -1,3 +1,4 @@
+
 import Button from "@/components/Button";
 import FeaturedProduct from "@/components/FeaturedProduct";
 import FeaturedProductsSkeleton from "@/components/FeaturedProductSkeleton";

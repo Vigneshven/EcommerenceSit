@@ -1,6 +1,8 @@
 "use client";
 
 import { getOrders } from "@/api/api";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
 import type { Order } from "@/type/Order";
 import useAuthStore from "@/zustandStore/authStore";
 import { useEffect, useState } from "react";
@@ -60,6 +62,7 @@ function Order() {
   const user = useAuthStore((state) => state.currentUser);
   const isGuest = useAuthStore((state) => state.isGuest);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     if (!hasHydrated) return;
@@ -67,7 +70,7 @@ function Order() {
     const fetchOrders = async () => {
       try {
         const data = await getOrders(
-          user?.id ?? undefined ,
+          user?.id ?? undefined,
           !user?.id && isGuest,
         );
         setOrders(Array.isArray(data) ? data : []);
@@ -127,8 +130,9 @@ function Order() {
               <tbody>
                 {orders.map((order) => (
                   <tr
-                    className="border-t border-border text-center"
                     key={order.id}
+                    onClick={() => setSelectedOrder(order)}
+                    className="cursor-pointer transition-colors hover:bg-muted/50"
                   >
                     <td className="wrap-break-word p-2 border-r border-border">
                       {order.id}
@@ -185,6 +189,145 @@ function Order() {
                 ))}
               </tbody>
             </table>
+            <Dialog
+              open={!!selectedOrder}
+              onOpenChange={(open) => {
+                if (!open) setSelectedOrder(null);
+              }}
+            >
+              <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle className="text-xl">Order Details</DialogTitle>
+                  <DialogDescription>
+                    Complete information about this order.
+                  </DialogDescription>
+                </DialogHeader>
+
+                {selectedOrder && (
+                  <div className="space-y-6">
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-muted/50 p-4">
+                      <div>
+                        <p className="text-xs text-muted-foreground">
+                          Order ID
+                        </p>
+                        <p className="font-semibold">#{selectedOrder.id}</p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                          {selectedOrder.payment.status}
+                        </span>
+
+                        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                          {selectedOrder.orderStatus}
+                        </span>
+                      </div>
+                    </div>
+                    <section className="space-y-3">
+                      <h3 className="font-semibold">Customer Information</h3>
+
+                      <div className="grid gap-4 rounded-xl border p-4 sm:grid-cols-2">
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Customer Name
+                          </p>
+                          <p className="text-sm font-medium">
+                            {selectedOrder.name}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Shipping Address
+                          </p>
+                          <p className="text-sm font-medium">
+                            {selectedOrder.address}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Order Date
+                          </p>
+                          <p className="text-sm font-medium">
+                            {new Date(selectedOrder.dateTime).toLocaleString(
+                              "en-IN",
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </section>
+                    <section className="space-y-3">
+                      <h3 className="font-semibold">Ordered Products</h3>
+
+                      <div className="space-y-3">
+                        {selectedOrder.product.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center justify-between gap-4 rounded-xl border p-4"
+                          >
+                            <div>
+                              <p className="font-medium">{item.name}</p>
+
+                              <p className="mt-1 text-xs text-muted-foreground">
+                                Quantity: {item.amount}
+                              </p>
+
+                              <p className="text-xs text-muted-foreground">
+                                Color: {item.color}
+                              </p>
+                            </div>
+
+                            <p className="font-semibold">
+                              ₹{Number(item.price)}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                    <section className="space-y-3">
+                      <h3 className="font-semibold">Payment Information</h3>
+
+                      <div className="grid gap-4 rounded-xl border p-4 sm:grid-cols-2">
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Payment Status
+                          </p>
+                          <p className="text-sm font-medium capitalize">
+                            {selectedOrder.payment.status}
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="text-xs text-muted-foreground">
+                            Payment Gateway
+                          </p>
+                          <p className="text-sm font-medium">
+                            {selectedOrder.payment.provider}
+                          </p>
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <p className="text-xs text-muted-foreground">
+                            Transaction ID
+                          </p>
+                          <p className="break-all text-sm font-medium">
+                            {selectedOrder.payment.transactionId}
+                          </p>
+                        </div>
+                      </div>
+                    </section>
+                    <div className="flex items-center justify-between rounded-xl bg-muted/50 p-4">
+                      <span className="font-semibold">Total Amount</span>
+
+                      <span className="text-xl font-bold">
+                        ₹{Number(selectedOrder.cost)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </main>

@@ -8,9 +8,9 @@ import { useEffect, useState } from "react";
 import type { CartItem } from "@/zustandStore/ShopStore";
 import { deleteCartItem, getCart, updateCartItem } from "@/api/api";
 import { toast } from "sonner";
-import OrderSummary from "@/components/OrderSummary";
 import Skeleton from "react-loading-skeleton";
 import useShopStore from "@/zustandStore/ShopStore";
+import OrderSummary from "@/components/OrderSummary";
 
 export default function Cart() {
   const router = useRouter();

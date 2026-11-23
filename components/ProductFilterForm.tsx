@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import z from "zod";
-import Button from "./Button";
 import useFilterStore from "@/zustandStore/filterStore";
 import {
   getDefaultFilters,
@@ -15,6 +14,7 @@ import {
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { formatPrice } from "@/lib/utils/price";
 import { useThrottle } from "@/lib/utils/throttle";
+import Button from "./Button";
 
 export type Inputs = {
   search: string;

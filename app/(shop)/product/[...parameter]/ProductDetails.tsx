@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import ColorSelector from "@/components/ColorSelector";
 import { toast } from "sonner";
 import type { Product } from "@/type/Product";
 import useShopStore from "@/zustandStore/ShopStore";
 import Image from "next/image";
 import { addToCart as addCartItem } from "@/api/api";
 import useAuthStore from "@/zustandStore/authStore";
+import ColorSelector from "@/components/ColorSelector";
 
 type Props = {
   product: Product;
