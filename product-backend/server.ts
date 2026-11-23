@@ -10,9 +10,9 @@ import orderRoutes from "./routes/orderRoutes";
 import guestCartRoutes from "./routes/guestCartRoutes";
 import guestOrderRoutes from "./routes/guestOrderRoutes";
 import guestSessionRoutes from "./routes/guestSessionRoutes";
-import { generalApiLimiter } from "./middleware/rateLimit";
 import paymentRoutes from "./routes/paymentRoutes";
 import { stripeWebHook } from "./controllers/stripeWebHookController";
+import { apiLimiter } from "./middleware/rateLimit";
 
 dotenv.config();
 
@@ -36,7 +36,7 @@ app.use(
 );
 app.use(express.json());
 app.use("/api/payment", paymentRoutes);
-app.use("/", generalApiLimiter);
+app.use("/", apiLimiter);
 
 const root = express.Router();
 app.use("/api", root);

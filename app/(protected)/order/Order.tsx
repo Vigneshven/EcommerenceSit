@@ -66,7 +66,10 @@ function Order() {
 
     const fetchOrders = async () => {
       try {
-        const data = await getOrders(user?.id ?? null, !user?.id && isGuest);
+        const data = await getOrders(
+          user?.id ?? undefined ,
+          !user?.id && isGuest,
+        );
         setOrders(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error(error);
@@ -104,57 +107,78 @@ function Order() {
         {orders.length === 0 ? (
           <p className="mt-4">Place Order</p>
         ) : (
-          <div className="mt-4 overflow-x-auto rounded-xl border border-border">
-            <table className="w-full min-w-304 text-left">
-              <thead className="bg-primary-light text-sm">
+          <div className="mt-4 max-h-150 w-full overflow-y-auto overflow-x-hidden rounded-xl border border-border">
+            <table className="w-full table-fixed text-left text-xs">
+              <thead className="sticky top-0 z-10 bg-primary-light text-sm">
                 <tr className="text-center">
-                  <th className="p-3">Order ID</th>
-                  <th className="p-3">Name</th>
-                  <th className="p-3">Address</th>
-                  <th className="p-3">Products</th>
-                  <th className="p-3">Total</th>
-                  <th className="p-3">Payment Status</th>
-                  <th className="p-3">Order Status</th>
-                  <th className="p-3">Provider</th>
-                  <th className="p-3">Stripe Session ID</th>
-                  <th className="p-3">Stripe Payment ID</th>
-                  <th className="p-3">Date and Time</th>
+                  <th className="w-[6%] p-2">Order ID</th>
+                  <th className="w-[8%] p-2">Name</th>
+                  <th className="w-[12%] p-2">Address</th>
+                  <th className="w-[23%] p-2">Products</th>
+                  <th className="w-[7%] p-2">Total</th>
+                  <th className="w-[9%] p-2">Payment Status</th>
+                  <th className="w-[9%] p-2">Order Status</th>
+                  <th className="w-[8%] p-2">Payment Gateway</th>
+                  <th className="w-[10%] p-2">Stripe Payment ID</th>
+                  <th className="w-[8%] p-2">Date and Time</th>
                 </tr>
               </thead>
+
               <tbody>
                 {orders.map((order) => (
-                  <tr className="border-t text-center" key={order.id}>
-                    <td className="p-3">{order.id}</td>
-                    <td className="p-3">{order.name}</td>
-                    <td className="p-3">{order.address}</td>
-                    <td className="p-3">
+                  <tr
+                    className="border-t border-border text-center"
+                    key={order.id}
+                  >
+                    <td className="wrap-break-word p-2 border-r border-border">
+                      {order.id}
+                    </td>
+
+                    <td className="wrap-break-word p-2 border-r border-border">
+                      {order.name}
+                    </td>
+
+                    <td className="wrap-break-word whitespace-normal p-2 border-r border-border">
+                      {order.address}
+                    </td>
+
+                    <td className="wrap-break-word p-2 border-r border-border">
                       <div className="flex flex-col gap-2">
                         {order.product.map((item, index) => (
                           <div
                             key={`${item.id}-${index}`}
-                            className="flex items-center gap-4 rounded-lg p-2"
+                            className="flex flex-col gap-1 rounded-lg border border-border p-2"
                           >
                             <p className="font-semibold">{item.name}</p>
                             <p>Quantity: {item.amount}</p>
                             <p>Color: {item.color}</p>
-                            <p>Price: ${Number(item.price)}</p>
+                            <p>Price: ₹{Number(item.price)}</p>
                           </div>
                         ))}
                       </div>
                     </td>
-                    <td className="p-3">{order.cost}</td>
-                    <td className="p-3">
+
+                    <td className="wrap-break-word p-2 border-r border-border">
+                      ₹{order.cost}
+                    </td>
+
+                    <td className="wrap-break-word p-2 border-r border-border">
                       <StatusBadge status={order.payment.status} />
                     </td>
-                    <td className="p-3">
+
+                    <td className="wrap-break-word p-2 border-r border-border">
                       <StatusBadge status={order.orderStatus} />
                     </td>
-                    <td className="p-3">{order.payment.provider ?? "—"}</td>
-                    <td className="p-3">{order.payment.sessionId ?? "-"}</td>
-                    <td className="p-3">
+
+                    <td className="wrap-break-word p-2 border-r border-border">
+                      {order.payment.provider ?? "—"}
+                    </td>
+
+                    <td className="wrap-break-word p-2 text-[10px] border-r border-border">
                       {order.payment.transactionId ?? "-"}
                     </td>
-                    <td className="whitespace-nowrap p-3">
+
+                    <td className="wrap-break-word p-2">
                       {formatDateTime(order.dateTime)}
                     </td>
                   </tr>

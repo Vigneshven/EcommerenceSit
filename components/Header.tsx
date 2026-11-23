@@ -63,10 +63,7 @@ function Header() {
         ? dbCart
         : emptyCart;
 
-  const cartAmount = cartForCount.reduce(
-    (total, item) => total + Number(item.amount || 0),
-    0,
-  );
+  const cartAmount = cartForCount.length;
 
   return (
     <header className="w-full bg-header-background text-header-text">
@@ -74,7 +71,7 @@ function Header() {
         <div className="w-11 rounded-2xl bg-primary p-2 text-center text-2xl font-bold text-on-primary">
           <p>V</p>
         </div>
-        <div>
+        <div className="flex flex-1 justify-center">
           <NavBar />
         </div>
         <div className="flex gap-6">

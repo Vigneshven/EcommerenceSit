@@ -269,7 +269,7 @@ export async function createOrder(data: CreateOrder, isGuest = false) {
 }
 
 export async function getOrders(
-  userId: number | null,
+  userId: number | undefined,
   isGuest: boolean,
 ): Promise<Order[]> {
   const useGuestRoute = isGuest;
@@ -344,4 +344,38 @@ export async function createPayoutCheckout(
   }
 
   return checkout;
+}
+
+export type PendingCheckout = {
+  sessionId: string;
+  name: string;
+  address: string;
+  product: {
+    id: number;
+    name: string;
+    amount: number;
+    price: number;
+    color: string;
+  }[];
+  cost: number;
+  status: string;
+  createdAt: string;
+};
+
+export async function getPendingCheckouts(
+  isGuest: boolean,
+): Promise<PendingCheckout[]> {
+  const url = isGuest
+    ? `${baseUrl}/api/payment/guest/pending`
+    : `${baseUrl}/api/payment/pending`;
+  const res = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+    cache: "no-store",
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch pending checkouts");
+
+  const result = await res.json();
+  return Array.isArray(result?.data) ? result.data : [];
 }

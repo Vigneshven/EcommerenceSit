@@ -1,10 +1,9 @@
 import { stripe } from "../lib/stripe";
 import {
-  createPendingPaymentOrder,
+  createCheckoutSession,
   getPaymentCart,
-  updatePaymentFailed,
-  updateStripeSession,
 } from "../models/paymentModel";
+import { getPendingCheckoutSessions as getPendingCheckoutSessionRows } from "../models/paymentModel";
 import type { PaymentOrderProduct, PaymentOwner } from "../type/payment";
 
 export async function createCheckout(
@@ -53,15 +52,7 @@ export async function createCheckout(
 
   const orderCost = String(total / 100);
 
-  const order = await createPendingPaymentOrder({
-    owner,
-    name: details.name,
-    address: details.address,
-    products,
-    cost: orderCost,
-  });
-  try {
-    const session = await stripe.checkout.sessions.create({
+  const session = await stripe.checkout.sessions.create({
       ui_mode: "elements",
       mode: "payment",
       line_items: [
@@ -105,9 +96,6 @@ export async function createCheckout(
             ]
           : []),
       ],
-      metadata: {
-        orderId: String(order.order_id),
-      },
       return_url: `${process.env.FRONTEND_URL}/order`,
     });
 
@@ -115,10 +103,16 @@ export async function createCheckout(
       throw new Error("Stripe client secret not found");
     }
 
-    await updateStripeSession(order.order_id, session.id);
+    await createCheckoutSession({
+      owner,
+      name: details.name,
+      address: details.address,
+      products,
+      cost: orderCost,
+      stripeSessionId: session.id,
+    });
 
     return {
-      orderId: order.order_id,
       clientSecret: session.client_secret,
       sessionId: session.id,
       subtotal: subtotal,
@@ -126,8 +120,8 @@ export async function createCheckout(
       shipping: shipping,
       total: total,
     };
-  } catch (error) {
-    await updatePaymentFailed(order.order_id);
-    throw error;
-  }
+}
+
+export async function getPendingCheckoutSessions(owner: PaymentOwner) {
+  return getPendingCheckoutSessionRows(owner);
 }

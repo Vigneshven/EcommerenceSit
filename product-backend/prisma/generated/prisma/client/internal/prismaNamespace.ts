@@ -398,6 +398,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   cart_items: 'cart_items',
+  checkout_sessions: 'checkout_sessions',
   guest_sessions: 'guest_sessions',
   orders: 'orders',
   products: 'products',
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "cart_items" | "guest_sessions" | "orders" | "products" | "users"
+    modelProps: "cart_items" | "checkout_sessions" | "guest_sessions" | "orders" | "products" | "users"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -484,6 +485,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.cart_itemsCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.Cart_itemsCountAggregateOutputType> | number
+        }
+      }
+    }
+    checkout_sessions: {
+      payload: Prisma.$checkout_sessionsPayload<ExtArgs>
+      fields: Prisma.checkout_sessionsFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.checkout_sessionsFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$checkout_sessionsPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.checkout_sessionsFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$checkout_sessionsPayload>
+        }
+        findFirst: {
+          args: Prisma.checkout_sessionsFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$checkout_sessionsPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.checkout_sessionsFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$checkout_sessionsPayload>
+        }
+        findMany: {
+          args: Prisma.checkout_sessionsFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$checkout_sessionsPayload>[]
+        }
+        create: {
+          args: Prisma.checkout_sessionsCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$checkout_sessionsPayload>
+        }
+        createMany: {
+          args: Prisma.checkout_sessionsCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.checkout_sessionsDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$checkout_sessionsPayload>
+        }
+        update: {
+          args: Prisma.checkout_sessionsUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$checkout_sessionsPayload>
+        }
+        deleteMany: {
+          args: Prisma.checkout_sessionsDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.checkout_sessionsUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.checkout_sessionsUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$checkout_sessionsPayload>
+        }
+        aggregate: {
+          args: Prisma.Checkout_sessionsAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCheckout_sessions>
+        }
+        groupBy: {
+          args: Prisma.checkout_sessionsGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Checkout_sessionsGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.checkout_sessionsCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.Checkout_sessionsCountAggregateOutputType> | number
         }
       }
     }
@@ -804,6 +871,23 @@ export const Cart_itemsScalarFieldEnum = {
 export type Cart_itemsScalarFieldEnum = (typeof Cart_itemsScalarFieldEnum)[keyof typeof Cart_itemsScalarFieldEnum]
 
 
+export const Checkout_sessionsScalarFieldEnum = {
+  checkout_session_id: 'checkout_session_id',
+  stripe_session_id: 'stripe_session_id',
+  name: 'name',
+  address: 'address',
+  product: 'product',
+  cost: 'cost',
+  user_id: 'user_id',
+  guest_id: 'guest_id',
+  status: 'status',
+  completed_at: 'completed_at',
+  created_at: 'created_at'
+} as const
+
+export type Checkout_sessionsScalarFieldEnum = (typeof Checkout_sessionsScalarFieldEnum)[keyof typeof Checkout_sessionsScalarFieldEnum]
+
+
 export const Guest_sessionsScalarFieldEnum = {
   guest_id: 'guest_id',
   token_hash: 'token_hash',
@@ -893,15 +977,6 @@ export const cart_itemsOrderByRelevanceFieldEnum = {
 export type cart_itemsOrderByRelevanceFieldEnum = (typeof cart_itemsOrderByRelevanceFieldEnum)[keyof typeof cart_itemsOrderByRelevanceFieldEnum]
 
 
-export const guest_sessionsOrderByRelevanceFieldEnum = {
-  guest_id: 'guest_id',
-  token_hash: 'token_hash',
-  csrf_token: 'csrf_token'
-} as const
-
-export type guest_sessionsOrderByRelevanceFieldEnum = (typeof guest_sessionsOrderByRelevanceFieldEnum)[keyof typeof guest_sessionsOrderByRelevanceFieldEnum]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -917,6 +992,26 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const checkout_sessionsOrderByRelevanceFieldEnum = {
+  stripe_session_id: 'stripe_session_id',
+  name: 'name',
+  address: 'address',
+  guest_id: 'guest_id',
+  status: 'status'
+} as const
+
+export type checkout_sessionsOrderByRelevanceFieldEnum = (typeof checkout_sessionsOrderByRelevanceFieldEnum)[keyof typeof checkout_sessionsOrderByRelevanceFieldEnum]
+
+
+export const guest_sessionsOrderByRelevanceFieldEnum = {
+  guest_id: 'guest_id',
+  token_hash: 'token_hash',
+  csrf_token: 'csrf_token'
+} as const
+
+export type guest_sessionsOrderByRelevanceFieldEnum = (typeof guest_sessionsOrderByRelevanceFieldEnum)[keyof typeof guest_sessionsOrderByRelevanceFieldEnum]
 
 
 export const ordersOrderByRelevanceFieldEnum = {
@@ -1165,6 +1260,7 @@ export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions 
 export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   cart_items?: Prisma.cart_itemsOmit
+  checkout_sessions?: Prisma.checkout_sessionsOmit
   guest_sessions?: Prisma.guest_sessionsOmit
   orders?: Prisma.ordersOmit
   products?: Prisma.productsOmit

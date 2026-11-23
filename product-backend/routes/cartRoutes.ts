@@ -6,13 +6,12 @@ import {
   updateCart,
 } from "../controllers/cartController";
 import { requireAuth } from "../middleware/requireAuth";
-import { cartLimiter } from "../middleware/rateLimit";
 
 const router = Router();
 
 router.get("/", requireAuth, getCart);
-router.post("/", requireAuth, cartLimiter, addToCart);
-router.put("/:cartItemId", requireAuth, cartLimiter, updateCart);
-router.delete("/:cartItemId", requireAuth, cartLimiter, removeCartItem);
+router.post("/", requireAuth, addToCart);
+router.put("/:cartItemId", requireAuth, updateCart);
+router.delete("/:cartItemId", requireAuth, removeCartItem);
 
 export default router;

@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   cart_items: 'cart_items',
+  checkout_sessions: 'checkout_sessions',
   guest_sessions: 'guest_sessions',
   orders: 'orders',
   products: 'products',
@@ -86,6 +87,23 @@ export const Cart_itemsScalarFieldEnum = {
 } as const
 
 export type Cart_itemsScalarFieldEnum = (typeof Cart_itemsScalarFieldEnum)[keyof typeof Cart_itemsScalarFieldEnum]
+
+
+export const Checkout_sessionsScalarFieldEnum = {
+  checkout_session_id: 'checkout_session_id',
+  stripe_session_id: 'stripe_session_id',
+  name: 'name',
+  address: 'address',
+  product: 'product',
+  cost: 'cost',
+  user_id: 'user_id',
+  guest_id: 'guest_id',
+  status: 'status',
+  completed_at: 'completed_at',
+  created_at: 'created_at'
+} as const
+
+export type Checkout_sessionsScalarFieldEnum = (typeof Checkout_sessionsScalarFieldEnum)[keyof typeof Checkout_sessionsScalarFieldEnum]
 
 
 export const Guest_sessionsScalarFieldEnum = {
@@ -177,15 +195,6 @@ export const cart_itemsOrderByRelevanceFieldEnum = {
 export type cart_itemsOrderByRelevanceFieldEnum = (typeof cart_itemsOrderByRelevanceFieldEnum)[keyof typeof cart_itemsOrderByRelevanceFieldEnum]
 
 
-export const guest_sessionsOrderByRelevanceFieldEnum = {
-  guest_id: 'guest_id',
-  token_hash: 'token_hash',
-  csrf_token: 'csrf_token'
-} as const
-
-export type guest_sessionsOrderByRelevanceFieldEnum = (typeof guest_sessionsOrderByRelevanceFieldEnum)[keyof typeof guest_sessionsOrderByRelevanceFieldEnum]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -201,6 +210,26 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const checkout_sessionsOrderByRelevanceFieldEnum = {
+  stripe_session_id: 'stripe_session_id',
+  name: 'name',
+  address: 'address',
+  guest_id: 'guest_id',
+  status: 'status'
+} as const
+
+export type checkout_sessionsOrderByRelevanceFieldEnum = (typeof checkout_sessionsOrderByRelevanceFieldEnum)[keyof typeof checkout_sessionsOrderByRelevanceFieldEnum]
+
+
+export const guest_sessionsOrderByRelevanceFieldEnum = {
+  guest_id: 'guest_id',
+  token_hash: 'token_hash',
+  csrf_token: 'csrf_token'
+} as const
+
+export type guest_sessionsOrderByRelevanceFieldEnum = (typeof guest_sessionsOrderByRelevanceFieldEnum)[keyof typeof guest_sessionsOrderByRelevanceFieldEnum]
 
 
 export const ordersOrderByRelevanceFieldEnum = {

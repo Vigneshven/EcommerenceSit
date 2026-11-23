@@ -1,5 +1,4 @@
 export type CheckoutResponse = {
-  orderId: number;
   clientSecret: string;
   sessionId: string;
   subtotal: number;

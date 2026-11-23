@@ -6,109 +6,112 @@ export async function getPaymentCart(owner: PaymentOwner) {
     where:
       owner.userId !== null
         ? { user_id: owner.userId }
-        : {
-            user_id: null,
-            guest_id: owner.guestId,
-          },
+        : { user_id: null, guest_id: owner.guestId },
     select: {
       cart_item_id: true,
       product_id: true,
       quantity: true,
       color: true,
       products: {
-        select: {
-          id: true,
-          name: true,
-          price: true,
-          stock_quantity: true,
-        },
+        select: { id: true, name: true, price: true, stock_quantity: true },
       },
     },
   });
 }
 
-export async function createPendingPaymentOrder(data: {
+export async function getPendingCheckoutSessions(owner: PaymentOwner) {
+  return prisma.checkout_sessions.findMany({
+    where: {
+      status: "pending",
+      ...(owner.userId !== null
+        ? { user_id: owner.userId, guest_id: null }
+        : { user_id: null, guest_id: owner.guestId }),
+    },
+    select: {
+      stripe_session_id: true,
+      name: true,
+      address: true,
+      product: true,
+      cost: true,
+      status: true,
+      created_at: true,
+    },
+    orderBy: { created_at: "desc" },
+  });
+}
+
+export async function createCheckoutSession(data: {
   owner: PaymentOwner;
   name: string;
   address: string;
   products: PaymentOrderProduct[];
   cost: string;
+  stripeSessionId: string;
 }) {
-  return prisma.orders.create({
+  return prisma.checkout_sessions.create({
     data: {
+      stripe_session_id: data.stripeSessionId,
       user_id: data.owner.userId,
       guest_id: data.owner.guestId,
       name: data.name,
       address: data.address,
       product: data.products,
       cost: data.cost,
-      order_status: "pending",
-      payment_status: "pending",
     },
   });
 }
 
-export async function updateStripeSession(orderId: number, sessionId: string) {
-  return prisma.orders.update({
-    where: { order_id: orderId },
-    data: { stripe_session_id: sessionId },
-  });
-}
-
-export async function updatePaymentFailed(orderId: number) {
-  return prisma.orders.update({
-    where: { order_id: orderId },
-    data: { payment_status: "failed" },
-  });
-}
-
-export async function getPaymentOrder(orderId: number) {
-  return prisma.orders.findUnique({
-    where: { order_id: orderId },
-    select: {
-      order_id: true,
-      cost: true,
-      product: true,
-      user_id: true,
-      guest_id: true,
-      stripe_session_id: true,
-      stripe_payment_id: true,
-      payment_status: true, 
-    },
+export async function getCheckoutSession(stripeSessionId: string) {
+  return prisma.checkout_sessions.findUnique({
+    where: { stripe_session_id: stripeSessionId },
   });
 }
 
 export async function completePaymentOrder(data: {
-  orderId: number;
+  checkoutSessionId: number;
   sessionId: string;
   paymentId: string | null;
-  cartItemId: number[];
-  userId: number | null;
-  guestId: string | null;
+  owner: PaymentOwner;
+  name: string;
+  address: string;
+  products: PaymentOrderProduct[];
+  cost: string;
 }) {
   return prisma.$transaction(async (tx) => {
-    const update = await tx.orders.updateMany({
+    const checkout = await tx.checkout_sessions.updateMany({
       where: {
-        order_id: data.orderId,
+        checkout_session_id: data.checkoutSessionId,
         stripe_session_id: data.sessionId,
-        payment_status: "pending",
+        completed_at: null,
       },
+      data: { status: "paid", completed_at: new Date() },
+    });
+
+    if (checkout.count === 0) return false;
+
+    await tx.orders.create({
       data: {
-        payment_status: "paid",
+        user_id: data.owner.userId,
+        guest_id: data.owner.guestId,
+        name: data.name,
+        address: data.address,
+        product: data.products,
+        cost: data.cost,
         order_status: "processing",
+        payment_status: "paid",
+        stripe_session_id: data.sessionId,
         stripe_payment_id: data.paymentId,
       },
     });
-    if (update.count === 0) {
-      return false;
-    }
-    if (data.cartItemId.length > 0) {
+
+    const cartItemIds = data.products.map((item) => item.cartItemId);
+    if (cartItemIds.length > 0) {
       await tx.cart_items.deleteMany({
         where: {
-          cart_item_id: { in: data.cartItemId },
-          ...(data.userId !== null
-            ? { user_id: data.userId }
-            : { user_id: null, guest_id: data.guestId }),
+          cart_item_id: { in: cartItemIds },
+          ...(data.owner.userId !== null
+            ? { user_id: data.owner.userId }
+            : { user_id: null, guest_id: data.owner.guestId }),
         },
       });
     }
@@ -117,13 +120,8 @@ export async function completePaymentOrder(data: {
 }
 
 export async function updatePaymentFailedBySession(sessionId: string) {
-  return prisma.orders.updateMany({
-    where: {
-      stripe_session_id: sessionId,
-      payment_status: "pending",
-    },
-    data: {
-      payment_status: "failed",
-    },
+  return prisma.checkout_sessions.updateMany({
+    where: { stripe_session_id: sessionId, completed_at: null },
+    data: { status: "failed" },
   });
 }

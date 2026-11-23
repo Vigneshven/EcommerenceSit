@@ -9,6 +9,7 @@
  * 🟢 You can import this file directly.
  */
 export type * from './models/cart_items.js'
+export type * from './models/checkout_sessions.js'
 export type * from './models/guest_sessions.js'
 export type * from './models/orders.js'
 export type * from './models/products.js'

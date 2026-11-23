@@ -7,6 +7,7 @@ import { PaymentForm } from "./PaymentForm";
 type StripePaymentFormProps = {
   clientSecret: string;
   email: string;
+  onPaymentSubmitted: () => void;
 };
 
 const stripePromise = loadStripe(
@@ -16,6 +17,7 @@ const stripePromise = loadStripe(
 export default function StripePaymentForm({
   clientSecret,
   email,
+  onPaymentSubmitted,
 }: StripePaymentFormProps) {
   return (
     <CheckoutElementsProvider
@@ -29,7 +31,7 @@ export default function StripePaymentForm({
         },
       }}
     >
-      <PaymentForm email={email} />
+      <PaymentForm email={email} onPaymentSubmitted={onPaymentSubmitted} />
     </CheckoutElementsProvider>
   );
 }

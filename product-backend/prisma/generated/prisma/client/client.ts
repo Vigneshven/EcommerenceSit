@@ -45,6 +45,11 @@ export { Prisma }
  */
 export type cart_items = Prisma.cart_itemsModel
 /**
+ * Model checkout_sessions
+ * 
+ */
+export type checkout_sessions = Prisma.checkout_sessionsModel
+/**
  * Model guest_sessions
  * 
  */

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -11,10 +10,10 @@ import Button from "../Button";
 
 type PaymentFormProps = {
   email: string;
+  onPaymentSubmitted: () => void;
 };
 
-export function PaymentForm({ email }: PaymentFormProps) {
-  const router = useRouter();
+export function PaymentForm({ email, onPaymentSubmitted }: PaymentFormProps) {
   const result = useCheckoutElements();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -46,9 +45,8 @@ export function PaymentForm({ email }: PaymentFormProps) {
         return;
       }
 
-      toast.success("Payment successful");
-      router.replace("/order");
-      router.refresh();
+      onPaymentSubmitted();
+      toast.info("Payment submitted.Waiting for confirmation...");
     } catch (error) {
       console.error(error);
       setErrorMessage("Payment could not be completed. Please try again.");

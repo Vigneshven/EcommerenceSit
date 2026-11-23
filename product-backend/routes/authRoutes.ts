@@ -6,15 +6,10 @@ import {
   register,
 } from "../controllers/authController";
 import { requireAuth } from "../middleware/requireAuth";
-import {
-  guestSessionLimiter,
-  loginLimiter,
-  registerLimiter,
-} from "../middleware/rateLimit";
 const router = Router();
 
-router.post("/register", registerLimiter, register);
-router.post("/login", loginLimiter, login);
+router.post("/register", register);
+router.post("/login", login);
 
 router.get("/me", requireAuth, (req, res) => {
   return res.status(200).json({
@@ -24,6 +19,6 @@ router.get("/me", requireAuth, (req, res) => {
 });
 
 router.post("/logout", logout);
-router.post("/guest", guestSessionLimiter, guestMode);
+router.post("/guest", guestMode);
 
 export default router;
