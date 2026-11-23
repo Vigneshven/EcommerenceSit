@@ -67,14 +67,14 @@ function Header() {
 
   return (
     <header className="w-full bg-header-background text-header-text">
-      <div className="w-full max-w-7xl px-6 mx-auto flex h-15 items-center justify-between">
-        <div className="w-11 rounded-2xl bg-primary p-2 text-center text-2xl font-bold text-on-primary">
+      <div className="w-full max-w-7xl px-6 mx-auto flex min-h-15 flex-wrap items-center justify-between gap-y-2 py-2 md:h-15 md:flex-nowrap md:py-0">
+        <div className="w-11 shrink-0 rounded-2xl bg-primary p-2 text-center text-2xl font-bold text-on-primary">
           <p>V</p>
         </div>
-        <div className="flex flex-1 justify-center">
+        <div className="order-last flex w-full justify-center md:order-none md:w-auto md:flex-1">
           <NavBar />
         </div>
-        <div className="flex gap-6">
+        <div className="flex shrink-0 gap-4 md:gap-6">
           <button type="button" onClick={toggleTheme}>
             {mode === "light" ? (
               <Moon className="cursor-pointer" />
